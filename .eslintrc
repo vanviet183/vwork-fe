@@ -1,0 +1,24 @@
+{
+  "extends": ["@nuxtjs/eslint-config-typescript", "prettier"],
+  "ignorePatterns": [
+    ".nuxt",
+    "node_modules",
+    "package.json",
+    "tsconfig.json",
+    "README.md",
+    "/locales/ja.json",
+    "*.svg",
+    "*.css",
+    "*.scss"
+  ],
+  "rules": {
+    "import/order": "off",
+    "no-template-curly-in-string": "off",
+    "vue/valid-v-slot": [
+      "error",
+      {
+        "allowModifiers": true
+      }
+    ]
+  }
+}

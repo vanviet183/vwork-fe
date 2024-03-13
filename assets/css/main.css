@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@use 'sass:map';
+
+@layer base {
+  html {
+    overflow-y: auto !important;
+    --v-body-scroll-x: 12px !important;
+    --v-body-scroll-y: 0px !important;
+  }
+  .v-data-table-rows-no-data {
+    color: #a8a8a8 !important;
+  }
+  ::after,
+  ::before {
+    border-color: #bdbdbd;
+  }
+}
+
+.custom-p-40 {
+  @apply p-10;
+}
+
+.custom-p-20 {
+  @apply p-5;
+}
+
+.p-40-20 {
+  @apply px-5 py-10;
+}
