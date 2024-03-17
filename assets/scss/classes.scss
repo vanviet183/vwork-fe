@@ -1,2 +1,6 @@
 @use '@/assets/scss/colors.scss' as *;
 @use 'sass:map';
+
+.common-padding {
+  padding: 20px;
+}

@@ -1,5 +1,5 @@
 <template>
-  <div>User</div>
+  <div>Project</div>
 </template>
 <script setup lang="ts"></script>
 <style scoped lang="scss">
