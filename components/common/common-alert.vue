@@ -8,6 +8,7 @@
 
 <script setup lang="ts">
 import colors from '~/assets/scss/main.module.scss'
+
 const props = defineProps({
   color: {
     type: String,
