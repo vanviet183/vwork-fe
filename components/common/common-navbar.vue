@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <div class="custom-navbar d-flex justify-space-between align-center">
-      <a href="https://flowbite.com" class="flex items-center mr-24">
+      <a href="/" class="flex items-center mr-24">
         <img
           src="~/assets/img/logo-vwork.svg"
           class="h-[48px]"
@@ -64,9 +64,10 @@ const gotoPage = (url: string) => {
   padding: 0 12px;
   height: 60px;
   background-color: white;
+  border-bottom: 1px solid #e1d5d5;
 }
 .icon-nav {
-  font-size: 36px;
+  font-size: 28px;
   color: #28526e;
 }
 .tab-active {
