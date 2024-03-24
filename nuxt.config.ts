@@ -9,6 +9,7 @@ export default defineNuxtConfig({
   ],
   components: [
     { path: '~/components/common', extensions: ['.vue'] },
+    { path: '~/components/user', extensions: ['.vue'] },
     '~/components',
   ],
   runtimeConfig: {

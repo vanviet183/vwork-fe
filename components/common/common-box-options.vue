@@ -1,5 +1,5 @@
 <template>
-  <v-menu>
+  <v-menu :close-on-content-click="false">
     <template #activator="{ props }">
       <div class="cursor-pointer edit-more" v-bind="props">
         <div v-if="prop.isAvatar">
@@ -40,6 +40,7 @@ const prop = defineProps({
   justify-content: center;
   align-items: center;
   max-width: fit-content;
+  max-height: 356px;
   aspect-ratio: 1/1;
 }
 .edit-more:hover {
@@ -48,9 +49,7 @@ const prop = defineProps({
 }
 .options-container {
   background-color: white;
-  padding: 20px;
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: 0px 8px 8px 0px rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
 }
 </style>

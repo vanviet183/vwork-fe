@@ -8,7 +8,7 @@
           <div class="box-options d-flex justify-between">
             <div>
               <span>Bộ lọc</span>
-              <span>Thời gian</span>
+              <span class="px-4">Thời gian</span>
               <span>Trạng thái</span>
             </div>
             <div class="d-flex align-center">

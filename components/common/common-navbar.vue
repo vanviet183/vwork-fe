@@ -23,38 +23,78 @@
       <div class="d-flex align-center">
         <CommonTextSearch></CommonTextSearch>
         <CommonBoxOptions icon="mdi-bell">
-          <div>hello</div>
+          <div class="px-5 pt-5">
+            <CommonTab></CommonTab>
+          </div>
         </CommonBoxOptions>
         <CommonBoxOptions :is-avatar="true">
-          <div>hello</div>
+          <div class="w-[372px] p-5">
+            <div class="text-center box1 py-2 pointer-events-none">
+              <v-avatar
+                :image="Avatar"
+                size="80"
+                class="cursor-pointer"
+                @click="() => {}"
+              ></v-avatar>
+              <p class="mt-4">Vitcon123</p>
+              <p>Trang cá nhân của bạn</p>
+            </div>
+            <div class="box2 py-2">
+              <div class="p-2 option-item" @click="handleChangePassword()">
+                <v-icon icon="mdi-key-variant" class="icon-nav"></v-icon>
+                <span class="ml-2">Doi mat khau</span>
+              </div>
+              <div class="p-2 option-item" @click="handleChangeUser()">
+                <v-icon icon="mdi-account-edit" class="icon-nav"></v-icon>
+                <span class="ml-2">Chinh sau thong tin</span>
+              </div>
+            </div>
+            <div class="box3 pt-2">
+              <div class="p-2 option-item">
+                <v-icon icon="mdi-logout" class="icon-nav"></v-icon>
+                <span class="ml-2">Dang xuat</span>
+              </div>
+            </div>
+          </div>
         </CommonBoxOptions>
       </div>
     </div>
   </div>
 </template>
 <script setup lang="ts">
+import Avatar from '~/assets/img/avatar.jpeg'
+import { HOME, PASSWORD, TASKS, USER } from '~/constants'
+
 const menu = ref([
   {
     icon: 'mdi-home',
-    path: '/',
+    path: HOME,
     isActive: true,
   },
   {
     icon: 'mdi-account-group',
-    path: '/',
+    path: HOME,
   },
   {
     icon: 'mdi-calendar-month-outline',
-    path: '/',
+    path: HOME,
   },
   {
     icon: 'mdi-calendar-check-outline',
-    path: '/',
+    path: TASKS,
   },
 ])
 
 const gotoPage = (url: string) => {
   navigateTo({ path: url })
+}
+
+const handleChangePassword = () => {
+  navigateTo({ path: PASSWORD })
+}
+
+const handleChangeUser = () => {
+  navigateTo({ path: USER })
 }
 </script>
 <style scoped lang="scss">
@@ -77,5 +117,14 @@ const gotoPage = (url: string) => {
   padding: 8px 20px;
   border-radius: 10px;
   cursor: pointer;
+}
+.box1,
+.box2 {
+  border-bottom: 1px solid #e1d5d5;
+}
+.option-item:hover {
+  border-radius: 10px;
+  cursor: pointer;
+  background-color: #e1d5d5;
 }
 </style>

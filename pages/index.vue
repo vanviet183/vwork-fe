@@ -13,6 +13,8 @@
   </div>
 </template>
 <script setup lang="ts">
+import { TASKS } from '~/constants'
+
 const listProjects = ref([
   {
     id: '1',
@@ -52,7 +54,7 @@ const listProjects = ref([
 ])
 
 const goToProject = (idProject: string) => {
-  navigateTo({ path: '/projects', query: { idProject } })
+  navigateTo({ path: TASKS, query: { idProject } })
 }
 </script>
 <style scoped lang="scss">
