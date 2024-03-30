@@ -24,7 +24,7 @@
         <CommonTextSearch></CommonTextSearch>
         <CommonBoxOptions icon="mdi-bell">
           <div class="px-5 pt-5">
-            <CommonTab></CommonTab>
+            <CommonTab :items="tabNotification" :is-content="true"></CommonTab>
           </div>
         </CommonBoxOptions>
         <CommonBoxOptions :is-avatar="true">
@@ -49,7 +49,7 @@
                 <span class="ml-2">Chinh sau thong tin</span>
               </div>
             </div>
-            <div class="box3 pt-2">
+            <div class="box3 pt-2" @click="handleLogout()">
               <div class="p-2 option-item">
                 <v-icon icon="mdi-logout" class="icon-nav"></v-icon>
                 <span class="ml-2">Dang xuat</span>
@@ -63,7 +63,7 @@
 </template>
 <script setup lang="ts">
 import Avatar from '~/assets/img/avatar.jpeg'
-import { HOME, PASSWORD, TASKS, USER } from '~/constants'
+import { HOME, LOGIN, PASSWORD, TASKS, USER } from '~/constants'
 
 const menu = ref([
   {
@@ -85,6 +85,21 @@ const menu = ref([
   },
 ])
 
+const tabNotification = ref([
+  {
+    title: 'Tất cả',
+    value: '1',
+  },
+  {
+    title: 'Công việc',
+    value: '2',
+  },
+  {
+    title: 'Lịch họp',
+    value: '3',
+  },
+])
+
 const gotoPage = (url: string) => {
   navigateTo({ path: url })
 }
@@ -95,6 +110,10 @@ const handleChangePassword = () => {
 
 const handleChangeUser = () => {
   navigateTo({ path: USER })
+}
+
+const handleLogout = () => {
+  navigateTo({ path: LOGIN })
 }
 </script>
 <style scoped lang="scss">

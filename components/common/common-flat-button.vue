@@ -66,8 +66,8 @@ const props = defineProps({
   font-weight: 500;
   line-height: normal;
   letter-spacing: 1px;
-  padding: 6px 16px;
+  padding: 0 16px;
   text-align: center;
-  height: 32px;
+  text-transform: none;
 }
 </style>

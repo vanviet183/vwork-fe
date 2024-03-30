@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper m-auto">
-    <div class="box1 relative">
-      <div class="cover-image__wrapper">
+    <div class="box1">
+      <div class="cover-image__wrapper relative">
         <img src="~/assets/img/banner-info.png" alt="cover-image" />
         <div class="profile__head__avatar rounded-circle">
           <v-avatar
@@ -16,6 +16,7 @@
           <p>heheh</p>
         </div>
       </div>
+      <CommonTab :items="tabUser"></CommonTab>
     </div>
     <div class="box2">
       <CommonBoxInfo icon="mdi-account" title="Thông tin cá nhân">
@@ -33,12 +34,33 @@
 <script setup lang="ts">
 import Avatar from '~/assets/img/avatar-info.jpeg'
 import { SCREEN_MODE } from '~/constants'
+
+const tabUser = ref([
+  {
+    title: 'Tất cả',
+    value: '1',
+  },
+  {
+    title: 'Công việc',
+    value: '2',
+  },
+  {
+    title: 'Lịch họp',
+    value: '3',
+  },
+])
 </script>
 <style scoped lang="scss">
 @use 'sass:map';
 
 .wrapper {
   max-width: 70%;
+}
+.box1 {
+  background-color: white;
+  margin-bottom: 16px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 .rounded-circle {
   position: absolute;

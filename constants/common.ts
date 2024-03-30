@@ -12,6 +12,11 @@ export enum SCREEN_MODE {
   PREVIEW = 'preview',
 }
 
+export enum TAB_LOGIN {
+  EMAIL,
+  PHONE,
+}
+
 export const ERR_MESSAGE = {
   ERR_SYS_ERROR: 'ERR_SYS_ERROR',
 }
