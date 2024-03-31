@@ -8,21 +8,50 @@
       </div>
     </div>
     <div class="px-4">
-      <div class="d-flex align-center flex-wrap">
-        <CommonFlatButton>Tat ca</CommonFlatButton>
-        <CommonFlatButton>Du an chung</CommonFlatButton>
-        <CommonFlatButton>Cong viec cong ty</CommonFlatButton>
+      <div class="d-flex align-center flex-wrap gap-3 my-4">
+        <CommonFlatButton>Tất cả</CommonFlatButton>
+        <CommonFlatButton>Dự án đang thực hiện</CommonFlatButton>
+        <CommonFlatButton>Dự án đã hoàn thành</CommonFlatButton>
       </div>
-      <div>
-        <p>Tat ca</p>
-        <div
-          v-for="(item, index) in menu"
-          :key="index"
-          :class="(item.isActive ? 'tab-active ' : '') + 'sidebar-tab'"
-          @click="gotoPage(item.path)"
-        >
-          <p class="icon-project">{{ item.img }}</p>
-          <p class="ml-2">{{ item.title }}</p>
+      <div class="mt-6 cursor-pointer">
+        <p class="cursor-pointer" @click="isOpenCurrent = !isOpenCurrent">
+          <v-icon
+            :icon="isOpenCurrent ? 'mdi-menu-down' : 'mdi-menu-right'"
+            class="icon-sidebar"
+          ></v-icon>
+          <span> Dự án đang thực hiện (1)</span>
+        </p>
+        <div v-if="isOpenCurrent" class="mt-3">
+          <div
+            v-for="(item, index) in menu"
+            :key="index"
+            :class="(item.isActive ? 'tab-active ' : '') + 'sidebar-tab'"
+            @click="gotoPage(item.path)"
+          >
+            <p class="icon-project">{{ item.img }}</p>
+            <p class="ml-2">{{ item.title }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 cursor-pointer">
+        <p class="cursor-pointer" @click="isOpenComplete = !isOpenComplete">
+          <v-icon
+            :icon="isOpenComplete ? 'mdi-menu-down' : 'mdi-menu-right'"
+            class="icon-sidebar"
+          ></v-icon>
+          <span> Dự án đã hoàn thành (3)</span>
+        </p>
+        <div v-if="isOpenComplete" class="mt-3">
+          <div
+            v-for="(item, index) in menu"
+            :key="index"
+            :class="(item.isActive ? 'tab-active ' : '') + 'sidebar-tab'"
+            @click="gotoPage(item.path)"
+          >
+            <p class="icon-project">{{ item.img }}</p>
+            <p class="ml-2">{{ item.title }}</p>
+          </div>
         </div>
       </div>
     </div>
@@ -58,6 +87,9 @@ const menu = ref([
     path: '/',
   },
 ])
+
+const isOpenCurrent = ref(true)
+const isOpenComplete = ref(false)
 
 const gotoPage = (url: string) => {
   navigateTo({ path: url })

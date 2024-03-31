@@ -1,8 +1,8 @@
 <template>
-  <v-menu :close-on-content-click="false">
+  <v-menu :close-on-content-click="prop.isCloseOnContent">
     <template #activator="{ props }">
       <div class="cursor-pointer edit-more" v-bind="props">
-        <div v-if="prop.isAvatar">
+        <div v-if="prop.isAvatar" class="avatar">
           <v-avatar
             :image="Avatar"
             size="42"
@@ -11,7 +11,10 @@
           ></v-avatar>
           <v-icon icon="mdi-menu-down" class="ml-1"></v-icon>
         </div>
-        <v-icon v-else :icon="prop.icon" class="m-3"></v-icon>
+        <div v-else class="title px-2 py-2">
+          <v-icon :icon="prop.icon" class="mr-2"></v-icon>
+          <span v-if="prop.title">{{ prop.title }}</span>
+        </div>
       </div>
     </template>
     <div class="options-container blur-x8"><slot></slot></div>
@@ -30,6 +33,14 @@ const prop = defineProps({
     type: String,
     default: 'mdi-dots-vertical',
   },
+  title: {
+    type: String,
+    default: '',
+  },
+  isCloseOnContent: {
+    type: Boolean,
+    default: true,
+  },
 })
 </script>
 
@@ -41,10 +52,14 @@ const prop = defineProps({
   align-items: center;
   max-width: fit-content;
   max-height: 356px;
-  aspect-ratio: 1/1;
+  // aspect-ratio: 1/1;
 }
-.edit-more:hover {
-  border-radius: 50%;
+.avatar:hover {
+  // border-radius: 50%;
+  background-color: map.get($colors, 'light-silver');
+}
+.title:hover {
+  border-radius: 10px;
   background-color: map.get($colors, 'light-silver');
 }
 .options-container {

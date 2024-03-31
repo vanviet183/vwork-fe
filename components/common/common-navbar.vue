@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <div class="custom-navbar d-flex justify-space-between align-center">
-      <a href="/" class="flex items-center mr-24">
+      <a href="/" class="flex items-center mr-24 cursor-pointer">
         <img
           src="~/assets/img/logo-vwork.svg"
           class="h-[48px]"
@@ -22,7 +22,7 @@
 
       <div class="d-flex align-center">
         <CommonTextSearch></CommonTextSearch>
-        <CommonBoxOptions icon="mdi-bell">
+        <CommonBoxOptions icon="mdi-bell" :is-close-on-content="false">
           <div class="px-5 pt-5">
             <CommonTab :items="tabNotification" :is-content="true"></CommonTab>
           </div>

@@ -11,12 +11,6 @@
       <div class="template-content">
         <p class="my-3 font-semibold text-2xl">Đăng ký tài khoản mới</p>
         <CommonTabLogin :is-register="true"></CommonTabLogin>
-        <p
-          class="font-semibold text-end forget-password cursor-pointer"
-          @click="handleForgetPassword"
-        >
-          Quên mật khẩu
-        </p>
 
         <CommonFlatButton
           background-color="#28526e"
@@ -88,15 +82,12 @@
   </div>
 </template>
 <script setup lang="ts">
-import { FORGET_PASSWORD, LOGIN } from '~/constants'
+import { LOGIN } from '~/constants'
 
 definePageMeta({
   layout: false,
 })
 
-const handleForgetPassword = () => {
-  navigateTo({ path: FORGET_PASSWORD })
-}
 const handleLogin = () => {
   navigateTo({ path: LOGIN })
 }

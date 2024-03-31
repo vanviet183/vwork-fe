@@ -1,23 +1,48 @@
 <template>
   <div class="common-padding mx-5">
     <div class="test">
-      <div class="text-end">
+      <div class="box-presentation">
         <CommonFlatButton
-          class="btn-add"
+          class="cursor-pointer"
           :background-color="colors['primary']"
           color="white"
           @click="handleToggleFormCreate"
         >
-          <!-- <v-icon icon="mdi-plus" class="mx-2"></v-icon> -->
-          <p class="text-lg">Tạo mới</p>
+          <p class="text-lg">Tất cả</p>
+        </CommonFlatButton>
+        <CommonFlatButton
+          class="cursor-pointer"
+          @click="handleToggleFormCreate"
+        >
+          <p class="text-lg">Đang chờ duyệt</p>
+        </CommonFlatButton>
+        <CommonFlatButton
+          class="cursor-pointer"
+          @click="handleToggleFormCreate"
+        >
+          <p class="text-lg">Đã hoàn thành</p>
+        </CommonFlatButton>
+        <CommonFlatButton
+          class="btn-add cursor-pointer"
+          :background-color="colors['primary']"
+          color="white"
+          @click="handleToggleFormCreate"
+        >
+          <p class="text-lg">Tạo</p>
         </CommonFlatButton>
       </div>
+
+      <!-- create project form -->
       <ProjectForm
         v-if="isOpenFormCreate"
         :mode="SCREEN_MODE.NEW"
         @close-form="handleToggleFormCreate"
       />
-      <p class="projects-title">Dự án đang thực hiện</p>
+
+      <div class="d-flex align-center justify-between mt-8">
+        <p class="projects-title">Dự án đang thực hiện</p>
+        <p class="btn-show-all" @click="handleShowAll">Xem tất cả</p>
+      </div>
       <div class="d-flex flex-wrap gap-4">
         <CommonCard
           v-for="item in listProjectCurrent"
@@ -32,7 +57,11 @@
         >
         </CommonCard>
       </div>
-      <p class="projects-title mt-4">Dự án chờ duyệt</p>
+
+      <div class="d-flex align-center justify-between mt-4">
+        <p class="projects-title mt-4">Dự án chờ duyệt</p>
+        <p class="btn-show-all" @click="handleShowAll">Xem tất cả</p>
+      </div>
       <div class="d-flex flex-wrap gap-4">
         <CommonCard
           v-for="item in listProjectWaitAccept"
@@ -44,7 +73,11 @@
         >
         </CommonCard>
       </div>
-      <p class="projects-title mt-4">Dự án đã hoàn thành</p>
+
+      <div class="d-flex align-center justify-between mt-4">
+        <p class="projects-title mt-4">Dự án đã hoàn thành</p>
+        <p class="btn-show-all" @click="handleShowAll">Xem tất cả</p>
+      </div>
       <div class="d-flex flex-wrap gap-4">
         <CommonCard
           v-for="item in listProjectComplete"
@@ -137,13 +170,27 @@ const goToProject = (idProject: string) => {
 const handleToggleFormCreate = () => {
   isOpenFormCreate.value = !isOpenFormCreate.value
 }
+
+const handleShowAll = () => {
+  navigateTo({ path: TASKS })
+}
 </script>
 <style scoped lang="scss">
 @use 'sass:map';
 
+.box-presentation {
+  display: flex;
+  gap: 16px;
+}
 .projects-title {
   font-size: 24px;
   font-weight: 600;
   margin-bottom: 16px;
+}
+.btn-show-all {
+  font-size: 16px;
+  color: map.get($colors, 'primary');
+  font-weight: 600;
+  cursor: pointer;
 }
 </style>

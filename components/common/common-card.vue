@@ -11,8 +11,29 @@
           <p class="project-title py-2 w-[86%]">
             {{ props.title }}
           </p>
-          <v-icon icon="mdi-dots-vertical" class="mr-[-6px]"></v-icon>
+          <div class="mr-[-16px]">
+            <CommonBoxOptions>
+              <div class="box-options">
+                <div class="option-item" @click="handleEditProject">
+                  <p>Edit</p>
+                </div>
+                <div class="option-item" @click="handleDeleteProject">
+                  <p>Delete</p>
+                </div>
+              </div>
+            </CommonBoxOptions>
+          </div>
+          <!-- <v-icon icon="mdi-dots-vertical" class="mr-[-6px]"></v-icon> -->
         </div>
+        <CommonConfirmPopup
+          :is-show-popup="isOpenConfirmDelete"
+          title="Bạn có chắc chắn muốn xóa dự án này không?"
+          positive-title="Delete"
+          negative-title="Cancel"
+          :positive-action="handleDelete"
+          :negative-action="handleCancelDelete"
+        >
+        </CommonConfirmPopup>
         <div class="author-info pb-2">
           <v-avatar
             :image="Avatar"
@@ -83,6 +104,24 @@ const props = defineProps({
     default: '#333',
   },
 })
+
+const isOpenConfirmDelete = ref(false)
+
+const handleEditProject = () => {
+  console.log('Edit project')
+}
+
+const handleDeleteProject = () => {
+  isOpenConfirmDelete.value = true
+}
+
+function handleDelete() {
+  isOpenConfirmDelete.value = false
+}
+
+function handleCancelDelete() {
+  isOpenConfirmDelete.value = false
+}
 </script>
 <style scoped lang="scss">
 @use 'sass:map';
@@ -121,5 +160,16 @@ const props = defineProps({
 .task-prioritize {
   color: red;
   font-weight: 600;
+}
+.box-options {
+  padding: 8px 0;
+  width: max-content;
+}
+.option-item {
+  padding: 4px 16px;
+  cursor: pointer;
+  &:hover {
+    background-color: #f2f2f5;
+  }
 }
 </style>

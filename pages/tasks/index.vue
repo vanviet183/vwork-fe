@@ -6,14 +6,51 @@
         <div>
           <p class="pt-5 pl-5">Công việc của tôi</p>
           <div class="box-options d-flex justify-between">
-            <div>
-              <span>Bộ lọc</span>
-              <span class="px-4">Thời gian</span>
-              <span>Trạng thái</span>
+            <div class="d-flex alignt-center gap-3">
+              <CommonBoxOptions title="Bộ lọc" icon="mdi-filter-outline">
+                <div class="box-options">
+                  <div class="option-item" @click="() => {}">
+                    <p>Edit</p>
+                  </div>
+                  <div class="option-item" @click="() => {}">
+                    <p>Delete</p>
+                  </div>
+                </div>
+              </CommonBoxOptions>
+              <CommonBoxOptions title="Thời gian" icon="mdi-swap-vertical">
+                <div class="box-options">
+                  <div class="option-item" @click="() => {}">
+                    <p>Edit</p>
+                  </div>
+                  <div class="option-item" @click="() => {}">
+                    <p>Delete</p>
+                  </div>
+                </div>
+              </CommonBoxOptions>
+              <CommonBoxOptions title="Trạng thái" icon="mdi-view-list-outline">
+                <div class="box-options">
+                  <div class="option-item" @click="() => {}">
+                    <p>Edit</p>
+                  </div>
+                  <div class="option-item" @click="() => {}">
+                    <p>Delete</p>
+                  </div>
+                </div>
+              </CommonBoxOptions>
             </div>
             <div class="d-flex align-center">
               <CommonTextSearch></CommonTextSearch>
-              <CommonFlatButton>Tạo</CommonFlatButton>
+              <CommonFlatButton
+                class="btn-add cursor-pointer"
+                @click="handleToggleFormCreate"
+              >
+                <p class="text-lg">Tạo</p>
+              </CommonFlatButton>
+
+              <ProjectForm
+                v-if="isOpenFormCreate"
+                @close-form="handleToggleFormCreate"
+              />
             </div>
           </div>
         </div>
@@ -37,6 +74,8 @@
   </div>
 </template>
 <script setup lang="ts">
+const isOpenFormCreate = ref(false)
+
 const listTask = ref([
   {
     id: '1',
@@ -115,6 +154,10 @@ const listTask = ref([
     },
   },
 ])
+
+const handleToggleFormCreate = () => {
+  isOpenFormCreate.value = !isOpenFormCreate.value
+}
 </script>
 <style scoped lang="scss">
 @use 'sass:map';
@@ -128,5 +171,9 @@ const listTask = ref([
 }
 .box-tasks {
   padding: 20px;
+}
+.btn-add {
+  padding: 0 !important;
+  margin-left: 12px;
 }
 </style>

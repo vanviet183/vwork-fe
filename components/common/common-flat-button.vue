@@ -69,5 +69,6 @@ const props = defineProps({
   padding: 0 16px;
   text-align: center;
   text-transform: none;
+  border-radius: 99px;
 }
 </style>
