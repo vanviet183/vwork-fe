@@ -7,9 +7,12 @@
       :v-bind="$attrs"
     >
       <div class="px-4 card-title">
-        <p class="project-title py-2">
-          {{ props.title }}
-        </p>
+        <div class="d-flex align-center justify-between">
+          <p class="project-title py-2 w-[86%]">
+            {{ props.title }}
+          </p>
+          <v-icon icon="mdi-dots-vertical" class="mr-[-6px]"></v-icon>
+        </div>
         <div class="author-info pb-2">
           <v-avatar
             :image="Avatar"
@@ -31,7 +34,7 @@
           ></v-icon>
           <span class="task-prioritize">{{ props.taskPrioritize }}</span>
         </div>
-        <div class="d-flex align-center justify-end px-4 mb-3">
+        <div class="d-flex align-center justify-end px-4 mb-2">
           <p
             v-if="props.amountTask || props.amountTask === 0"
             class="amount-task"
@@ -105,7 +108,7 @@ const props = defineProps({
   border-radius: 12px;
 }
 .amount-task {
-  padding: 4px 12px;
+  padding: 2px 8px;
   background-color: #ffe7e7;
   border-radius: 8px;
   font-weight: 600;

@@ -2,11 +2,21 @@
   <div class="common-padding mx-5">
     <div class="test">
       <div class="text-end">
-        <CommonFlatButton class="btn-add">
-          <v-icon icon="mdi-plus" class="mx-2"></v-icon>
+        <CommonFlatButton
+          class="btn-add"
+          :background-color="colors['primary']"
+          color="white"
+          @click="handleToggleFormCreate"
+        >
+          <!-- <v-icon icon="mdi-plus" class="mx-2"></v-icon> -->
           <p class="text-lg">Tạo mới</p>
         </CommonFlatButton>
       </div>
+      <ProjectForm
+        v-if="isOpenFormCreate"
+        :mode="SCREEN_MODE.NEW"
+        @close-form="handleToggleFormCreate"
+      />
       <p class="projects-title">Dự án đang thực hiện</p>
       <div class="d-flex flex-wrap gap-4">
         <CommonCard
@@ -54,8 +64,10 @@
   </div>
 </template>
 <script setup lang="ts">
-import { TASKS } from '~/constants'
+import colors from '~/assets/scss/main.module.scss'
+import { SCREEN_MODE, TASKS } from '~/constants'
 
+const isOpenFormCreate = ref(false)
 const listProjectCurrent = ref([
   {
     id: '1',
@@ -121,6 +133,10 @@ const listProjectComplete = ref([
 const goToProject = (idProject: string) => {
   navigateTo({ path: TASKS, query: { idProject } })
 }
+
+const handleToggleFormCreate = () => {
+  isOpenFormCreate.value = !isOpenFormCreate.value
+}
 </script>
 <style scoped lang="scss">
 @use 'sass:map';
@@ -129,9 +145,5 @@ const goToProject = (idProject: string) => {
   font-size: 24px;
   font-weight: 600;
   margin-bottom: 16px;
-}
-.btn-add {
-  background-color: #1cc31c;
-  color: white;
 }
 </style>
