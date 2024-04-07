@@ -5,7 +5,8 @@
     <div class="d-flex gap-4">
       <div class="overview w-1/3 box-item">
         <p>Tổng công việc</p>
-        <CommonCircleProgress></CommonCircleProgress>
+        <!-- <CommonCircleProgress></CommonCircleProgress> -->
+        <CommonDoughnutChart></CommonDoughnutChart>
         <div class="d-flex justify-between mt-4">
           <div>
             <p>HOÀN THÀNH</p>
@@ -22,6 +23,7 @@
       </div>
       <div class="chart-gantt w-2/3 box-item">
         Quá trình hoàn thành theo ngày
+        <CommonLineChart></CommonLineChart>
       </div>
     </div>
     <div class="d-flex gap-4 mt-4">
