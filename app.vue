@@ -11,6 +11,7 @@
 </template>
 
 <script setup lang="ts">
+import { registerLicense } from '@syncfusion/ej2-base'
 import { storeToRefs } from 'pinia'
 import 'reflect-metadata'
 import { setLocale } from 'yup'
@@ -20,6 +21,10 @@ import { useAuthorizationStore } from '~/stores/authorization/authorization-stor
 const authorizationStore = useAuthorizationStore()
 const { accessToken } = storeToRefs(authorizationStore)
 const title = ref('VWork')
+
+registerLicense(
+  'Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCe0xzWmFZfVpgdVdMZFRbRXNPIiBoS35RckVnWXpfcnBcRGFaUE1z'
+)
 
 onMounted(() => {
   setLocale(yupValidationMeesage)

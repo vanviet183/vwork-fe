@@ -23,7 +23,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { Tab } from '~/models/interface/common/tab'
+import { type Tab } from '~/models/interface/common/tab'
 
 const props = defineProps({
   items: {

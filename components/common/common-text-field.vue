@@ -3,42 +3,12 @@
     <div class="custom-text-field-readonly-title">
       {{ $attrs.label }}
     </div>
-    <div v-if="!hasUnit" class="custom-text-field-readonly">
-      <div v-if="props.name === 'savingEffect'" class="d-flex">
-        <img
-          v-for="index in textValue"
-          :key="index"
-          src="~/assets/img/icon-tip-inactive.svg"
-          alt="icon-tip"
-          class="custom-icon-tip"
-        />
-      </div>
-      <p v-else>
-        {{ !textValue || textValue === '' ? '--' : textValue }}
-      </p>
-    </div>
-    <div v-else class="custom-text-field-readonly flex justify-between">
+
+    <div class="custom-text-field-readonly flex justify-between">
       <span>
         {{ !textValue || textValue === '' ? '--' : textValue }}
       </span>
       <slot></slot>
-    </div>
-  </div>
-
-  <div v-else-if="hasUnit" class="relative custom-text-field">
-    <v-text-field
-      v-model="textValue"
-      v-bind="$attrs"
-      variant="outlined"
-      :color="colors['primary']"
-      density="compact"
-      :value="textValue"
-    />
-    <p class="unit-input">
-      <slot></slot>
-    </p>
-    <div v-if="errorMessage" class="error-message">
-      {{ errorMessage }}
     </div>
   </div>
 
@@ -78,10 +48,6 @@ const props = defineProps({
   readonly: {
     type: Boolean,
     required: false,
-    default: false,
-  },
-  hasUnit: {
-    type: Boolean,
     default: false,
   },
 })

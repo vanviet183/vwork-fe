@@ -67,3 +67,8 @@ const headers = ref([
 
 const selected = ref([])
 </script>
+<style scoped lang="scss">
+:deep(.v-field__outline) {
+  --v-field-border-opacity: 0 !important;
+}
+</style>
