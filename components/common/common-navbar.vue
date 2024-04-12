@@ -63,7 +63,7 @@
 </template>
 <script setup lang="ts">
 import Avatar from '~/assets/img/avatar.jpeg'
-import { HOME, LOGIN, PASSWORD, TASKS, USER } from '~/constants'
+import { HOME, LOGIN, MEETINGS, PASSWORD, TASKS, USER } from '~/constants'
 
 const menu = ref([
   {
@@ -77,7 +77,7 @@ const menu = ref([
   },
   {
     icon: 'mdi-calendar-month-outline',
-    path: HOME,
+    path: MEETINGS,
   },
   {
     icon: 'mdi-calendar-check-outline',

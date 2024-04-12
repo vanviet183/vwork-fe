@@ -1344,23 +1344,23 @@
   dependencies:
     "@syncfusion/ej2-icons" "~25.1.35"
 
-"@syncfusion/ej2-buttons@~25.1.35":
-  version "25.1.35"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-buttons/-/ej2-buttons-25.1.35.tgz"
-  integrity sha512-4a3+OAkHdaJTxRd/QJln7PglxDeRa9yGpnuFUDOUaA0sf7gvBKumBg5JP1llSpblKaK7JSRs42QOL/EG/d075g==
+"@syncfusion/ej2-buttons@~25.1.35", "@syncfusion/ej2-buttons@~25.1.39":
+  version "25.1.39"
+  resolved "https://registry.npmjs.org/@syncfusion/ej2-buttons/-/ej2-buttons-25.1.39.tgz"
+  integrity sha512-QUAiHhswM3hP0pGjantmc785yntT3JBx0UEZtL3cG9bZLjRQLi2cAGmWDdA1U6cBmsEvf0vzvRS7uhAnfRN0JQ==
   dependencies:
     "@syncfusion/ej2-base" "~25.1.35"
 
-"@syncfusion/ej2-calendars@~25.1.37":
-  version "25.1.37"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-calendars/-/ej2-calendars-25.1.37.tgz"
-  integrity sha512-zr3RiG/uDBZyUoZ7/+F8/pw/hjzDoN6lhqChF1x1ob+X99GFAfLopDudd8CwqSpXbFaLWEf8HHW3FLwrEdmlcg==
+"@syncfusion/ej2-calendars@~25.1.37", "@syncfusion/ej2-calendars@~25.1.39":
+  version "25.1.39"
+  resolved "https://registry.npmjs.org/@syncfusion/ej2-calendars/-/ej2-calendars-25.1.39.tgz"
+  integrity sha512-YB3eHc8HdPRL6nAN5tKTvFZaoNuyHrgv5+4RXZiEDwBjOrzgr4opOS4EShW8HoK7V8pHoQIsq+GX6N8j0+Ogpw==
   dependencies:
     "@syncfusion/ej2-base" "~25.1.35"
-    "@syncfusion/ej2-buttons" "~25.1.35"
-    "@syncfusion/ej2-inputs" "~25.1.37"
-    "@syncfusion/ej2-lists" "~25.1.35"
-    "@syncfusion/ej2-popups" "~25.1.35"
+    "@syncfusion/ej2-buttons" "~25.1.39"
+    "@syncfusion/ej2-inputs" "~25.1.38"
+    "@syncfusion/ej2-lists" "~25.1.39"
+    "@syncfusion/ej2-popups" "~25.1.39"
 
 "@syncfusion/ej2-compression@~25.1.35":
   version "25.1.35"
@@ -1376,18 +1376,18 @@
   dependencies:
     "@syncfusion/ej2-base" "~25.1.35"
 
-"@syncfusion/ej2-dropdowns@~25.1.37":
-  version "25.1.37"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-dropdowns/-/ej2-dropdowns-25.1.37.tgz"
-  integrity sha512-kKvxXTxweHSgpu9NTeczNC78mdHcRT34rji0QYn+IDm//XQJLaSX68OwUCOXWGmSZxY+fwopYLzzhKnd6lBIhw==
+"@syncfusion/ej2-dropdowns@~25.1.37", "@syncfusion/ej2-dropdowns@~25.1.39":
+  version "25.1.39"
+  resolved "https://registry.npmjs.org/@syncfusion/ej2-dropdowns/-/ej2-dropdowns-25.1.39.tgz"
+  integrity sha512-tV6yseJ+Ew2MGhz6Eutq6ZAbJ4MWuVGWUy8xgFsTrL3IBFFYZnF+jkd95s5FpvF1amKz0fuzKohtpfS5177Btg==
   dependencies:
     "@syncfusion/ej2-base" "~25.1.35"
     "@syncfusion/ej2-data" "~25.1.35"
-    "@syncfusion/ej2-inputs" "~25.1.37"
-    "@syncfusion/ej2-lists" "~25.1.35"
-    "@syncfusion/ej2-navigations" "~25.1.37"
+    "@syncfusion/ej2-inputs" "~25.1.38"
+    "@syncfusion/ej2-lists" "~25.1.39"
+    "@syncfusion/ej2-navigations" "~25.1.39"
     "@syncfusion/ej2-notifications" "~25.1.35"
-    "@syncfusion/ej2-popups" "~25.1.35"
+    "@syncfusion/ej2-popups" "~25.1.39"
 
 "@syncfusion/ej2-excel-export@~25.1.35":
   version "25.1.35"
@@ -1465,7 +1465,7 @@
   resolved "https://registry.npmjs.org/@syncfusion/ej2-icons/-/ej2-icons-25.1.35.tgz"
   integrity sha512-E8ypbeB9ISTsaj8Q29w3Ysh6HG35GOdTjfaU6JTCaZ9wP30q04B4WfN9lqcd42Q198qhynFAXd3lJyYev68aGw==
 
-"@syncfusion/ej2-inputs@~25.1.37", "@syncfusion/ej2-inputs@~25.1.38":
+"@syncfusion/ej2-inputs@~25.1.38":
   version "25.1.38"
   resolved "https://registry.npmjs.org/@syncfusion/ej2-inputs/-/ej2-inputs-25.1.38.tgz"
   integrity sha512-WspFi4Lv9CpfmWTZpKnWLQL1fbEDIocZhm2tlkg2BEQGOjscg80HJjbMIEea/p/We8jYt2BqRWXVdI6gI35kvQ==
@@ -1482,27 +1482,27 @@
   dependencies:
     "@syncfusion/ej2-base" "~25.1.35"
 
-"@syncfusion/ej2-lists@~25.1.35":
-  version "25.1.35"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-lists/-/ej2-lists-25.1.35.tgz"
-  integrity sha512-7aFOGU67t3V/AGTB/N4mU1eVGSYhPCwkPXsvsl4BN/YcrsthdC90AXbrKgUb3Hwbuynps+du/nEDH8ujK8LNRg==
+"@syncfusion/ej2-lists@~25.1.35", "@syncfusion/ej2-lists@~25.1.39":
+  version "25.1.39"
+  resolved "https://registry.npmjs.org/@syncfusion/ej2-lists/-/ej2-lists-25.1.39.tgz"
+  integrity sha512-bWWsr1pYQDxiupF80yvBPKCtYw1V92DuMpqgtfj90vl5xInpRCHl1mSNDETbNgl//BthRkUo5yQtI2deX9X0Hw==
   dependencies:
     "@syncfusion/ej2-base" "~25.1.35"
-    "@syncfusion/ej2-buttons" "~25.1.35"
+    "@syncfusion/ej2-buttons" "~25.1.39"
     "@syncfusion/ej2-data" "~25.1.35"
-    "@syncfusion/ej2-popups" "~25.1.35"
+    "@syncfusion/ej2-popups" "~25.1.39"
 
-"@syncfusion/ej2-navigations@~25.1.37", "@syncfusion/ej2-navigations@~25.1.38":
-  version "25.1.38"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-navigations/-/ej2-navigations-25.1.38.tgz"
-  integrity sha512-1KWbcbevraqLv7MLnL2jSLa/G0jV0cCVBsNw1YVo7a9Kv5T/9+6fvuxjsAILRu7TPBMgBfoxp3eQAQLN3vBcZA==
+"@syncfusion/ej2-navigations@~25.1.38", "@syncfusion/ej2-navigations@~25.1.39":
+  version "25.1.39"
+  resolved "https://registry.npmjs.org/@syncfusion/ej2-navigations/-/ej2-navigations-25.1.39.tgz"
+  integrity sha512-DFMKcO15eb+tzCzS27B92OqEin9mpGJknrl+SWMIolHHyHxyxPpwX5yNLMkE8sqswOSWlFlWzyaQ04vZuIN9Cw==
   dependencies:
     "@syncfusion/ej2-base" "~25.1.35"
-    "@syncfusion/ej2-buttons" "~25.1.35"
+    "@syncfusion/ej2-buttons" "~25.1.39"
     "@syncfusion/ej2-data" "~25.1.35"
     "@syncfusion/ej2-inputs" "~25.1.38"
-    "@syncfusion/ej2-lists" "~25.1.35"
-    "@syncfusion/ej2-popups" "~25.1.38"
+    "@syncfusion/ej2-lists" "~25.1.39"
+    "@syncfusion/ej2-popups" "~25.1.39"
 
 "@syncfusion/ej2-notifications@~25.1.35":
   version "25.1.35"
@@ -1520,13 +1520,13 @@
   dependencies:
     "@syncfusion/ej2-compression" "~25.1.35"
 
-"@syncfusion/ej2-popups@~25.1.35", "@syncfusion/ej2-popups@~25.1.38":
-  version "25.1.38"
-  resolved "https://registry.npmjs.org/@syncfusion/ej2-popups/-/ej2-popups-25.1.38.tgz"
-  integrity sha512-dnCn6roKbaAk8VxbbYn59U4T0VYvS2U3RoctdQ4277EvsYrHarqsTlCh4bdMG1G6rNyerCWTSv2XgodQ+opJ6Q==
+"@syncfusion/ej2-popups@~25.1.35", "@syncfusion/ej2-popups@~25.1.38", "@syncfusion/ej2-popups@~25.1.39":
+  version "25.1.39"
+  resolved "https://registry.npmjs.org/@syncfusion/ej2-popups/-/ej2-popups-25.1.39.tgz"
+  integrity sha512-4BN3w9E/5uO27En/tXl5MYywTKNlAKYSwCIbQip+pH2rstcF6bZ1Qu01alGqN9KA4aMUEMOlN4fQcZ0EpQFLWQ==
   dependencies:
     "@syncfusion/ej2-base" "~25.1.35"
-    "@syncfusion/ej2-buttons" "~25.1.35"
+    "@syncfusion/ej2-buttons" "~25.1.39"
 
 "@syncfusion/ej2-richtexteditor@~25.1.38":
   version "25.1.38"
@@ -1540,6 +1540,22 @@
     "@syncfusion/ej2-navigations" "~25.1.38"
     "@syncfusion/ej2-popups" "~25.1.38"
     "@syncfusion/ej2-splitbuttons" "~25.1.38"
+
+"@syncfusion/ej2-schedule@25.1.39":
+  version "25.1.39"
+  resolved "https://registry.npmjs.org/@syncfusion/ej2-schedule/-/ej2-schedule-25.1.39.tgz"
+  integrity sha512-UUFUX+K+KksLeyE99qKq9+XRnMWPJtkXEr5irI/F6wHdlBn5QAuNlN9TQFVeBK+ONASbz+vgrO7cN1yEBNd6Jg==
+  dependencies:
+    "@syncfusion/ej2-base" "~25.1.35"
+    "@syncfusion/ej2-buttons" "~25.1.39"
+    "@syncfusion/ej2-calendars" "~25.1.39"
+    "@syncfusion/ej2-data" "~25.1.35"
+    "@syncfusion/ej2-dropdowns" "~25.1.39"
+    "@syncfusion/ej2-excel-export" "~25.1.35"
+    "@syncfusion/ej2-inputs" "~25.1.38"
+    "@syncfusion/ej2-lists" "~25.1.39"
+    "@syncfusion/ej2-navigations" "~25.1.39"
+    "@syncfusion/ej2-popups" "~25.1.39"
 
 "@syncfusion/ej2-splitbuttons@~25.1.38":
   version "25.1.38"
@@ -1580,6 +1596,15 @@
   dependencies:
     "@syncfusion/ej2-base" "~25.1.35"
     "@syncfusion/ej2-gantt" "25.1.38"
+    "@syncfusion/ej2-vue-base" "~25.1.35"
+
+"@syncfusion/ej2-vue-schedule@^25.1.39":
+  version "25.1.39"
+  resolved "https://registry.yarnpkg.com/@syncfusion/ej2-vue-schedule/-/ej2-vue-schedule-25.1.39.tgz#4036a79a8174fd47cf46181ca1a894060944168d"
+  integrity sha512-QPXXdgJH7O+dDz2lOGwc46qW8Sq1m5n/m7n5imHANXOEG4tbwy4K7dFqqV/JarupHII6u68Jp2H3ud8b/F2i2w==
+  dependencies:
+    "@syncfusion/ej2-base" "~25.1.35"
+    "@syncfusion/ej2-schedule" "25.1.39"
     "@syncfusion/ej2-vue-base" "~25.1.35"
 
 "@trysound/sax@0.2.0":
@@ -7698,9 +7723,9 @@ vue-bundle-renderer@^2.0.0:
     ufo "^1.2.0"
 
 vue-chartjs@^5.3.0:
-  version "5.3.0"
-  resolved "https://registry.yarnpkg.com/vue-chartjs/-/vue-chartjs-5.3.0.tgz#59920a07d72f37a2375d495256e486b92813bf6e"
-  integrity sha512-8XqX0JU8vFZ+WA2/knz4z3ThClduni2Nm0BMe2u0mXgTfd9pXrmJ07QBI+WAij5P/aPmPMX54HCE1seWL37ZdQ==
+  version "5.3.1"
+  resolved "https://registry.npmjs.org/vue-chartjs/-/vue-chartjs-5.3.1.tgz"
+  integrity sha512-rZjqcHBxKiHrBl0CIvcOlVEBwRhpWAVf6rDU3vUfa7HuSRmGtCslc0Oc8m16oAVuk0erzc1FCtH1VCriHsrz+A==
 
 vue-demi@*, vue-demi@>=0.14.5:
   version "0.14.5"
