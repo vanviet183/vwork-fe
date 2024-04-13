@@ -10,7 +10,29 @@
       </div>
       <div class="template-content">
         <p class="my-3 font-semibold text-2xl">Đăng ký tài khoản mới</p>
-        <CommonTabLogin :is-register="true"></CommonTabLogin>
+        <CommonTextField
+          name="email"
+          placeholder="Email của bạn"
+          prepend-inner-icon="mdi-email-outline"
+        ></CommonTextField>
+        <CommonTextField
+          name="password"
+          placeholder="Mật khẩu"
+          class="mt-4"
+          :type="visible ? 'text' : 'password'"
+          prepend-inner-icon="mdi-lock-outline"
+          :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye-outline'"
+          @click:append-inner="visible = !visible"
+        ></CommonTextField>
+        <CommonTextField
+          name="confirm-password"
+          placeholder="Xác nhận mật khẩu"
+          class="mt-4"
+          :type="visible ? 'text' : 'password'"
+          prepend-inner-icon="mdi-lock-outline"
+          :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye-outline'"
+          @click:append-inner="visible = !visible"
+        ></CommonTextField>
 
         <CommonFlatButton
           background-color="#28526e"
@@ -83,6 +105,8 @@
 </template>
 <script setup lang="ts">
 import { LOGIN } from '~/constants'
+
+const visible = ref(false)
 
 definePageMeta({
   layout: false,

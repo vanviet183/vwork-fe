@@ -1,32 +1,28 @@
 export const useAuthorizationStore = defineStore(
   'authorization',
   () => {
+    const userId = ref()
     const accessToken = ref('')
-    const tokenGetDate = ref('')
+    const refreshToken = ref('')
 
-    function setAccessToken(access: string) {
-      accessToken.value = access
+    function setSessionAccess(id: number, token: string, reToken: string) {
+      userId.value = id
+      accessToken.value = token
+      refreshToken.value = reToken
     }
 
-    function resetAccessToken() {
+    function resetSessionAccess() {
+      userId.value = undefined
       accessToken.value = ''
-    }
-
-    function setTokenGetDate(date: string) {
-      tokenGetDate.value = date
-    }
-
-    function resetTokenGetDate() {
-      tokenGetDate.value = ''
+      refreshToken.value = ''
     }
 
     return {
+      userId,
       accessToken,
-      tokenGetDate,
-      setAccessToken,
-      resetAccessToken,
-      setTokenGetDate,
-      resetTokenGetDate,
+      refreshToken,
+      setSessionAccess,
+      resetSessionAccess,
     }
   },
   {
