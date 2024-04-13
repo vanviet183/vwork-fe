@@ -35,7 +35,7 @@
           background-color="#28526e"
           color="white"
           class="btn-login"
-          @click="handleLogin"
+          @click="onSubmit"
           >Đăng nhập</CommonFlatButton
         >
         <div
@@ -102,7 +102,12 @@
   </div>
 </template>
 <script setup lang="ts">
-import { FORGET_PASSWORD, HOME, REGISTER } from '~/constants'
+import { storeToRefs } from 'pinia'
+import { useForm } from 'vee-validate'
+import { object, string } from 'yup'
+import { FORGET_PASSWORD, HOME, MAX_LENGTH_INPUT, REGISTER } from '~/constants'
+import { useAuthStore } from '~/stores/auth/auth-store'
+import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 
 const visible = ref(false)
 
@@ -110,14 +115,39 @@ definePageMeta({
   layout: false,
 })
 
+const authStore = useAuthStore()
+
+const authenticationStore = useAuthorizationStore()
+const { accessToken } = storeToRefs(authenticationStore)
+
+watch(accessToken, () => {
+  if (accessToken.value) {
+    navigateTo({ path: HOME })
+  }
+})
+const schemaValidate = () => {
+  const validate: { [key: string]: any } = {
+    email: string().trim().email().required().max(MAX_LENGTH_INPUT),
+    password: string().trim().required().max(MAX_LENGTH_INPUT),
+  }
+  return object().shape(validate)
+}
+
+const schema = ref(schemaValidate())
+
+const { handleSubmit } = useForm({
+  validationSchema: schema,
+})
+
+const onSubmit = handleSubmit(async (values) => {
+  await authStore.login(values.email, values.password)
+})
+
 const handleForgetPassword = () => {
   navigateTo({ path: FORGET_PASSWORD })
 }
 const handleRegister = () => {
   navigateTo({ path: REGISTER })
-}
-const handleLogin = () => {
-  navigateTo({ path: HOME })
 }
 </script>
 <style scoped lang="scss">

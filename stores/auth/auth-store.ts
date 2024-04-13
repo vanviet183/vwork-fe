@@ -5,7 +5,7 @@ import { loginApi, registerApi } from '~/services/auth/auth-service'
 import { useAlertStore } from '~/stores/alert/alert-store'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 
-export const authStore = defineStore('auth', () => {
+export const useAuthStore = defineStore('auth', () => {
   const alertStore = useAlertStore()
   const authorizationStore = useAuthorizationStore()
   const isLoading = ref(false)
