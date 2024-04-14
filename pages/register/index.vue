@@ -10,34 +10,49 @@
       </div>
       <div class="template-content">
         <p class="my-3 font-semibold text-2xl">Đăng ký tài khoản mới</p>
-        <CommonTextField
-          name="email"
-          placeholder="Email của bạn"
-          prepend-inner-icon="mdi-email-outline"
-        ></CommonTextField>
-        <CommonTextField
-          name="password"
-          placeholder="Mật khẩu"
-          class="mt-4"
-          :type="visible ? 'text' : 'password'"
-          prepend-inner-icon="mdi-lock-outline"
-          :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye-outline'"
-          @click:append-inner="visible = !visible"
-        ></CommonTextField>
-        <CommonTextField
-          name="confirm-password"
-          placeholder="Xác nhận mật khẩu"
-          class="mt-4"
-          :type="visible ? 'text' : 'password'"
-          prepend-inner-icon="mdi-lock-outline"
-          :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye-outline'"
-          @click:append-inner="visible = !visible"
-        ></CommonTextField>
+        <form>
+          <CommonTextField
+            name="firstName"
+            placeholder="Họ"
+            prepend-inner-icon="mdi-email-outline"
+          ></CommonTextField>
+          <CommonTextField
+            name="lastName"
+            placeholder="Tên"
+            class="mt-4"
+            prepend-inner-icon="mdi-email-outline"
+          ></CommonTextField>
+          <CommonTextField
+            name="email"
+            class="mt-4"
+            placeholder="Email của bạn"
+            prepend-inner-icon="mdi-email-outline"
+          ></CommonTextField>
+          <CommonTextField
+            name="password"
+            placeholder="Mật khẩu"
+            class="mt-4"
+            :type="visible ? 'text' : 'password'"
+            prepend-inner-icon="mdi-lock-outline"
+            :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye-outline'"
+            @click:append-inner="visible = !visible"
+          ></CommonTextField>
+          <CommonTextField
+            name="confirmPassword"
+            placeholder="Xác nhận mật khẩu"
+            class="mt-4"
+            :type="visible ? 'text' : 'password'"
+            prepend-inner-icon="mdi-lock-outline"
+            :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye-outline'"
+            @click:append-inner="visible = !visible"
+          ></CommonTextField>
+        </form>
 
         <CommonFlatButton
           background-color="#28526e"
           color="white"
           class="btn-login"
+          @click="onSubmit"
           >Đăng ký</CommonFlatButton
         >
         <div
@@ -104,12 +119,44 @@
   </div>
 </template>
 <script setup lang="ts">
-import { LOGIN } from '~/constants'
+import { useForm } from 'vee-validate'
+import { object, string } from 'yup'
+import { LOGIN, MAX_LENGTH_INPUT } from '~/constants'
+import { useAuthStore } from '~/stores/auth/auth-store'
 
 const visible = ref(false)
+const authStore = useAuthStore()
 
 definePageMeta({
   layout: false,
+})
+
+const schemaValidate = () => {
+  const validate: { [key: string]: any } = {
+    firstName: string().trim().required().max(MAX_LENGTH_INPUT),
+    lastName: string().trim().required().max(MAX_LENGTH_INPUT),
+    email: string().trim().email().required().max(MAX_LENGTH_INPUT),
+    password: string().trim().required().max(MAX_LENGTH_INPUT),
+    confirmPassword: string().trim().required().max(MAX_LENGTH_INPUT),
+  }
+  return object().shape(validate)
+}
+const schema = ref(schemaValidate())
+
+const { handleSubmit } = useForm({
+  validationSchema: schema,
+})
+
+const onSubmit = handleSubmit(async (values) => {
+  const result = await authStore.register(
+    values.firstName,
+    values.lastName,
+    values.email,
+    values.password
+  )
+  if (result) {
+    navigateTo({ path: LOGIN })
+  }
 })
 
 const handleLogin = () => {

@@ -64,6 +64,9 @@
 <script setup lang="ts">
 import Avatar from '~/assets/img/avatar.jpeg'
 import { HOME, LOGIN, MEETINGS, PASSWORD, TASKS, USER } from '~/constants'
+import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
+
+const authenticationStore = useAuthorizationStore()
 
 const menu = ref([
   {
@@ -112,7 +115,8 @@ const handleChangeUser = () => {
   navigateTo({ path: USER })
 }
 
-const handleLogout = () => {
+const handleLogout = async () => {
+  await authenticationStore.resetSessionAccess()
   navigateTo({ path: LOGIN })
 }
 </script>

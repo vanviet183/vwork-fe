@@ -20,7 +20,7 @@ export const useAuthStore = defineStore('auth', () => {
     isError.value = false
     try {
       const loginRequest = new LoginRequest(email, password)
-      const response = await loginApi(loginRequest.instance)
+      const response = await loginApi(loginRequest)
       if (response.contents) {
         const { userId, accessToken, refreshToken } = response.contents
         authorizationStore.setSessionAccess(userId, accessToken, refreshToken)
@@ -50,7 +50,7 @@ export const useAuthStore = defineStore('auth', () => {
         email,
         password
       )
-      const response = await registerApi(registerRequest.instance)
+      const response = await registerApi(registerRequest)
       if (response.contents) {
         const { userId, accessToken, refreshToken } = response.contents
         authorizationStore.setSessionAccess(userId, accessToken, refreshToken)

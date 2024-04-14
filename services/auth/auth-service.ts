@@ -1,4 +1,3 @@
-import { plainToClassFromExist } from 'class-transformer'
 import { LoginRequest } from '~/models/class/auth/login/login-request'
 import { LoginResponse } from '~/models/class/auth/login/login-response'
 import { RegisterRequest } from '~/models/class/auth/register/register-request'
@@ -11,32 +10,22 @@ const ApiPath = {
   AUTH_REGISTER: '/auth/register',
 }
 
-export const loginApi = async (
-  loginRequest: LoginRequest
-): Promise<BaseResponse<LoginResponse>> => {
+export const loginApi = async (loginRequest: LoginRequest) => {
   const { axiosClient } = useAxiosClient()
-  const response = await axiosClient.post<BaseResponse<LoginResponse>>(
+  const response = await axiosClient.post<LoginResponse>(
     ApiPath.AUTH_LOGIN,
     loginRequest
   )
-  const data = plainToClassFromExist(
-    new BaseResponse<LoginResponse>(LoginResponse),
-    response.data
-  )
-  return data
+
+  return new BaseResponse(response.data)
 }
 
-export const registerApi = async (
-  registerRequest: RegisterRequest
-): Promise<BaseResponse<RegisterResponse>> => {
+export const registerApi = async (registerRequest: RegisterRequest) => {
   const { axiosClient } = useAxiosClient()
-  const response = await axiosClient.post<BaseResponse<RegisterResponse>>(
+  const response = await axiosClient.post<RegisterResponse>(
     ApiPath.AUTH_REGISTER,
     registerRequest
   )
-  const data = plainToClassFromExist(
-    new BaseResponse<RegisterResponse>(RegisterResponse),
-    response.data
-  )
-  return data
+
+  return new BaseResponse(response.data)
 }

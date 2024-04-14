@@ -17,6 +17,20 @@
         label=""
         class="custom-textarea-padding"
       />
+
+      <p class="mt-4 mb-2">Ngày bắt đầu</p>
+
+      <CommonTextField
+        name="organizationName"
+        prepend-inner-icon="mdi-email-outline"
+      ></CommonTextField>
+
+      <p class="mt-4 mb-2">Ngày kết thúc</p>
+
+      <CommonTextField
+        name="organizationName"
+        prepend-inner-icon="mdi-email-outline"
+      ></CommonTextField>
     </form>
   </CommonConfirmPopup>
 </template>

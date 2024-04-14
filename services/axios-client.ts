@@ -1,7 +1,6 @@
 import axios, { HttpStatusCode } from 'axios'
-import dayjs from 'dayjs'
-import { AlertMessage } from 'models/interface/common/alert'
 import { AlertType } from '~/constants'
+import type { AlertMessage } from '~/models/interface/common/alert'
 import { useAlertStore } from '~/stores/alert/alert-store'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 
@@ -16,13 +15,9 @@ export const useAxiosClient = () => {
     function (config) {
       // Add token to request header
       const authorizationStore = useAuthorizationStore()
-      if (authorizationStore.tokenGetDate !== dayjs().format('YYYY/MM/DD')) {
-        authorizationStore.resetAccessToken()
-      }
       const accessToken = authorizationStore.accessToken
 
       config.headers.Authorization = `Bearer ${accessToken}`
-      config.headers.role = 'admin'
 
       return config
     },
@@ -44,17 +39,13 @@ export const useAxiosClient = () => {
       // Any status codes that falls outside the range of 2xx cause this function to trigger
       if (error.response.status === HttpStatusCode.Unauthorized) {
         try {
-          if (
-            authorizationStore.tokenGetDate === dayjs().format('YYYY/MM/DD')
-          ) {
-            const accessToken = ''
-            authorizationStore.setAccessToken(accessToken)
-          }
+          authorizationStore.resetSessionAccess()
+
           const originalConfig = error.config
           originalConfig.headers.Authorization = `Bearer ${authorizationStore.accessToken}`
           return axios(originalConfig)
         } catch (error) {
-          authorizationStore.resetAccessToken()
+          authorizationStore.resetSessionAccess()
           return Promise.reject(error)
         }
       } else {

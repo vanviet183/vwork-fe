@@ -1,4 +1,10 @@
-import { CHANGE_PASSWORD, FORGET_PASSWORD, HOME, LOGIN } from '~/constants'
+import {
+  CHANGE_PASSWORD,
+  FORGET_PASSWORD,
+  HOME,
+  LOGIN,
+  REGISTER,
+} from '~/constants'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 
 export default defineNuxtRouteMiddleware((to, _from) => {
@@ -6,6 +12,7 @@ export default defineNuxtRouteMiddleware((to, _from) => {
 
   if (
     to.path !== LOGIN &&
+    to.path !== REGISTER &&
     to.path !== FORGET_PASSWORD &&
     to.path !== CHANGE_PASSWORD &&
     (!authorizationStore.accessToken || authorizationStore.accessToken === '')

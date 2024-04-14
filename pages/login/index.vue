@@ -105,7 +105,13 @@
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { object, string } from 'yup'
-import { FORGET_PASSWORD, HOME, MAX_LENGTH_INPUT, REGISTER } from '~/constants'
+import {
+  FORGET_PASSWORD,
+  HOME,
+  MAX_LENGTH_INPUT,
+  ORGANIZATION,
+  REGISTER,
+} from '~/constants'
 import { useAuthStore } from '~/stores/auth/auth-store'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 
@@ -125,6 +131,7 @@ watch(accessToken, () => {
     navigateTo({ path: HOME })
   }
 })
+
 const schemaValidate = () => {
   const validate: { [key: string]: any } = {
     email: string().trim().email().required().max(MAX_LENGTH_INPUT),
@@ -141,6 +148,8 @@ const { handleSubmit } = useForm({
 
 const onSubmit = handleSubmit(async (values) => {
   await authStore.login(values.email, values.password)
+  navigateTo({ path: ORGANIZATION })
+  // navigateTo({ path: HOME })
 })
 
 const handleForgetPassword = () => {
