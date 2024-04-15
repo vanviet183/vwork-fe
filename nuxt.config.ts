@@ -12,6 +12,7 @@ export default defineNuxtConfig({
     { path: '~/components/user', extensions: ['.vue'] },
     { path: '~/components/tasks', extensions: ['.vue'] },
     { path: '~/components/project', extensions: ['.vue'] },
+    { path: '~/components/organizations', extensions: ['.vue'] },
     '~/components',
   ],
   runtimeConfig: {

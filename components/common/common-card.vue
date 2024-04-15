@@ -89,7 +89,8 @@ const props = defineProps({
   },
   amountTask: {
     type: Number,
-    required: true,
+    required: false,
+    default: undefined,
   },
   taskPrioritize: {
     type: String,

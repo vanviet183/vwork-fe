@@ -15,47 +15,34 @@
           cập nhật lời mời
         </p>
 
-        <CommonFlatButton
-          v-if="!isInitOrganization"
-          @click="isInitOrganization = !isInitOrganization"
-        >
-          <v-icon icon="mdi-plus"></v-icon>
-          <span>Khởi tạo tổ chức mới</span>
-        </CommonFlatButton>
-        <div v-if="isInitOrganization">
-          <form>
-            <CommonTextField
-              name="organizationName"
-              placeholder="Nhập tên tổ chức"
-              prepend-inner-icon="mdi-email-outline"
-            ></CommonTextField>
-            <CommonTextField
-              name="phoneNumber"
-              placeholder="Số điện thoại"
-              class="mt-4"
-              prepend-inner-icon="mdi-email-outline"
-            ></CommonTextField>
-            <CommonDropdown :items="listAmountEmployee"></CommonDropdown>
-            <CommonTextField
-              name="amountEmployee"
-              placeholder="Quy mô nhân sự"
-              class="mt-4"
-              prepend-inner-icon="mdi-email-outline"
-            ></CommonTextField>
-            <CommonTextField
-              name="role"
-              class="mt-4"
-              placeholder="Chức vụ"
-              prepend-inner-icon="mdi-email-outline"
-            ></CommonTextField>
-          </form>
+        <div v-if="!isInitOrganization" class="join-organization">
           <CommonFlatButton
-            background-color="#28526e"
-            color="white"
-            class="btn-login"
-            @click="onSubmit"
-            >Hoàn tất</CommonFlatButton
+            v-if="!isJoinOrganization"
+            class="w-full justify-start"
+            @click="isJoinOrganization = !isJoinOrganization"
           >
+            <div class="d-flex align-center">
+              <v-icon icon="mdi-plus" class="p-1"></v-icon>
+              <p>Tham gia tổ chức</p>
+            </div>
+          </CommonFlatButton>
+          <div v-if="isJoinOrganization">
+            <InitOrganizationForm />
+          </div>
+        </div>
+
+        <div v-if="!isJoinOrganization" class="init-organization">
+          <CommonFlatButton
+            v-if="!isInitOrganization"
+            class="mt-4 w-full justify-start"
+            @click="isInitOrganization = !isInitOrganization"
+          >
+            <v-icon icon="mdi-plus" class="p-1"></v-icon>
+            <span>Khởi tạo tổ chức mới</span>
+          </CommonFlatButton>
+          <div v-if="isInitOrganization">
+            <JoinOrganizationForm />
+          </div>
         </div>
       </div>
     </div>
@@ -79,33 +66,12 @@
   </div>
 </template>
 <script setup lang="ts">
-import { HOME } from '~/constants'
 definePageMeta({
   layout: false,
 })
 
 const isInitOrganization = ref(false)
-const listAmountEmployee = [
-  {
-    title: '10 nhân sự',
-    value: 10,
-  },
-  {
-    title: '30 nhân sự',
-    value: 30,
-  },
-  {
-    title: '50 nhân sự',
-    value: 50,
-  },
-  {
-    title: '100 nhân sự',
-    value: 100,
-  },
-]
-const onSubmit = () => {
-  navigateTo({ path: HOME })
-}
+const isJoinOrganization = ref(false)
 </script>
 <style scoped lang="scss">
 @use 'sass:map';
