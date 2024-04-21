@@ -6,8 +6,8 @@ import type { JoinOrganizationResponse } from '~/models/class/oranizations/join/
 import { useAxiosClient } from '~/services/axios-client'
 
 const ApiPath = {
-  INIT_ORGANIZATION: '/organization/init',
-  JOIN_ORGANIZATION: '/organization/join',
+  INIT_ORGANIZATION: '/organizations/init',
+  JOIN_ORGANIZATION: '/organizations/join',
 }
 
 export const initOrganizationApi = async (

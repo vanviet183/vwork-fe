@@ -121,7 +121,7 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
 import { object, string } from 'yup'
-import { LOGIN, MAX_LENGTH_INPUT } from '~/constants'
+import { LOGIN, MAX_LENGTH_INPUT, ORGANIZATION } from '~/constants'
 import { useAuthStore } from '~/stores/auth/auth-store'
 
 const visible = ref(false)
@@ -155,7 +155,7 @@ const onSubmit = handleSubmit(async (values) => {
     values.password
   )
   if (result) {
-    navigateTo({ path: LOGIN })
+    navigateTo({ path: ORGANIZATION, query: { userId: 1 } })
   }
 })
 

@@ -24,9 +24,11 @@ export const useAuthStore = defineStore('auth', () => {
       if (response.contents) {
         const { userId, accessToken, refreshToken } = response.contents
         authorizationStore.setSessionAccess(userId, accessToken, refreshToken)
+        return true
       }
     } catch (error) {
       isError.value = true
+      return false
     } finally {
       isLoading.value = false
     }

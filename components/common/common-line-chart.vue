@@ -27,13 +27,13 @@ ChartJS.register(
   Legend
 )
 
-const labels = Array.from({ length: 31 }, (_, i) => `Day ${i}`)
+const labels = Array.from({ length: 31 }, (_, i) => `Day ${i + 1}`)
 const chartData = {
   labels,
   datasets: [
     {
       label: 'Dataset 2',
-      data: Array.from({ length: 31 }, () => Math.floor(Math.random() * 100)),
+      data: Array.from({ length: 15 }, () => Math.floor(Math.random() * 100)),
       borderColor: '#17b0e1',
       // pointRadius: 0, // hide point
       pointStyle: 'line',

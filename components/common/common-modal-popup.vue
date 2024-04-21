@@ -1,5 +1,13 @@
 <template>
-  <v-dialog :model-value="isShow" persistent width="auto">
+  <v-dialog
+    :model-value="props.isShow"
+    width="auto"
+    :v-bind="$attrs"
+    scroll-strategy="reposition"
+    class="custom-popup"
+    persistent
+    no-click-animation
+  >
     <div class="popup-content blur-x2">
       <h2 class="popup-title">{{ props.title }}</h2>
       <slot></slot>
@@ -22,41 +30,21 @@ const props = defineProps({
 
 <style scoped lang="scss">
 @use 'sass:map';
-.popup-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 3;
-}
 
-.popup-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 3;
-  width: 100%;
-  height: 100%;
-  background-color: map.get($colors, 'black-45');
-}
-.popup-title {
-  color: map.get($colors, 'dim-gray');
-  font-size: 20px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 23px;
-  letter-spacing: 0.15px;
-}
 .popup-content {
   position: relative;
   z-index: 4;
   padding: 20px;
-  width: 600px !important;
-  border-radius: 10px;
+  border-radius: 4px;
   background: white;
+  min-width: 600px;
+}
+.popup-title {
+  color: map.get($colors, 'text-color');
+  font-weight: 600;
+}
+.custom-popup {
+  overflow: auto;
+  z-index: 999 !important;
 }
 </style>

@@ -7,36 +7,46 @@
     :positive-action="onSubmit"
     :negative-action="onCancel"
   >
-    <form class="form-container">
-      <p class="mb-2">Tên dự án</p>
-      <CommonTextField name="name" label="" autofocus @keypress.enter.prevent />
+    <div>
+      <form class="form-container">
+        <p class="mb-2">Tên dự án</p>
+        <CommonTextField name="projectName" autofocus @keypress.enter.prevent />
 
-      <p class="mt-4 mb-2">Mô tả dự án</p>
-      <CommonTextarea
-        name="description"
-        label=""
-        class="custom-textarea-padding"
-      />
+        <p class="mt-4 mb-2">Mô tả dự án</p>
+        <CommonTextarea name="description" class="custom-textarea-padding" />
 
-      <p class="mt-4 mb-2">Ngày bắt đầu</p>
+        <p class="mt-4 mb-2">Ngày bắt đầu</p>
 
-      <CommonTextField
-        name="organizationName"
-        prepend-inner-icon="mdi-email-outline"
-      ></CommonTextField>
+        <CommonDatePicker
+          class="target-day"
+          name="startDate"
+          placeholder="YYYY/MM/DD"
+          :disabled-date="disableDate"
+          :default-value="startDate ?? null"
+          @change="handleChangeStartDate"
+        ></CommonDatePicker>
 
-      <p class="mt-4 mb-2">Ngày kết thúc</p>
-
-      <CommonTextField
-        name="organizationName"
-        prepend-inner-icon="mdi-email-outline"
-      ></CommonTextField>
-    </form>
+        <p class="mt-4 mb-2">Ngày kết thúc</p>
+        <CommonDatePicker
+          class="target-day"
+          name="endDate"
+          placeholder="YYYY/MM/DD"
+          :disabled-date="disableDate"
+          :default-value="endDate ?? null"
+          @change="handleChangeEndDate"
+        ></CommonDatePicker>
+      </form>
+    </div>
   </CommonConfirmPopup>
 </template>
 
 <script setup lang="ts">
-import { SCREEN_MODE } from '~/constants'
+import dayjs from 'dayjs'
+import { storeToRefs } from 'pinia'
+import { useForm } from 'vee-validate'
+import { object, string } from 'yup'
+import { MAX_LENGTH_INPUT, SCREEN_MODE } from '~/constants'
+import { useProjectStore } from '~/stores/project/project-store'
 
 const emit = defineEmits(['close-form'])
 
@@ -51,12 +61,78 @@ const props = defineProps({
   },
 })
 
+const startDate = ref()
+const endDate = ref()
+
+const route = useRoute()
+const organizationId = computed(() => Number(route.query.organizationId))
+
+const projectStore = useProjectStore()
+const { projectInfo } = storeToRefs(projectStore)
+
 function onCancel() {
   emit('close-form')
 }
 
-function onSubmit() {
-  console.log('submit')
+const schemaValidate = () => {
+  const validate: { [key: string]: any } = {
+    projectName: string().trim().required().max(MAX_LENGTH_INPUT),
+    description: string().trim().required().max(MAX_LENGTH_INPUT),
+    startDate: string().trim().required(),
+    endDate: string().trim().required(),
+  }
+  return object().shape(validate)
+}
+
+const schema = ref(schemaValidate())
+
+const { handleSubmit } = useForm({
+  validationSchema: schema,
+})
+
+const onSubmit = handleSubmit(async (values) => {
+  const result = await projectStore.createProject(
+    organizationId.value,
+    values.projectName,
+    values.description,
+    values.startDate,
+    values.endDate
+  )
+
+  if (result) {
+    await projectStore.getProjectsInOrganization(organizationId.value)
+    emit('close-form')
+  }
+})
+
+function handleChangeStartDate(value: Date) {
+  startDate.value = value
+  if (
+    dayjs(startDate.value).format('YYYY/MM/DD') >
+      dayjs(endDate.value).format('YYYY/MM/DD') &&
+    startDate.value
+  ) {
+    endDate.value = startDate.value
+  }
+}
+
+function handleChangeEndDate(value: Date) {
+  endDate.value = value
+  if (
+    dayjs(startDate.value).format('YYYY/MM/DD') >
+      dayjs(endDate.value).format('YYYY/MM/DD') &&
+    endDate.value &&
+    startDate.value
+  ) {
+    startDate.value = endDate.value
+  }
+}
+
+function disableDate(time: Date): boolean {
+  const fromDate = dayjs().subtract(24, 'month').format('YYYY/MM/DD')
+  const nowDate = dayjs().format('YYYY/MM/DD')
+  const targetDate = dayjs(time).format('YYYY/MM/DD')
+  return targetDate < fromDate || targetDate > nowDate
 }
 </script>
 <style lang="scss" scoped>

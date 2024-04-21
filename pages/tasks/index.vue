@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper-tasks">
     <div class="d-flex">
-      <CommonSidebar></CommonSidebar>
+      <CommonSidebar />
       <div class="box-content flex-1">
         <div v-if="isAdmin" class="pt-5 pl-5 d-flex gap-3">
           <CommonFlatButton @click="handleStatistical"
@@ -97,7 +97,7 @@
                 <p class="text-lg">Tạo</p>
               </CommonFlatButton>
 
-              <ProjectForm
+              <TaskForm
                 v-if="isOpenFormCreate"
                 @close-form="handleToggleFormCreate"
               />
@@ -128,89 +128,15 @@
   </div>
 </template>
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useTaskStore } from '~/stores/task/task-store'
 const isOpenFormCreate = ref(false)
 const isStatistical = ref(false)
 
 const isAdmin = ref(true)
 
-const listTask = ref([
-  {
-    id: '1',
-    title: 'Task 1',
-    user: {
-      avatar:
-        'https://i.pinimg.com/736x/6d/44/61/6d446105361e83b1013aa9e349574ab0.jpg',
-      email: 'email1',
-    },
-    status: 1,
-    time: '123456',
-    prioritize: 1,
-    relatedTasks: {
-      before: {},
-      after: {},
-    },
-  },
-  {
-    id: '2',
-    title: 'Task 2',
-    user: {
-      avatar: 'img1',
-      email: 'email1',
-    },
-    status: 0,
-    time: '123456',
-    prioritize: 1,
-    relatedTasks: {
-      before: {},
-      after: {},
-    },
-  },
-  {
-    id: '3',
-    title: 'Task 3',
-    user: {
-      avatar: 'img1',
-      email: 'email1',
-    },
-    status: 0,
-    time: '123456',
-    prioritize: 1,
-    relatedTasks: {
-      before: {},
-      after: {},
-    },
-  },
-  {
-    id: '4',
-    title: 'Task 4',
-    user: {
-      avatar: 'img1',
-      email: 'email1',
-    },
-    status: 0,
-    time: '123456',
-    prioritize: 1,
-    relatedTasks: {
-      before: {},
-      after: {},
-    },
-  },
-  {
-    id: '5',
-    title: 'Task 5',
-    user: {
-      avatar: 'img1',
-      email: 'email1',
-    },
-    status: 0,
-    time: '123456',
-    prioritize: 1,
-    relatedTasks: {
-      before: {},
-      after: {},
-    },
-  },
-])
+const taskStore = useTaskStore()
+const { listTask } = storeToRefs(taskStore)
 
 const handleToggleFormCreate = () => {
   isOpenFormCreate.value = !isOpenFormCreate.value

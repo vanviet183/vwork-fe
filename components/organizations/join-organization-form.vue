@@ -2,90 +2,59 @@
   <div class="wrapper-init-form">
     <form>
       <CommonTextField
-        name="organizationName"
-        placeholder="Nhập tên tổ chức"
+        name="organizationId"
+        placeholder="Nhập mã tổ chức"
+        prepend-inner-icon="mdi-email-outline"
       ></CommonTextField>
-      <CommonTextField
-        name="email"
-        placeholder="Nhập email tổ chức"
-        class="mt-4"
-      ></CommonTextField>
-      <CommonTextField
-        name="phone"
-        placeholder="Số điện thoại"
-        class="mt-4"
-      ></CommonTextField>
-      <CommonDropdown
-        name="amountEmployee"
-        item-label="title"
-        placeholder="Quy mô nhân sự"
-        :items="listAmountEmployee"
-        class="mt-4"
-      ></CommonDropdown>
-      <CommonDropdown
-        name="role"
-        item-label="title"
-        placeholder="Chức vụ"
-        :items="listRoleOrganization"
-        class="mt-4"
-      ></CommonDropdown>
     </form>
     <CommonFlatButton
       background-color="#28526e"
       color="white"
-      class="btn-login"
+      class="btn-login mt-4"
       @click="onSubmit"
       >Hoàn tất
     </CommonFlatButton>
   </div>
 </template>
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useForm } from 'vee-validate'
+import { number, object } from 'yup'
 import { HOME } from '~/constants'
+import { useOrganizationStore } from '~/stores/organization/organization-store'
 
-const listAmountEmployee = [
-  {
-    title: '10 nhân sự',
-    value: 10,
-  },
-  {
-    title: '30 nhân sự',
-    value: 30,
-  },
-  {
-    title: '50 nhân sự',
-    value: 50,
-  },
-  {
-    title: '100 nhân sự',
-    value: 100,
-  },
-]
+const route = useRoute()
+const userId = computed(() => Number(route.query.userId))
+const organizationStore = useOrganizationStore()
+const { organizationInfo } = storeToRefs(organizationStore)
 
-const listRoleOrganization = [
-  {
-    title: 'CEO',
-    value: 1,
-  },
-  {
-    title: 'Quản lý',
-    value: 30,
-  },
-  {
-    title: 'Trưởng nhóm',
-    value: 50,
-  },
-  {
-    title: 'Nhân viên',
-    value: 100,
-  },
-  {
-    title: 'Chức vụ khác',
-    value: 100,
-  },
-]
-const onSubmit = () => {
-  navigateTo({ path: HOME })
+const schemaValidate = () => {
+  const validate: { [key: string]: any } = {
+    organizationId: number().required(),
+  }
+  return object().shape(validate)
 }
+
+const schema = ref(schemaValidate())
+
+const onInvalid = (errors: any) => console.error(errors)
+const { handleSubmit } = useForm({
+  validationSchema: schema,
+})
+
+const onSubmit = handleSubmit(async (values) => {
+  const result = await organizationStore.joinOrganization(
+    userId.value,
+    values.organizationId
+  )
+
+  if (result) {
+    navigateTo({
+      path: HOME,
+      query: { organizationId: organizationInfo.value?.id },
+    })
+  }
+}, onInvalid)
 </script>
 <style scoped lang="scss">
 @use 'sass:map';

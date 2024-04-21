@@ -19,11 +19,13 @@
             :icon="isOpenCurrent ? 'mdi-menu-down' : 'mdi-menu-right'"
             class="icon-sidebar"
           ></v-icon>
-          <span> Dự án đang thực hiện (1)</span>
+          <span>
+            {{ `Dự án đang thực hiện (${projectsCurrent?.length})` }}
+          </span>
         </p>
         <div v-if="isOpenCurrent" class="mt-3">
           <div
-            v-for="(item, index) in menu"
+            v-for="(item, index) in projectsCurrent"
             :key="index"
             :class="(item.isActive ? 'tab-active ' : '') + 'sidebar-tab'"
             @click="gotoPage(item.path)"
@@ -40,11 +42,13 @@
             :icon="isOpenComplete ? 'mdi-menu-down' : 'mdi-menu-right'"
             class="icon-sidebar"
           ></v-icon>
-          <span> Dự án đã hoàn thành (3)</span>
+          <span>
+            {{ `Dự án đã hoàn thành (${projectsCompleted?.length})` }}</span
+          >
         </p>
         <div v-if="isOpenComplete" class="mt-3">
           <div
-            v-for="(item, index) in menu"
+            v-for="(item, index) in projectsCompleted"
             :key="index"
             :class="(item.isActive ? 'tab-active ' : '') + 'sidebar-tab'"
             @click="gotoPage(item.path)"
@@ -64,29 +68,32 @@
   </div>
 </template>
 <script setup lang="ts">
-const menu = ref([
-  {
-    img: 'P',
-    title: 'Project 1',
+import { storeToRefs } from 'pinia'
+import { useProjectStore } from '~/stores/project/project-store'
+
+const projectStore = useProjectStore()
+const { listProjectCurrent, listProjectCompleted, listProjects } =
+  storeToRefs(projectStore)
+
+const projectsCurrent = computed(() => getProjectsByStatus())
+const projectsCompleted = computed(() => getProjectsByStatus(true))
+
+const getProjectsByStatus = (isCompleted = false) => {
+  if (isCompleted) {
+    return listProjectCompleted.value?.map((item, index) => ({
+      img: item.projectName.slice(0, 1),
+      title: item.projectName,
+      path: '/',
+      isActive: index === 0,
+    }))
+  }
+  return listProjectCurrent.value?.map((item, index) => ({
+    img: item.projectName.slice(0, 1),
+    title: item.projectName,
     path: '/',
-    isActive: true,
-  },
-  {
-    img: 'P',
-    title: 'Project 2',
-    path: '/',
-  },
-  {
-    img: 'P',
-    title: 'Project 3',
-    path: '/',
-  },
-  {
-    img: 'P',
-    title: 'Project 4',
-    path: '/',
-  },
-])
+    isActive: index === 0,
+  }))
+}
 
 const isOpenCurrent = ref(true)
 const isOpenComplete = ref(false)

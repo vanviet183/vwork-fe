@@ -1,12 +1,12 @@
 <template>
   <div class="wrapper-statistical p-4">
-    <CommonChartGantt></CommonChartGantt>
+    <CommonChartGantt />
 
     <div class="d-flex gap-4">
       <div class="overview w-1/3 box-item">
         <p>Tổng công việc</p>
         <!-- <CommonCircleProgress></CommonCircleProgress> -->
-        <CommonDoughnutChart></CommonDoughnutChart>
+        <CommonDoughnutChart />
         <div class="d-flex justify-between mt-4">
           <div>
             <p>HOÀN THÀNH</p>
@@ -23,24 +23,24 @@
       </div>
       <div class="chart-gantt w-2/3 box-item">
         Quá trình hoàn thành theo ngày
-        <CommonLineChart></CommonLineChart>
+        <CommonLineChart />
       </div>
     </div>
     <div class="d-flex gap-4 mt-4">
       <div class="efficiency w-1/3 box-item">
         <p>Hiệu suất công việc (%)</p>
-        <CommonUserTask></CommonUserTask>
-        <CommonUserTask></CommonUserTask>
-        <CommonUserTask></CommonUserTask>
+        <CommonUserTask />
+        <CommonUserTask />
+        <CommonUserTask />
       </div>
       <div class="unfinished w-1/3 box-item">
         <p>Quá trình hoàn thành theo ngày</p>
-        <CommonUserTask></CommonUserTask>
-        <CommonUserTask></CommonUserTask>
+        <CommonUserTask />
+        <CommonUserTask />
       </div>
       <div class="out-of-date w-1/3 box-item">
         <p>Quá hạn</p>
-        <CommonEmpty></CommonEmpty>
+        <CommonEmpty />
       </div>
     </div>
   </div>

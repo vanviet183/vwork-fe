@@ -1,29 +1,19 @@
-import { GetUserRequest } from '~/models/class/user/get-user-request'
-import { GetUserResponse } from '~/models/class/user/get-user-response'
+import { BaseResponse } from '~/models/class/common/base-response'
+import { GetUserInfoRequest } from '~/models/class/user/get-user-info-request'
+import { GetUserInfoResponse } from '~/models/class/user/get-user-info-response'
 import { useAxiosClient } from '~/services/axios-client'
 
 const ApiPath = {
-  GET_LIST_USER: '/user/get_list_user',
-  UPDATE_MAIL_RECEIVE_SETTING: '/test',
+  GET_USER_INFO_REQUEST: '/users',
 }
 
-export const getListUserApi = async (getListUserRequest: GetUserRequest) => {
-  const { axiosClient } = useAxiosClient()
-  const response = await axiosClient.get<GetUserResponse>(
-    ApiPath.GET_LIST_USER,
-    { params: getListUserRequest }
-  )
-
-  return response.data
-}
-
-export const updateMailReceiveSettingApi = async (
-  getListUserRequest: GetUserRequest
+export const getUserInfoApi = async (
+  getUserInfoRequest: GetUserInfoRequest
 ) => {
   const { axiosClient } = useAxiosClient()
-  const response = await axiosClient.post<Object>(
-    ApiPath.UPDATE_MAIL_RECEIVE_SETTING,
-    getListUserRequest
+  const response = await axiosClient.get<GetUserInfoResponse>(
+    `${ApiPath.GET_USER_INFO_REQUEST}/${getUserInfoRequest.userId}`
   )
-  return response.data
+
+  return new BaseResponse(response.data)
 }

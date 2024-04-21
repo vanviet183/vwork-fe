@@ -17,13 +17,20 @@
     </template>
     <template #item.options="{ item }">
       <CommonBoxOptions>
-        <div>hello</div>
+        <div class="p-4 cursor-pointer" @click="handleComplete(item.columns)">
+          Đánh dấu hoàn thành
+        </div>
       </CommonBoxOptions>
     </template>
     <template #item.bottom=""> </template>
   </v-data-table>
 </template>
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useTaskStore } from '~/stores/task/task-store'
+const taskStore = useTaskStore()
+const { listTask } = storeToRefs(taskStore)
+
 const props = defineProps({
   items: {
     type: Array as PropType<any[]>,
@@ -66,6 +73,13 @@ const headers = ref([
 ] as any[])
 
 const selected = ref([])
+
+const handleComplete = (el: any) => {
+  console.log('el', el)
+
+  listTask.value = listTask.value.filter((item) => el.title !== item.title)
+  console.log('hello')
+}
 </script>
 <style scoped lang="scss">
 :deep(.v-field__outline) {

@@ -1,10 +1,6 @@
-import { GetUserRequest } from 'models/class/user/get-user-request'
-import { GetUserResponse } from 'models/class/user/get-user-response'
-import { AlertType } from '~/constants'
-import {
-  getListUserApi,
-  updateMailReceiveSettingApi,
-} from '~/services/user/user-service'
+import { GetUserInfoRequest } from '~/models/class/user/get-user-info-request'
+import { GetUserInfoResponse } from '~/models/class/user/get-user-info-response'
+import { getUserInfoApi } from '~/services/user/user-service'
 import { useAlertStore } from '~/stores/alert/alert-store'
 
 export const useUserStore = defineStore('user', () => {
@@ -12,46 +8,20 @@ export const useUserStore = defineStore('user', () => {
   const isLoading = ref(false)
   const isError = ref(false)
   const error = ref('')
-  const listUser = ref<GetUserResponse>()
+  const userInfo = ref<GetUserInfoResponse>()
 
-  async function getListUser(userId: string, email: string) {
+  async function getUserInfo(userId: number) {
     if (isLoading.value) {
       return
     }
     isLoading.value = true
     isError.value = false
     try {
-      const getListUserRequest = new GetUserRequest(userId, email)
-      const response = await getListUserApi(getListUserRequest.instance)
-      listUser.value = response.contents
+      const request = new GetUserInfoRequest(userId)
+      const response = await getUserInfoApi(request)
+      userInfo.value = response.contents
     } catch (error) {
       isError.value = true
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  async function updateMailReceiveSetting(userId: string, email: string) {
-    if (isLoading.value) {
-      return
-    }
-    isLoading.value = true
-    isError.value = false
-    try {
-      const requestUpdateMailReceiveSetting = new GetUserRequest(userId, email)
-      const response = await updateMailReceiveSettingApi(
-        requestUpdateMailReceiveSetting.instance
-      )
-      if (response.message) {
-        alertStore.setAlertMessage({
-          message: response.message,
-          type: AlertType.success,
-        })
-      }
-      return true
-    } catch (error) {
-      isError.value = true
-      return false
     } finally {
       isLoading.value = false
     }
@@ -61,8 +31,7 @@ export const useUserStore = defineStore('user', () => {
     isLoading,
     isError,
     error,
-    listUser,
-    getListUser,
-    updateMailReceiveSetting,
+    userInfo,
+    getUserInfo,
   }
 })

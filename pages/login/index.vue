@@ -105,9 +105,16 @@
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { object, string } from 'yup'
-import { FORGET_PASSWORD, HOME, MAX_LENGTH_INPUT, REGISTER } from '~/constants'
+import {
+  FORGET_PASSWORD,
+  HOME,
+  MAX_LENGTH_INPUT,
+  ORGANIZATION,
+  REGISTER,
+} from '~/constants'
 import { useAuthStore } from '~/stores/auth/auth-store'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
+import { useUserStore } from '~/stores/user/user-store'
 
 const visible = ref(false)
 
@@ -116,15 +123,10 @@ definePageMeta({
 })
 
 const authStore = useAuthStore()
+const userStore = useUserStore()
+const { userInfo } = storeToRefs(userStore)
 
 const authenticationStore = useAuthorizationStore()
-const { accessToken } = storeToRefs(authenticationStore)
-
-watch(accessToken, () => {
-  if (accessToken.value) {
-    navigateTo({ path: HOME })
-  }
-})
 
 const schemaValidate = () => {
   const validate: { [key: string]: any } = {
@@ -141,9 +143,19 @@ const { handleSubmit } = useForm({
 })
 
 const onSubmit = handleSubmit(async (values) => {
-  await authStore.login(values.email, values.password)
-  // navigateTo({ path: ORGANIZATION })
-  navigateTo({ path: HOME })
+  const result = await authStore.login(values.email, values.password)
+  if (result) {
+    await userStore.getUserInfo(authenticationStore.userId)
+
+    if (userInfo.value?.organization) {
+      navigateTo({
+        path: HOME,
+        query: { organizationId: userInfo.value?.organization.id },
+      })
+    } else {
+      navigateTo({ path: ORGANIZATION, query: { userId: userInfo.value?.id } })
+    }
+  }
 })
 
 const handleForgetPassword = () => {

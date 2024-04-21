@@ -27,7 +27,7 @@
             </div>
           </CommonFlatButton>
           <div v-if="isJoinOrganization">
-            <InitOrganizationForm />
+            <JoinOrganizationForm />
           </div>
         </div>
 
@@ -41,7 +41,7 @@
             <span>Khởi tạo tổ chức mới</span>
           </CommonFlatButton>
           <div v-if="isInitOrganization">
-            <JoinOrganizationForm />
+            <InitOrganizationForm />
           </div>
         </div>
       </div>
@@ -66,8 +66,20 @@
   </div>
 </template>
 <script setup lang="ts">
+import { LOGIN } from '~/constants'
+
+const route = useRoute()
+const userId = computed(() => Number(route.query.userId))
 definePageMeta({
   layout: false,
+})
+
+watch(userId, () => {
+  if (!userId.value) {
+    navigateTo({
+      path: LOGIN,
+    })
+  }
 })
 
 const isInitOrganization = ref(false)
