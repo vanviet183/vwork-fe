@@ -5,14 +5,14 @@
       <div class="box-content flex-1">
         <div v-if="isAdmin" class="pt-5 pl-5 d-flex gap-3">
           <CommonFlatButton @click="handleStatistical"
-            >Thong ke</CommonFlatButton
+            >Thống kê</CommonFlatButton
           >
           <CommonFlatButton @click="handleStatistical"
-            >Danh sach cong viec</CommonFlatButton
+            >Danh sách công việc</CommonFlatButton
           >
         </div>
         <p v-else class="pt-5 pl-5">Công việc của tôi</p>
-        <div v-if="isStatistical">
+        <div v-if="!isStatistical">
           <div class="box-options d-flex justify-between">
             <div class="d-flex alignt-center gap-3">
               <CommonBoxOptions title="Bộ lọc" icon="mdi-filter-outline">
@@ -105,7 +105,7 @@
           </div>
 
           <div class="box-tasks">
-            <div v-if="!listTask.length">
+            <div v-if="!listTask?.length">
               <img
                 src="~/assets/img/no-task.png"
                 alt="Vwork Logo"
@@ -129,14 +129,31 @@
 </template>
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { useOrganizationStore } from '~/stores/organization/organization-store'
 import { useTaskStore } from '~/stores/task/task-store'
+
 const isOpenFormCreate = ref(false)
 const isStatistical = ref(false)
 
 const isAdmin = ref(true)
+const route = useRoute()
+const projectId = computed(() => Number(route.query.projectId))
+const organizationId = ref(Number(route.query.organizationId))
 
 const taskStore = useTaskStore()
 const { listTask } = storeToRefs(taskStore)
+
+const organizationStore = useOrganizationStore()
+const { listUser } = storeToRefs(organizationStore)
+
+onMounted(async () => {
+  if (projectId.value) {
+    await taskStore.getAllTaskInProject(projectId.value)
+  }
+  if (!listUser.value) {
+    await organizationStore.getAllUserInOrganization(organizationId.value)
+  }
+})
 
 const handleToggleFormCreate = () => {
   isOpenFormCreate.value = !isOpenFormCreate.value
@@ -149,9 +166,6 @@ const handleStatistical = () => {
 <style scoped lang="scss">
 @use 'sass:map';
 
-// .wrapper-tasks {
-//   overflow-x: scroll;
-// }
 .box-content {
   background-color: white;
 }

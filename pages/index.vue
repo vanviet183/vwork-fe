@@ -111,6 +111,7 @@ import { storeToRefs } from 'pinia'
 import colors from '~/assets/scss/main.module.scss'
 import { HOME, ORGANIZATION, SCREEN_MODE, TASKS } from '~/constants'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
+import { useOrganizationStore } from '~/stores/organization/organization-store'
 import { useProjectStore } from '~/stores/project/project-store'
 import { useUserStore } from '~/stores/user/user-store'
 
@@ -124,13 +125,16 @@ const {
 } = storeToRefs(projectStore)
 
 const route = useRoute()
-const organizationId = ref(Number(route.query.organizationId))
+const organizationId = computed(() => Number(route.query.organizationId))
 
 const userStore = useUserStore()
 const { userInfo } = storeToRefs(userStore)
 
 const authenticationStore = useAuthorizationStore()
 const { userId } = storeToRefs(authenticationStore)
+
+const organizationStore = useOrganizationStore()
+const { listUser } = storeToRefs(organizationStore)
 
 onMounted(async () => {
   if (organizationId.value) {
@@ -149,10 +153,16 @@ onMounted(async () => {
       navigateTo({ path: ORGANIZATION, query: { userId: userInfo.value?.id } })
     }
   }
+  if (!listUser.value && organizationId.value) {
+    await organizationStore.getAllUserInOrganization(organizationId.value)
+  }
 })
 
-const goToProject = (idProject: number) => {
-  navigateTo({ path: TASKS, query: { idProject } })
+const goToProject = (projectId: number) => {
+  navigateTo({
+    path: TASKS,
+    query: { organizationId: userInfo.value?.organization?.id, projectId },
+  })
 }
 
 const handleToggleFormCreate = () => {

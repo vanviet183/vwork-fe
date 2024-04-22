@@ -1,8 +1,10 @@
 import { Project } from '~/models/class/common/project'
 import { CreateProjectRequest } from '~/models/class/projects/create-project/create-project-request'
 import { GetAllProjectByOrganizationRequest } from '~/models/class/projects/get-all-project-by-organization/get-all-project-by-organization-request'
+import { GetProjectInfoRequest } from '~/models/class/projects/get-project-info/get-project-info-request'
 import {
   createProjectApi,
+  getProjectInfoApi,
   getProjectsInOrganizationApi,
 } from '~/services/project/project-service'
 
@@ -113,6 +115,24 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  async function getProjectInfo(projectId: number) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new GetProjectInfoRequest(projectId)
+      const response = await getProjectInfoApi(request)
+
+      projectInfo.value = response.contents
+    } catch (error) {
+      isError.value = true
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   async function createProject(
     organizationId: number,
     projectName: string,
@@ -155,5 +175,6 @@ export const useProjectStore = defineStore('project', () => {
     projectInfo,
     getProjectsInOrganization,
     createProject,
+    getProjectInfo,
   }
 })

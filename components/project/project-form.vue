@@ -95,8 +95,8 @@ const onSubmit = handleSubmit(async (values) => {
     organizationId.value,
     values.projectName,
     values.description,
-    values.startDate,
-    values.endDate
+    dayjs(values.startDate).format('YYYY/MM/DD'),
+    dayjs(values.endDate).format('YYYY/MM/DD')
   )
 
   if (result) {
@@ -129,10 +129,9 @@ function handleChangeEndDate(value: Date) {
 }
 
 function disableDate(time: Date): boolean {
-  const fromDate = dayjs().subtract(24, 'month').format('YYYY/MM/DD')
-  const nowDate = dayjs().format('YYYY/MM/DD')
+  const fromDate = dayjs().format('YYYY/MM/DD')
   const targetDate = dayjs(time).format('YYYY/MM/DD')
-  return targetDate < fromDate || targetDate > nowDate
+  return targetDate < fromDate
 }
 </script>
 <style lang="scss" scoped>

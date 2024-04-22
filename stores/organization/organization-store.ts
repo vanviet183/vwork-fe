@@ -1,7 +1,10 @@
+import { User } from '~/models/class/common/user'
+import { GetAllUserInOrganizationRequest } from '~/models/class/oranizations/get-all-user-in-organization/get-all-user-in-organization-request'
 import { InitOrganizationRequest } from '~/models/class/oranizations/init/init-organization-request'
 import { InitOrganizationResponse } from '~/models/class/oranizations/init/init-organization-response'
 import { JoinOrganizationRequest } from '~/models/class/oranizations/join/join-organization-request'
 import {
+  getAllUserInOrganizationApi,
   initOrganizationApi,
   joinOrganizationApi,
 } from '~/services/organization/organization-service'
@@ -14,6 +17,7 @@ export const useOrganizationStore = defineStore('organization', () => {
   const error = ref('')
 
   const organizationInfo = ref<InitOrganizationResponse>()
+  const listUser = ref<User[]>()
 
   async function initOrganization(
     userId: number,
@@ -68,12 +72,31 @@ export const useOrganizationStore = defineStore('organization', () => {
     }
   }
 
+  async function getAllUserInOrganization(organizationId: number) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new GetAllUserInOrganizationRequest(organizationId)
+      const response = await getAllUserInOrganizationApi(request)
+      listUser.value = response.contents.listUser
+    } catch (error) {
+      isError.value = true
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     isLoading,
     isError,
     error,
     organizationInfo,
+    listUser,
     initOrganization,
     joinOrganization,
+    getAllUserInOrganization,
   }
 })
