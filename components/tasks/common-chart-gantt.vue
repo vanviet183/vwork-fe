@@ -44,20 +44,20 @@
             field="TaskName"
             header-text="Task Name"
             text-align="Left"
-            width="200"
+            width="150"
           ></e-column>
           <e-column
             field="StartDate"
             header-text="Start Date"
             text-align="Right"
             format="dd/MM/yyyy"
-            width="120"
+            width="100"
           ></e-column>
           <e-column
             field="Duration"
             header-text="Duration"
             text-align="Right"
-            width="120"
+            width="100"
           ></e-column>
         </e-columns>
       </ejs-gantt>
@@ -74,30 +74,33 @@ import {
   GanttComponent as EjsGantt,
   Toolbar,
 } from '@syncfusion/ej2-vue-gantt'
+import { storeToRefs } from 'pinia'
+import { useProjectStore } from '~/stores/project/project-store'
 
 provide('gantt', [Edit, Toolbar, DayMarkers, CriticalPath])
+
 const scheduleMode = 'Custom'
 const events = [
   {
-    day: new Date('04/02/2019'),
+    day: new Date('04/02/2024'),
   },
   {
-    day: new Date('04/09/2019'),
+    day: new Date('04/09/2024'),
     label: 'Design Phase',
   },
 ]
 const leaveDetails = [
   {
-    from: new Date('04/05/2019'),
-    to: new Date('04/06/2019'),
+    from: new Date('04/05/2024'),
+    to: new Date('04/06/2024'),
     label: 'Good Friday',
   },
   {
-    from: new Date('04/11/2019'),
+    from: new Date('04/11/2024'),
     label: 'Local Holiday',
   },
   {
-    from: new Date('05/01/2019'),
+    from: new Date('05/01/2024'),
     label: 'May Day',
   },
 ]
@@ -110,6 +113,9 @@ const weekdays = ref([
   'Friday',
   'Saturday',
 ])
+
+const projectStore = useProjectStore()
+const { listTask } = storeToRefs(projectStore)
 
 const taskFields = ref({
   id: 'TaskID',
@@ -124,7 +130,19 @@ const taskFields = ref({
   indicators: 'Indicators',
 })
 
-const projectNewData = ref([
+const projectNewData = computed(() => getListTask())
+
+const getListTask = () => {
+  return listTask.value?.map((item) => ({
+    TaskID: item.id,
+    TaskName: item.taskName,
+    StartDate: new Date(item.startDate),
+    EndDate: new Date(item.endDate),
+    isManual: true,
+  }))
+}
+
+const projectNewData2 = ref([
   {
     TaskID: 1,
     TaskName: 'Product concept',

@@ -1,4 +1,4 @@
-import type { Organization } from './organization'
+import type { Group } from './group'
 
 export class User {
   id: number
@@ -7,7 +7,7 @@ export class User {
   email: string
   avatar: string
   role: string
-  organization?: Organization
+  group?: Group
 
   constructor(
     id: number,
@@ -16,7 +16,7 @@ export class User {
     email: string,
     avatar: string,
     role: string,
-    organization?: Organization
+    group?: Group
   ) {
     this.id = id
     this.firstName = firstName
@@ -24,6 +24,6 @@ export class User {
     this.email = email
     this.avatar = avatar
     this.role = role
-    this.organization = organization
+    this.group = group
   }
 }

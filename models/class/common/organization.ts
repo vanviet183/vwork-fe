@@ -1,22 +1,22 @@
+import type { Group } from './group'
 import type { Project } from './project'
-import type { User } from './user'
 
 export class Organization {
   id: number
-  author: User
+  author: number
   organizationName: string
   email: string
   phone: string
-  users: User[]
+  groups: Group[]
   projects?: Project[]
 
   constructor(
     id: number,
-    author: User,
+    author: number,
     organizationName: string,
     email: string,
     phone: string,
-    users: User[],
+    groups: Group[],
     projects?: Project[]
   ) {
     this.id = id
@@ -24,7 +24,7 @@ export class Organization {
     this.email = email
     this.phone = phone
     this.organizationName = organizationName
-    this.users = users
+    this.groups = groups
     this.projects = projects
   }
 }

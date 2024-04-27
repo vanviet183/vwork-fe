@@ -1,6 +1,6 @@
 import type { User } from '../../common/user'
 
-export class GetAllUserInOrganizationResponse {
+export class GetAllUserInGroupResponse {
   listUser: User[]
 
   constructor(listUser: User[]) {

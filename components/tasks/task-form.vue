@@ -11,13 +11,35 @@
       <p class="mb-2">Tên công việc</p>
       <CommonTextField name="taskName" autofocus />
 
+      <div v-if="authenticationStore.role === ROLE.PROJECT_MANAGER">
+        <p class="mt-4 mb-2">Nhóm phụ trách</p>
+        <CommonDropdown
+          name="groupImplement"
+          item-label="title"
+          placeholder="Nhóm phụ trách"
+          :items="listGroupInOrganization ?? []"
+          @change="handleSelectGroup"
+        ></CommonDropdown>
+      </div>
+
+      <div v-if="authenticationStore.role === ROLE.TEAMLEAD">
+        <p class="mt-4 mb-2">Người phụ trách</p>
+        <CommonDropdown
+          name="userResponsible"
+          item-label="title"
+          placeholder="Người phụ trách"
+          :items="listUserInGroup ?? []"
+        ></CommonDropdown>
+      </div>
+
       <p class="mt-4 mb-2">Người thực hiện</p>
-      <CommonDropdown
-        name="userImplement"
-        item-label="title"
+      <CommonDropdownMultiple
+        name="listUserImplement"
         placeholder="Người thực hiện"
-        :items="listUserInOrganization ?? []"
-      ></CommonDropdown>
+        :list-value="listUserInGroup ?? []"
+        item-label="title"
+        @change="handleListUserType"
+      />
 
       <CommonCheckbox name="prioritize" label="Ưu tiên" class="mt-1" />
 
@@ -27,7 +49,7 @@
         name="startDate"
         placeholder="YYYY/MM/DD"
         :disabled-date="disableDate"
-        :default-value="startDate ?? null"
+        :default-value="startDate ?? new Date()"
         @change="handleChangeStartDate"
       ></CommonDatePicker>
 
@@ -37,7 +59,7 @@
         name="endDate"
         placeholder="YYYY/MM/DD"
         :disabled-date="disableDate"
-        :default-value="endDate ?? null"
+        :default-value="endDate ?? new Date()"
         @change="handleChangeEndDate"
       ></CommonDatePicker>
     </form>
@@ -46,11 +68,16 @@
 
 <script setup lang="ts">
 import dayjs from 'dayjs'
+import _ from 'lodash'
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { boolean, object, string } from 'yup'
-import { MAX_LENGTH_INPUT, SCREEN_MODE } from '~/constants'
+import { MAX_LENGTH_INPUT, ROLE, SCREEN_MODE } from '~/constants'
+import type { DataType } from '~/models/interface/common/data-type'
+import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
+import { useGroupStore } from '~/stores/group/group-store'
 import { useOrganizationStore } from '~/stores/organization/organization-store'
+import { useProjectStore } from '~/stores/project/project-store'
 import { useTaskStore } from '~/stores/task/task-store'
 
 const emit = defineEmits(['close-form'])
@@ -63,25 +90,29 @@ const props = defineProps({
   },
 })
 
+const taskStore = useTaskStore()
+const projectStore = useProjectStore()
+const authenticationStore = useAuthorizationStore()
+
+const organizationStore = useOrganizationStore()
+const { listGroup } = storeToRefs(organizationStore)
+
+const groupStore = useGroupStore()
+const { listUser } = storeToRefs(groupStore)
+
 const route = useRoute()
 const projectId = computed(() => Number(route.query.projectId))
+const organizationId = computed(() => Number(route.query.organizationId))
 
 const startDate = ref()
 const endDate = ref()
 
-const taskStore = useTaskStore()
+onMounted(async () => {
+  await organizationStore.getAllGroupInOrganization(organizationId.value)
+})
 
-const organizationStore = useOrganizationStore()
-const { listUser } = storeToRefs(organizationStore)
-
-const listUserInOrganization = computed(() => getUsers())
-
-const getUsers = () => {
-  return listUser.value?.map((item) => ({
-    title: `${item.firstName} ${item.lastName}`,
-    value: item.id,
-  }))
-}
+const listGroupInOrganization = computed(() => getGroups())
+const listUserInGroup = computed(() => getUsers())
 
 const schemaValidate = () => {
   const validate: { [key: string]: any } = {
@@ -114,7 +145,7 @@ const onSubmit = handleSubmit(async (values) => {
     dayjs(values.endDate).format('YYYY/MM/DD')
   )
   if (result) {
-    await taskStore.getAllTaskInProject(projectId.value)
+    await projectStore.getAllTaskInProject(projectId.value)
   }
   emit('close-form')
 })
@@ -146,6 +177,34 @@ function handleChangeEndDate(value: Date) {
   ) {
     startDate.value = endDate.value
   }
+}
+
+const listUserChoose = ref()
+function handleListUserType(value: DataType[]) {
+  const listUser = value.map((item) => {
+    return Number(item.value)
+  })
+
+  listUserChoose.value = _.cloneDeep(listUser ?? [])
+  console.log(' listUserChoose', listUserChoose.value)
+}
+
+function getGroups() {
+  return listGroup.value?.map((item) => ({
+    title: item.groupName,
+    value: item.id,
+  }))
+}
+
+const getUsers = () => {
+  return listUser.value?.map((item) => ({
+    title: `${item.firstName} ${item.lastName}`,
+    value: item.id,
+  }))
+}
+
+async function handleSelectGroup(value: any) {
+  await groupStore.getAllUserInGroup(value.value)
 }
 </script>
 <style lang="scss" scoped>

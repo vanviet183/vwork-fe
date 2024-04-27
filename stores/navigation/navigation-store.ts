@@ -1,34 +1,35 @@
+import type { LocationQuery } from 'vue-router'
+import { HOME } from '~/constants/routes'
+
 export const useNavigationStore = defineStore('navigation', () => {
-  const routes = ref([])
-  const rootRoute = ref({})
-  const params = ref({})
+  const router = useRouter()
+  const currentRoute = ref<string>(HOME)
 
-  function setRootRoute(routeTitle: string, activeNavVal: string) {
-    params.value = {}
-    rootRoute.value = {
-      header: routeTitle,
-      activeNav: activeNavVal,
-    }
+  function setCurrentRoute(route: string) {
+    currentRoute.value = route
   }
 
-  function setActiveNavOnLeftTitle(title: string) {
-    rootRoute.value = {
-      ...rootRoute.value,
-      activeNav: title,
-    }
+  function isRouteActive(route: string) {
+    return currentRoute.value === route
   }
 
-  // To keep params when change tab
-  function setParams(paramsValue: object) {
-    params.value = paramsValue
+  function isQueryParamsActive(queryParams: LocationQuery) {
+    return Object.entries(queryParams).every(([key, value]) => {
+      return router.currentRoute.value.query[key] === value
+    })
+  }
+
+  function navigateToRoute(route: string) {
+    navigateTo({
+      path: route,
+    })
   }
 
   return {
-    routes,
-    rootRoute,
-    setRootRoute,
-    setActiveNavOnLeftTitle,
-    params,
-    setParams,
+    currentRoute,
+    setCurrentRoute,
+    isRouteActive,
+    isQueryParamsActive,
+    navigateToRoute,
   }
 })

@@ -13,7 +13,10 @@
         <div
           v-for="(item, index) in menu"
           :key="index"
-          :class="(item.isActive ? 'tab-active ' : '') + 'custom-tab'"
+          :class="
+            (navigationStore.isRouteActive(item.path) ? 'tab-active ' : '') +
+            'custom-tab'
+          "
           @click="gotoPage(item.path)"
         >
           <v-icon :icon="item.icon" class="icon-nav"></v-icon>
@@ -63,20 +66,28 @@
 </template>
 <script setup lang="ts">
 import Avatar from '~/assets/img/avatar.jpeg'
-import { HOME, LOGIN, MEETINGS, PASSWORD, TASKS, USER } from '~/constants'
+import {
+  HOME,
+  LOGIN,
+  MEETINGS,
+  MEMBERS,
+  PASSWORD,
+  TASKS,
+  USER,
+} from '~/constants'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
+import { useNavigationStore } from '~/stores/navigation/navigation-store'
 
 const authenticationStore = useAuthorizationStore()
-
+const navigationStore = useNavigationStore()
 const menu = ref([
   {
     icon: 'mdi-home',
     path: HOME,
-    isActive: true,
   },
   {
     icon: 'mdi-account-group',
-    path: HOME,
+    path: MEMBERS,
   },
   {
     icon: 'mdi-calendar-month-outline',

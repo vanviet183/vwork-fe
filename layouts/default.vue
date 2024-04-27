@@ -11,7 +11,23 @@
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useNavigationStore } from '~/stores/navigation/navigation-store'
+const navigationStore = useNavigationStore()
+const route = useRoute()
+const routePath = computed(() => route.path)
+
+onMounted(() => {
+  navigationStore.setCurrentRoute(route.path)
+})
+
+watch(
+  () => routePath.value,
+  (newRoutePath) => {
+    navigationStore.setCurrentRoute(newRoutePath)
+  }
+)
+</script>
 
 <style scoped lang="scss">
 @use 'sass:map';

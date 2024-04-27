@@ -20,6 +20,7 @@
       prepend-icon=""
       :color="colors['primary']"
       :clearable="false"
+      v-bind:="$attrs"
       @click="$event.target.value = ''"
       @change="onChangeFile($event)"
     >
@@ -28,7 +29,6 @@
           <v-chip
             v-for="(fileName, index) in fileNames"
             :key="fileName"
-            closable
             @click:close="deleteChip(index)"
           >
             {{ fileName }}
@@ -117,7 +117,7 @@ function deleteChip(index: number) {
 <style scoped lang="scss">
 @use 'sass:map';
 .file-input {
-  pointer-events: none;
+  // pointer-events: none;
   :deep(.v-field__field) {
     min-height: 48px;
     overflow: hidden;

@@ -12,14 +12,7 @@
             {{ props.title }}
           </p>
           <div class="mr-[-16px]">
-            <CommonBoxOptions v-if="props.isWait">
-              <div class="box-options">
-                <div class="option-item" @click="handleWait">
-                  <p>Duyệt</p>
-                </div>
-              </div>
-            </CommonBoxOptions>
-            <CommonBoxOptions v-else>
+            <CommonBoxOptions>
               <div class="box-options">
                 <div class="option-item" @click="handleEditProject">
                   <p>Edit</p>
@@ -63,13 +56,10 @@
           <span class="task-prioritize">{{ props.taskPrioritize }}</span>
         </div>
         <div class="d-flex align-center justify-end px-4 mb-2">
-          <p
-            v-if="props.amountTask || props.amountTask === 0"
-            class="amount-task"
-          >
-            {{ props.amountTask }}
+          <p class="amount-task">
+            {{ props.amountTask ?? 0 }}
           </p>
-          <p v-if="props.percent" class="percentage">
+          <p v-if="props.percent || props.percent === 0" class="percentage">
             {{ `${props.percent}%` }}
           </p>
         </div>
@@ -78,13 +68,8 @@
   </div>
 </template>
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
 import Avatar from '~/assets/img/avatar.jpeg'
-import { useProjectStore } from '~/stores/project/project-store'
 
-const projectStore = useProjectStore()
-const { listProjectCurrent, listProjectCompleted, listProjectWaitAccept } =
-  storeToRefs(projectStore)
 const props = defineProps({
   title: {
     type: String,
@@ -127,10 +112,6 @@ const isOpenConfirmDelete = ref(false)
 
 const handleEditProject = () => {
   console.log('Edit project')
-}
-
-const handleWait = () => {
-  listProjectWaitAccept.value?.pop()
 }
 
 const handleDeleteProject = () => {

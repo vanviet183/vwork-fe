@@ -1,4 +1,4 @@
-export class GetAllUserInOrganizationRequest {
+export class GetAllGroupInOrganizationRequest {
   organizationId: number
 
   constructor(organizationId: number) {

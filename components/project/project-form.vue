@@ -10,7 +10,7 @@
     <div>
       <form class="form-container">
         <p class="mb-2">Tên dự án</p>
-        <CommonTextField name="projectName" autofocus @keypress.enter.prevent />
+        <CommonTextField name="projectName" autofocus />
 
         <p class="mt-4 mb-2">Mô tả dự án</p>
         <CommonTextarea name="description" class="custom-textarea-padding" />
@@ -22,7 +22,7 @@
           name="startDate"
           placeholder="YYYY/MM/DD"
           :disabled-date="disableDate"
-          :default-value="startDate ?? null"
+          :default-value="startDate ?? new Date()"
           @change="handleChangeStartDate"
         ></CommonDatePicker>
 
@@ -32,7 +32,7 @@
           name="endDate"
           placeholder="YYYY/MM/DD"
           :disabled-date="disableDate"
-          :default-value="endDate ?? null"
+          :default-value="endDate ?? new Date()"
           @change="handleChangeEndDate"
         ></CommonDatePicker>
       </form>
@@ -46,6 +46,8 @@ import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { object, string } from 'yup'
 import { MAX_LENGTH_INPUT, SCREEN_MODE } from '~/constants'
+import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
+import { useOrganizationStore } from '~/stores/organization/organization-store'
 import { useProjectStore } from '~/stores/project/project-store'
 
 const emit = defineEmits(['close-form'])
@@ -68,7 +70,11 @@ const route = useRoute()
 const organizationId = computed(() => Number(route.query.organizationId))
 
 const projectStore = useProjectStore()
-const { projectInfo } = storeToRefs(projectStore)
+
+const organizationStore = useOrganizationStore()
+
+const authenticationStore = useAuthorizationStore()
+const { userId } = storeToRefs(authenticationStore)
 
 function onCancel() {
   emit('close-form')
@@ -90,20 +96,26 @@ const { handleSubmit } = useForm({
   validationSchema: schema,
 })
 
-const onSubmit = handleSubmit(async (values) => {
-  const result = await projectStore.createProject(
-    organizationId.value,
-    values.projectName,
-    values.description,
-    dayjs(values.startDate).format('YYYY/MM/DD'),
-    dayjs(values.endDate).format('YYYY/MM/DD')
-  )
+const onSubmit = handleSubmit(
+  async (values) => {
+    const result = await projectStore.createProject(
+      organizationId.value,
+      userId.value,
+      values.projectName,
+      values.description,
+      dayjs(values.startDate).format('YYYY/MM/DD'),
+      dayjs(values.endDate).format('YYYY/MM/DD')
+    )
 
-  if (result) {
-    await projectStore.getProjectsInOrganization(organizationId.value)
-    emit('close-form')
+    if (result) {
+      await organizationStore.getAllProjectsInOrganization(organizationId.value)
+      emit('close-form')
+    }
+  },
+  (error) => {
+    console.log('error', error)
   }
-})
+)
 
 function handleChangeStartDate(value: Date) {
   startDate.value = value

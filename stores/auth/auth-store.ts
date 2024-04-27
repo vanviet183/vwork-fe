@@ -22,8 +22,13 @@ export const useAuthStore = defineStore('auth', () => {
       const loginRequest = new LoginRequest(email, password)
       const response = await loginApi(loginRequest)
       if (response.contents) {
-        const { userId, accessToken, refreshToken } = response.contents
-        authorizationStore.setSessionAccess(userId, accessToken, refreshToken)
+        const { userId, accessToken, refreshToken, role } = response.contents
+        authorizationStore.setSessionAccess(
+          userId,
+          accessToken,
+          refreshToken,
+          role
+        )
         return true
       }
     } catch (error) {
@@ -54,8 +59,13 @@ export const useAuthStore = defineStore('auth', () => {
       )
       const response = await registerApi(registerRequest)
       if (response.contents) {
-        const { userId, accessToken, refreshToken } = response.contents
-        authorizationStore.setSessionAccess(userId, accessToken, refreshToken)
+        const { userId, accessToken, refreshToken, role } = response.contents
+        authorizationStore.setSessionAccess(
+          userId,
+          accessToken,
+          refreshToken,
+          role
+        )
       }
       if (response.message) {
         alertStore.setAlertMessage({

@@ -5,6 +5,8 @@
       width="100%"
       :selected-date="selectedDate"
       :event-settings="eventSettings"
+      :cell-click="cellClickHandler"
+      :action-complete="handleCreated"
     >
       <e-views>
         <e-view option="Day"></e-view>
@@ -41,10 +43,16 @@ import {
   Week,
   WorkWeek,
 } from '@syncfusion/ej2-vue-schedule'
+import { storeToRefs } from 'pinia'
+import { useOrganizationStore } from '~/stores/organization/organization-store'
 
 provide('schedule', [Day, Week, WorkWeek, Month, Agenda])
 
-const selectedDate = new Date(2023, 7, 8)
+const organizationStore = useOrganizationStore()
+const { listUser } = storeToRefs(organizationStore)
+
+// const selectedDate = new Date(2023, 7, 8)
+const selectedDate = new Date()
 const eventSettings = {
   dataSource: [
     {
@@ -73,6 +81,29 @@ const eventSettings = {
     },
   ],
 }
+
+// const ownerDataSource = computed(() => getUsers())
+
+const getUsers = () => {
+  return listUser.value?.map((item, index) => ({
+    OwnerText: `${item.firstName} ${item.lastName}`,
+    Id: item.id,
+    OwnerColor: listColor[index],
+  }))
+}
+
+const listColor = ['#ffaa00', '#f8a398', '#7499e1']
+
+function cellClickHandler(args: any) {
+  // Handle cell click event here
+  console.log('Cell clicked:', args)
+}
+
+function handleCreated(args: any) {
+  // Handle cell click event here
+  console.log('Created:', args)
+}
+
 const ownerDataSource = [
   { OwnerText: 'Nancy', Id: 1, OwnerColor: '#ffaa00' },
   { OwnerText: 'Steven', Id: 2, OwnerColor: '#f8a398' },

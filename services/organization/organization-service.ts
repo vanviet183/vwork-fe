@@ -1,16 +1,19 @@
 import { BaseResponse } from '~/models/class/common/base-response'
-import type { GetAllUserInOrganizationRequest } from '~/models/class/oranizations/get-all-user-in-organization/get-all-user-in-organization-request'
-import type { GetAllUserInOrganizationResponse } from '~/models/class/oranizations/get-all-user-in-organization/get-all-user-in-organization-response'
+import type { GetAllGroupInOrganizationRequest } from '~/models/class/oranizations/get-all-group-in-organization/get-all-group-in-organization-request'
+import type { GetAllGroupInOrganizationResponse } from '~/models/class/oranizations/get-all-group-in-organization/get-all-group-in-organization-response'
 import type { InitOrganizationRequest } from '~/models/class/oranizations/init/init-organization-request'
 import type { InitOrganizationResponse } from '~/models/class/oranizations/init/init-organization-response'
 import type { JoinOrganizationRequest } from '~/models/class/oranizations/join/join-organization-request'
 import type { JoinOrganizationResponse } from '~/models/class/oranizations/join/join-organization-response'
+import type { GetAllProjectByOrganizationRequest } from '~/models/class/projects/get-all-project-by-organization/get-all-project-by-organization-request'
+import type { GetAllProjectByOrganizationResponse } from '~/models/class/projects/get-all-project-by-organization/get-all-project-by-organization-response'
 import { useAxiosClient } from '~/services/axios-client'
 
 const ApiPath = {
   INIT_ORGANIZATION: '/organizations/init',
   JOIN_ORGANIZATION: '/organizations/join',
-  GET_ALL_USER_IN_ORGANIZATION: '/organizations',
+  GET_ALL_GROUP_IN_ORGANIZATION: '/organizations',
+  GET_ALL_PROJECT_IN_ORGANIZATION: '/organizations',
 }
 
 export const initOrganizationApi = async (
@@ -37,12 +40,23 @@ export const joinOrganizationApi = async (
   return new BaseResponse(response.data)
 }
 
-export const getAllUserInOrganizationApi = async (
-  getAllUserInOrganizationRequest: GetAllUserInOrganizationRequest
+export const getAllGroupInOrganizationApi = async (
+  getAllGroupInOrganizationRequest: GetAllGroupInOrganizationRequest
 ) => {
   const { axiosClient } = useAxiosClient()
-  const response = await axiosClient.get<GetAllUserInOrganizationResponse>(
-    `${ApiPath.GET_ALL_USER_IN_ORGANIZATION}/${getAllUserInOrganizationRequest.organizationId}/users`
+  const response = await axiosClient.get<GetAllGroupInOrganizationResponse>(
+    `${ApiPath.GET_ALL_GROUP_IN_ORGANIZATION}/${getAllGroupInOrganizationRequest.organizationId}/groups`
+  )
+
+  return new BaseResponse(response.data)
+}
+
+export const getAllProjectsInOrganizationApi = async (
+  getAllProjectByOrganizationRequest: GetAllProjectByOrganizationRequest
+) => {
+  const { axiosClient } = useAxiosClient()
+  const response = await axiosClient.get<GetAllProjectByOrganizationResponse>(
+    `${ApiPath.GET_ALL_PROJECT_IN_ORGANIZATION}/${getAllProjectByOrganizationRequest.organizationId}/projects`
   )
 
   return new BaseResponse(response.data)

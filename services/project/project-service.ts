@@ -1,27 +1,16 @@
 import { BaseResponse } from '~/models/class/common/base-response'
 import type { CreateProjectRequest } from '~/models/class/projects/create-project/create-project-request'
 import type { CreateProjectResponse } from '~/models/class/projects/create-project/create-project-response'
-import type { GetAllProjectByOrganizationRequest } from '~/models/class/projects/get-all-project-by-organization/get-all-project-by-organization-request'
-import type { GetAllProjectByOrganizationResponse } from '~/models/class/projects/get-all-project-by-organization/get-all-project-by-organization-response'
 import type { GetProjectInfoRequest } from '~/models/class/projects/get-project-info/get-project-info-request'
 import type { GetProjectInfoResponse } from '~/models/class/projects/get-project-info/get-project-info-response'
+import type { GetAllTaskInProjectRequest } from '~/models/class/tasks/get-all-task-in-project/get-all-task-in-project-request'
+import type { GetAllTaskInProjectResponse } from '~/models/class/tasks/get-all-task-in-project/get-all-task-in-project-response'
 import { useAxiosClient } from '~/services/axios-client'
 
 const ApiPath = {
   CREATE_PROJECT: '/projects/create',
-  GET_ALL_PROJECT_IN_ORGANIZATION: '/projects/organization',
-  GET_PROJECT_INFO: '/projects/',
-}
-
-export const getProjectsInOrganizationApi = async (
-  getAllProjectByOrganizationRequest: GetAllProjectByOrganizationRequest
-) => {
-  const { axiosClient } = useAxiosClient()
-  const response = await axiosClient.get<GetAllProjectByOrganizationResponse>(
-    `${ApiPath.GET_ALL_PROJECT_IN_ORGANIZATION}/${getAllProjectByOrganizationRequest.organizationId}`
-  )
-
-  return new BaseResponse(response.data)
+  GET_PROJECT_INFO: '/projects',
+  GET_ALL_TASK_IN_PROJECT: '/projects',
 }
 
 export const getProjectInfoApi = async (
@@ -42,6 +31,17 @@ export const createProjectApi = async (
   const response = await axiosClient.post<CreateProjectResponse>(
     ApiPath.CREATE_PROJECT,
     createProjectRequest
+  )
+
+  return new BaseResponse(response.data)
+}
+
+export const getAllTaskInProjectApi = async (
+  getAllTaskInProjectRequest: GetAllTaskInProjectRequest
+) => {
+  const { axiosClient } = useAxiosClient()
+  const response = await axiosClient.get<GetAllTaskInProjectResponse>(
+    `${ApiPath.GET_ALL_TASK_IN_PROJECT}/${getAllTaskInProjectRequest.projectId}`
   )
 
   return new BaseResponse(response.data)

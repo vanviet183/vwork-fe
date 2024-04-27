@@ -34,6 +34,20 @@ export enum AlertType {
   error,
 }
 
+export const MAIL_ADDRESS_ADMIN = 'contact@vwork.com'
+export const MAIL_OTHER_DATA_INFO = {
+  SUBJECT: 'Liên hệ với website Vwork',
+  BODY: 'Xin chào Vwork, %0D%0A %0D%0A Tôi là [Tên của bạn] và tôi đang liên hệ với bạn để... %0D%0A %0D%0A [Thêm thông tin chi tiết nếu cần thiết], Tôi đã thấy thông tin về dịch vụ của bạn trên trang web và muốn biết thêm về tính năng và tôi tin rằng chúng ta có thể hợp tác hiệu quả với nhau. %0D%0A %0D%0A Xin vui lòng cho chúng tôi biết thông tin cần thiết và cách tốt nhất để liên hệ lại. %0D%0A %0D%0A Trân trọng, %0D%0A %0D%0A [Tên của bạn] %0D%0A [Thông tin liên lạc của bạn (email và số điện thoại)] %0D%0A [Địa chỉ công ty (nếu cần)] %0D%0A %0D%0A %0D%0A %0D%0A Việc này là để liên hệ với chúng tôi về mong muốn và yêu cầu của bạn. %0D%0A *Vui lòng chỉnh sửa nội dung của biểu mẫu trên nếu cần.',
+}
+
+export enum ROLE {
+  ADMIN = 'ADMIN',
+  TEAMLEAD = 'TEAMLEAD',
+  PROJECT_MANAGER = 'PROJECT_MANAGER',
+  EMPLOYEE = 'EMPLOYEE',
+  ORTHERS = 'ORTHERS',
+}
+
 export const yupValidationMeesage = {
   mixed: {
     required: 'Required',

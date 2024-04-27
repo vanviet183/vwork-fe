@@ -1,5 +1,6 @@
 // all of routes are defined in here
 export const HOME = '/'
+export const MEMBERS = '/members'
 export const TASKS = '/tasks'
 export const TASKS_DETAIL = '/tasks/detail'
 export const USER = '/user'

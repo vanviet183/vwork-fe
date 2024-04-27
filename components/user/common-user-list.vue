@@ -6,22 +6,10 @@
     :hover="props.items.length > 0"
     @click:row="handleClickRow"
   >
-    <template #item.user="{ item }">
-      <!-- <v-avatar
-        :image="item.raw.users.avatar"
-        size="32"
-        class="cursor-pointer"
-        @click="() => {}"
-      >
-      </v-avatar> -->
-      <span>Viet</span>
-    </template>
-    <template #item.prioritize="{ item }">
-      <v-icon
-        v-if="item.raw.prioritize"
-        icon="mdi-flag-variant"
-        class="icon-prioritize"
-      ></v-icon>
+    <template #item.status="{ item }">
+      <div v-if="item.raw.status === 1">
+        <p>Hoạt động</p>
+      </div>
     </template>
     <template #item.options="{ item }">
       <CommonBoxOptions>
@@ -30,15 +18,11 @@
         </div>
       </CommonBoxOptions>
     </template>
-    <template #item.bottom=""> </template>
+    <template #item.bottom=""></template>
   </v-data-table>
 </template>
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
 import { TASKS_DETAIL } from '~/constants'
-import { useTaskStore } from '~/stores/task/task-store'
-const taskStore = useTaskStore()
-const { listTask } = storeToRefs(taskStore)
 
 const props = defineProps({
   items: {
@@ -49,34 +33,40 @@ const props = defineProps({
 
 const headers = ref([
   {
-    title: 'Tên công việc',
+    title: 'Tên thành viên',
     align: 'start',
-    key: 'taskName',
+    key: 'lastName',
     width: '280px',
     sortable: false,
   },
   {
-    title: 'Người thực hiện',
+    title: 'Email',
     align: 'start',
-    key: 'user',
+    key: 'email',
     sortable: false,
   },
   {
-    title: 'Ngày bắt đầu',
+    title: 'Số điện thoại',
     align: 'start',
-    key: 'startDate',
+    key: 'phone',
     sortable: false,
   },
   {
-    title: 'Ngày kết thúc',
+    title: 'Chức vụ',
     align: 'start',
-    key: 'endDate',
+    key: 'role',
     sortable: false,
   },
   {
-    title: 'Ưu tiên',
+    title: 'Phòng ban',
     align: 'start',
-    key: 'prioritize',
+    key: 'group',
+    sortable: false,
+  },
+  {
+    title: 'Trạng thái',
+    align: 'start',
+    key: 'status',
     sortable: false,
   },
   {
@@ -94,7 +84,6 @@ function handleClickRow(_item: any, row: any) {
 const handleComplete = (el: any) => {
   console.log('el', el)
 
-  listTask.value = listTask.value?.filter((item) => el.id !== item.id)
   console.log('hello')
 }
 </script>

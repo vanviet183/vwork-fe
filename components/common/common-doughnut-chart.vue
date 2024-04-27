@@ -11,8 +11,12 @@
 
 <script setup lang="ts">
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
+import { storeToRefs } from 'pinia'
 import { Doughnut } from 'vue-chartjs'
+import { useProjectStore } from '~/stores/project/project-store'
 
+const projectStore = useProjectStore()
+const { listTask } = storeToRefs(projectStore)
 ChartJS.register(ArcElement, Tooltip, Legend)
 
 const chartData = {
@@ -42,7 +46,7 @@ const customTitleInside = {
     ctx.fillStyle = 'black'
     ctx.textBaseline = 'middle'
 
-    const text1 = '6'
+    const text1 = listTask.value?.length
     const text2 = 'Công việc'
 
     const textX = chart.getDatasetMeta(0).data[0].x
