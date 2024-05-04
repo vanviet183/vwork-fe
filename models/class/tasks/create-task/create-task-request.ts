@@ -1,27 +1,27 @@
 export class CreateTaskRequest {
-  userId: number
   projectId: number
-  parentTaskId?: number
   taskName: string
+  userResponsible: number | undefined
+  listUserImplement: number[]
   prioritize: boolean
   startDate: string
   endDate: string
 
   constructor(
-    userId: number,
     projectId: number,
     taskName: string,
+    userResponsible: number | undefined,
+    listUserImplement: number[],
     prioritize: boolean,
     startDate: string,
-    endDate: string,
-    parentTaskId?: number
+    endDate: string
   ) {
-    this.userId = userId
     this.projectId = projectId
     this.taskName = taskName
+    this.userResponsible = userResponsible
+    this.listUserImplement = listUserImplement
     this.prioritize = prioritize
     this.startDate = startDate
     this.endDate = endDate
-    this.parentTaskId = parentTaskId
   }
 }

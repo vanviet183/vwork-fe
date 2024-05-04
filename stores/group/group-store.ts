@@ -1,6 +1,11 @@
+import { Group } from '~/models/class/common/group'
 import { User } from '~/models/class/common/user'
+import { CreateGroupRequest } from '~/models/class/groups/create-group/create-group-request'
 import { GetAllUserInGroupRequest } from '~/models/class/groups/get-all-user-in-group/get-all-user-in-group-request'
-import { getAllUserInGroupApi } from '~/services/group/group-service'
+import {
+  createGroupApi,
+  getAllUserInGroupApi,
+} from '~/services/group/group-service'
 import { useAlertStore } from '../alert/alert-store'
 
 export const useGroupStore = defineStore('group', () => {
@@ -10,7 +15,10 @@ export const useGroupStore = defineStore('group', () => {
   const error = ref('')
 
   // list user
-  const listUser = ref<User[]>()
+  const listUserInGroup = ref<User[]>()
+
+  // groupInfo
+  const groupInfo = ref<Group>()
 
   async function getAllUserInGroup(groupId: number) {
     if (isLoading.value) {
@@ -22,9 +30,38 @@ export const useGroupStore = defineStore('group', () => {
       const request = new GetAllUserInGroupRequest(groupId)
       const response = await getAllUserInGroupApi(request)
 
-      listUser.value = response.contents.listUser
+      listUserInGroup.value = response.contents.listUser
     } catch (error) {
       isError.value = true
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function createGroup(
+    organizationId: number,
+    groupName: string,
+    teamlead: number,
+    listUser: number[]
+  ) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new CreateGroupRequest(
+        organizationId,
+        groupName,
+        teamlead,
+        listUser
+      )
+      const response = await createGroupApi(request)
+      groupInfo.value = response.contents
+      return true
+    } catch (error) {
+      isError.value = true
+      return false
     } finally {
       isLoading.value = false
     }
@@ -34,7 +71,9 @@ export const useGroupStore = defineStore('group', () => {
     isLoading,
     isError,
     error,
-    listUser,
+    listUserInGroup,
+    groupInfo,
     getAllUserInGroup,
+    createGroup,
   }
 })

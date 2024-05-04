@@ -11,7 +11,7 @@
       <CommonFlatButton
         background-color="#28526e"
         color="white"
-        class="btn-login"
+        class="mb-4"
         @click="handleUploadExcel"
         >Excel</CommonFlatButton
       >
@@ -28,46 +28,56 @@
         <p class="custom-link">Mẫu danh sách</p>
       </div>
       <div v-show="!isExcel">
-        <CommonTextField
-          name="firstName"
-          placeholder="Họ"
-          prepend-inner-icon="mdi-email-outline"
-        ></CommonTextField>
+        <CommonTextField name="firstName" placeholder="Họ"></CommonTextField>
         <CommonTextField
           name="lastName"
           placeholder="Tên"
           class="mt-4"
-          prepend-inner-icon="mdi-email-outline"
+        ></CommonTextField>
+        <CommonTextField
+          name="phone"
+          placeholder="Số điện thoại"
+          class="mt-4"
         ></CommonTextField>
         <CommonTextField
           name="email"
           class="mt-4"
-          placeholder="Email của bạn"
-          prepend-inner-icon="mdi-email-outline"
+          placeholder="Email"
         ></CommonTextField>
         <CommonTextField
           name="password"
           placeholder="Mật khẩu"
           class="mt-4"
           :type="visible ? 'text' : 'password'"
-          prepend-inner-icon="mdi-lock-outline"
           :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye-outline'"
           @click:append-inner="visible = !visible"
         ></CommonTextField>
-        <CommonTextField
-          name="role"
-          placeholder="Chức vụ"
+        <CommonDropdown
+          name="group"
+          item-label="title"
           class="mt-4"
-        ></CommonTextField>
+          placeholder="Nhóm"
+          :items="listGroupInOrganization ?? []"
+        ></CommonDropdown>
+        <CommonDropdown
+          name="role"
+          item-label="title"
+          placeholder="Chức vụ"
+          :items="listRoleOrganization"
+          class="mt-4"
+        ></CommonDropdown>
       </div>
     </form>
   </CommonConfirmPopup>
 </template>
 
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { array, object, string } from 'yup'
-import { MAX_LENGTH_INPUT, SCREEN_MODE } from '~/constants'
+import { MAX_LENGTH_INPUT, ROLE, SCREEN_MODE } from '~/constants'
+import { useOrganizationStore } from '~/stores/organization/organization-store'
+import { useUserStore } from '~/stores/user/user-store'
 
 const emit = defineEmits(['close-form'])
 
@@ -79,8 +89,47 @@ const props = defineProps({
   },
 })
 
+const userStore = useUserStore()
+
+const organizationStore = useOrganizationStore()
+const { listGroup } = storeToRefs(organizationStore)
+
+const route = useRoute()
+const organizationId = computed(() => Number(route.query.organizationId))
+
+const listGroupInOrganization = computed(() => getGroups())
+
+const listRoleOrganization = [
+  {
+    title: 'CEO',
+    value: ROLE.CEO,
+  },
+  {
+    title: 'Quản lý dự án',
+    value: ROLE.PROJECT_MANAGER,
+  },
+  {
+    title: 'Trưởng nhóm',
+    value: ROLE.TEAMLEAD,
+  },
+  {
+    title: 'Nhân viên',
+    value: ROLE.EMPLOYEE,
+  },
+  {
+    title: 'Chức vụ khác',
+    value: '',
+  },
+]
+
 const visible = ref(false)
 const isExcel = ref(false)
+
+onMounted(async () => {
+  if (!listGroup.value.length) {
+    await organizationStore.getAllGroupInOrganization(organizationId.value)
+  }
+})
 
 const schemaValidate = () => {
   let validate: { [key: string]: any } = {}
@@ -88,8 +137,11 @@ const schemaValidate = () => {
     validate = {
       firstName: string().trim().required().max(MAX_LENGTH_INPUT),
       lastName: string().trim().required().max(MAX_LENGTH_INPUT),
+      phone: string().trim().required().max(MAX_LENGTH_INPUT),
       email: string().trim().email().required().max(MAX_LENGTH_INPUT),
       password: string().trim().required().max(MAX_LENGTH_INPUT),
+      group: object().required(),
+      role: object().required(),
     }
   } else {
     validate = {
@@ -130,8 +182,32 @@ const { handleSubmit } = useForm({
   validationSchema: schema,
 })
 
-const onSubmit = handleSubmit((values) => {
-  console.log('values', values)
+const onSubmit = handleSubmit(async (values) => {
+  if (!isExcel) {
+    const result = await userStore.createUser(
+      values.firstName,
+      values.lastName,
+      values.phone,
+      values.email,
+      values.password,
+      values.group.value,
+      values.role.value
+    )
+    if (result) {
+      await organizationStore.getAllUserInOrganization(organizationId.value)
+    }
+  } else {
+    const result = await userStore.createListUser(
+      organizationId.value,
+      values.fileUpload[0]
+    )
+
+    if (result) {
+      await organizationStore.getAllUserInOrganization(organizationId.value)
+    }
+  }
+
+  emit('close-form')
 }, onInvalid)
 
 function onCancel() {
@@ -140,6 +216,13 @@ function onCancel() {
 
 function handleUploadExcel() {
   isExcel.value = !isExcel.value
+}
+
+function getGroups() {
+  return listGroup.value?.map((item) => ({
+    title: item.groupName,
+    value: item.id,
+  }))
 }
 </script>
 <style lang="scss" scoped>

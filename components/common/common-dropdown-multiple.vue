@@ -70,7 +70,7 @@
             </div>
           </div>
         </template>
-        <template #selection="{ item, index }">
+        <!-- <template #selection="{ item, index }">
           <div
             v-if="selectedOption?.length === props.listValue.length"
             class="selection-label"
@@ -90,7 +90,7 @@
               </v-chip>
             </span>
           </div>
-        </template>
+        </template> -->
       </v-select>
       <div v-if="errorMessage" class="error-message">
         {{ errorMessage }}
@@ -244,6 +244,8 @@ function checkIsSelected(item: any): boolean {
   padding: 12px;
   height: 48px;
   opacity: 1;
+  flex-wrap: nowrap;
+  clip-path: fill-box;
 }
 :deep(.v-select__selection-text) {
   color: map.get($colors, 'rich-black') !important;

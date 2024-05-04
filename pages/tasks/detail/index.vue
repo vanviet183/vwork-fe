@@ -17,15 +17,28 @@
           default-value="helllo"
           class="pt-0"
         />
-        <p class="mt-4 font-semibold">Công việc phụ</p>
+        <p class="my-4 font-semibold">Yêu cầu công việc</p>
         <div v-if="!taskInfo?.parentTask">
-          <div>listSubtask</div>
+          <div
+            v-for="(item, index) in listTaskRequire"
+            :key="index"
+            class="d-flex align-center custom-task-require"
+          >
+            <v-icon
+              v-if="item.important"
+              icon="mdi-flag-variant"
+              class="icon-important mr-2"
+            ></v-icon>
+            <p :class="item.important ? 'text-important' : ''">
+              {{ item.requireContent }}
+            </p>
+          </div>
           <div
             class="d-flex align-center cursor-pointer mt-4 custom-add"
-            @click="handleAddSubtask"
+            @click="handleToggleTaskRequireForm"
           >
             <v-icon icon="mdi-plus" class="mr-2"></v-icon>
-            <p>Thêm công việc phụ</p>
+            <p>Thêm yêu cầu công việc</p>
           </div>
         </div>
       </div>
@@ -40,7 +53,7 @@
             <p>Ngày hoàn thành</p>
           </div>
           <div class="content-info ml-4">
-            <p>{{ taskInfo?.users }}</p>
+            <p>{{ getUsersImplement(taskInfo?.users ?? []) }}</p>
             <p>
               <v-icon
                 v-if="taskInfo?.prioritize"
@@ -56,14 +69,35 @@
 
         <p class="font-semibold mt-4"></p>
         <div class="d-flex align-center justify-between">
-          <p>Đính kèm (0)</p>
-          <div class="d-flex align-center custom-add">
+          <p>Đính kèm {{ `(${listDocument?.length})` }}</p>
+          <div
+            class="d-flex align-center custom-add"
+            @click="handleToggleDocumentForm"
+          >
             <v-icon icon="mdi-plus" class="mr-1"></v-icon>
             <p>Thêm</p>
           </div>
         </div>
+        <div
+          v-for="(item, index) in listDocument"
+          :key="index"
+          class="d-flex align-center custom-task-document"
+          @click="handleDownloadFile(item.filePath)"
+        >
+          <p>
+            {{ item.fileName }}
+          </p>
+        </div>
       </div>
     </div>
+    <TaskRequireForm
+      v-if="isOpenTaskRequireForm"
+      @close-form="handleToggleTaskRequireForm"
+    />
+    <DocumentForm
+      v-if="isOpenDocumentForm"
+      @close-form="handleToggleDocumentForm"
+    />
   </div>
 </template>
 <script setup lang="ts">
@@ -75,17 +109,37 @@ const router = useRouter()
 const taskId = computed(() => Number(route.query.taskId))
 
 const taskStore = useTaskStore()
-const { taskInfo } = storeToRefs(taskStore)
+const { taskInfo, listTaskRequire, listDocument } = storeToRefs(taskStore)
+
+const isOpenTaskRequireForm = ref(false)
+const isOpenDocumentForm = ref(false)
 
 onMounted(async () => {
   await taskStore.getTaskInfo(taskId.value)
+  await taskStore.getAllTaskRequireInTask(taskId.value)
+  await taskStore.getAllDocumentInTask(taskId.value)
 })
 
 function handleGoToTasks() {
   router.back()
 }
 
-function handleAddSubtask() {}
+function getUsersImplement(listUser: any[]) {
+  const data = listUser.map((item) => `${item.firstName} ${item.lastName}`)
+  return data.join(', ')
+}
+
+const handleToggleTaskRequireForm = () => {
+  isOpenTaskRequireForm.value = !isOpenTaskRequireForm.value
+}
+
+const handleToggleDocumentForm = () => {
+  isOpenDocumentForm.value = !isOpenDocumentForm.value
+}
+
+function handleDownloadFile(filePath: string) {
+  window.open(filePath, '_blank')
+}
 </script>
 <style scoped lang="scss">
 @use 'sass:map';
@@ -117,5 +171,19 @@ function handleAddSubtask() {}
   p + p {
     margin-top: 8px;
   }
+}
+.custom-task-require {
+  padding: 8px 0;
+}
+.icon-important,
+.text-important {
+  color: red;
+}
+.custom-task-document {
+  background-color: #f2f2f5;
+  padding: 8px;
+  border-radius: 8px;
+  margin-top: 8px;
+  cursor: pointer;
 }
 </style>

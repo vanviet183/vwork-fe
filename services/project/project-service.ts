@@ -1,10 +1,10 @@
 import { BaseResponse } from '~/models/class/common/base-response'
 import type { CreateProjectRequest } from '~/models/class/projects/create-project/create-project-request'
 import type { CreateProjectResponse } from '~/models/class/projects/create-project/create-project-response'
+import type { GetAllTaskInProjectRequest } from '~/models/class/projects/get-all-task-in-project/get-all-task-in-project-request'
+import type { GetAllTaskInProjectResponse } from '~/models/class/projects/get-all-task-in-project/get-all-task-in-project-response'
 import type { GetProjectInfoRequest } from '~/models/class/projects/get-project-info/get-project-info-request'
 import type { GetProjectInfoResponse } from '~/models/class/projects/get-project-info/get-project-info-response'
-import type { GetAllTaskInProjectRequest } from '~/models/class/tasks/get-all-task-in-project/get-all-task-in-project-request'
-import type { GetAllTaskInProjectResponse } from '~/models/class/tasks/get-all-task-in-project/get-all-task-in-project-response'
 import { useAxiosClient } from '~/services/axios-client'
 
 const ApiPath = {
@@ -41,7 +41,7 @@ export const getAllTaskInProjectApi = async (
 ) => {
   const { axiosClient } = useAxiosClient()
   const response = await axiosClient.get<GetAllTaskInProjectResponse>(
-    `${ApiPath.GET_ALL_TASK_IN_PROJECT}/${getAllTaskInProjectRequest.projectId}`
+    `${ApiPath.GET_ALL_TASK_IN_PROJECT}/${getAllTaskInProjectRequest.projectId}/tasks`
   )
 
   return new BaseResponse(response.data)

@@ -3,7 +3,7 @@
     :headers="headers"
     :items="props.items"
     item-value="id"
-    :hover="props.items.length > 0"
+    :hover="(props.items ?? []).length > 0"
     @click:row="handleClickRow"
   >
     <template #item.status="{ item }">
@@ -22,7 +22,7 @@
   </v-data-table>
 </template>
 <script setup lang="ts">
-import { TASKS_DETAIL } from '~/constants'
+import { USER } from '~/constants'
 
 const props = defineProps({
   items: {
@@ -31,11 +31,14 @@ const props = defineProps({
   },
 })
 
+const route = useRoute()
+const organizationId = computed(() => Number(route.query.organizationId))
+
 const headers = ref([
   {
     title: 'Tên thành viên',
     align: 'start',
-    key: 'lastName',
+    key: 'fullName',
     width: '280px',
     sortable: false,
   },
@@ -64,12 +67,6 @@ const headers = ref([
     sortable: false,
   },
   {
-    title: 'Trạng thái',
-    align: 'start',
-    key: 'status',
-    sortable: false,
-  },
-  {
     title: '',
     align: 'end',
     key: 'options',
@@ -78,17 +75,21 @@ const headers = ref([
 ] as any[])
 
 function handleClickRow(_item: any, row: any) {
-  navigateTo({ path: TASKS_DETAIL, query: { taskId: row.item.raw.id } })
+  navigateTo({ path: USER, query: { userId: row.item.raw.id } })
 }
 
 const handleComplete = (el: any) => {
   console.log('el', el)
-
-  console.log('hello')
 }
 </script>
 <style scoped lang="scss">
+@use 'sass:map';
+
 :deep(.v-field__outline) {
   --v-field-border-opacity: 0 !important;
+}
+:deep(.v-data-table-header__content) {
+  font-weight: bold !important;
+  color: black;
 }
 </style>

@@ -1,8 +1,8 @@
 import { Project } from '~/models/class/common/project'
 import { Task } from '~/models/class/common/task'
 import { CreateProjectRequest } from '~/models/class/projects/create-project/create-project-request'
+import { GetAllTaskInProjectRequest } from '~/models/class/projects/get-all-task-in-project/get-all-task-in-project-request'
 import { GetProjectInfoRequest } from '~/models/class/projects/get-project-info/get-project-info-request'
-import { GetAllTaskInProjectRequest } from '~/models/class/tasks/get-all-task-in-project/get-all-task-in-project-request'
 import {
   createProjectApi,
   getAllTaskInProjectApi,

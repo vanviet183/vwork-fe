@@ -10,8 +10,6 @@
         :enable-critical-path="true"
         :highlight-weekends="true"
         :work-week="weekdays"
-        :holidays="leaveDetails"
-        :event-markers="events"
         :allow-unscheduled-tasks="true"
         :toolbar="['CriticalPath']"
         :edit-settings="{
@@ -80,30 +78,30 @@ import { useProjectStore } from '~/stores/project/project-store'
 provide('gantt', [Edit, Toolbar, DayMarkers, CriticalPath])
 
 const scheduleMode = 'Custom'
-const events = [
-  {
-    day: new Date('04/02/2024'),
-  },
-  {
-    day: new Date('04/09/2024'),
-    label: 'Design Phase',
-  },
-]
-const leaveDetails = [
-  {
-    from: new Date('04/05/2024'),
-    to: new Date('04/06/2024'),
-    label: 'Good Friday',
-  },
-  {
-    from: new Date('04/11/2024'),
-    label: 'Local Holiday',
-  },
-  {
-    from: new Date('05/01/2024'),
-    label: 'May Day',
-  },
-]
+// const events = [
+//   {
+//     day: new Date('04/02/2024'),
+//   },
+//   {
+//     day: new Date('04/09/2024'),
+//     label: 'Design Phase',
+//   },
+// ]
+// const leaveDetails = [
+//   {
+//     from: new Date('04/05/2024'),
+//     to: new Date('04/06/2024'),
+//     label: 'Good Friday',
+//   },
+//   {
+//     from: new Date('04/11/2024'),
+//     label: 'Local Holiday',
+//   },
+//   {
+//     from: new Date('05/01/2024'),
+//     label: 'May Day',
+//   },
+// ]
 
 const weekdays = ref([
   'Monday',

@@ -1,14 +1,18 @@
 import type { Group } from '~/models/class/common/group'
+import type { Organization } from '~/models/class/common/organization'
 import type { Project } from '~/models/class/common/project'
-import { User } from '~/models/class/common/user'
 import { GetAllGroupInOrganizationRequest } from '~/models/class/oranizations/get-all-group-in-organization/get-all-group-in-organization-request'
+import { GetAllProjectByOrganizationRequest } from '~/models/class/oranizations/get-all-project-by-organization/get-all-project-by-organization-request'
+import { GetAllUserInOrganizationRequest } from '~/models/class/oranizations/get-all-user-in-organization/get-all-user-in-organization-request'
+import type { UserGroup } from '~/models/class/oranizations/get-all-user-in-organization/get-all-user-in-organization-response'
+import { GetOrganizationInfoRequest } from '~/models/class/oranizations/get-organization-info/get-organization-info-request'
 import { InitOrganizationRequest } from '~/models/class/oranizations/init/init-organization-request'
-import { InitOrganizationResponse } from '~/models/class/oranizations/init/init-organization-response'
 import { JoinOrganizationRequest } from '~/models/class/oranizations/join/join-organization-request'
-import { GetAllProjectByOrganizationRequest } from '~/models/class/projects/get-all-project-by-organization/get-all-project-by-organization-request'
 import {
   getAllGroupInOrganizationApi,
   getAllProjectsInOrganizationApi,
+  getAllUserInOrganizationApi,
+  getOrganizationInfoApi,
   initOrganizationApi,
   joinOrganizationApi,
 } from '~/services/organization/organization-service'
@@ -20,13 +24,13 @@ export const useOrganizationStore = defineStore('organization', () => {
   const isError = ref(false)
   const error = ref('')
 
-  const organizationInfo = ref<InitOrganizationResponse>()
-
-  // list user
-  const listUser = ref<User[]>()
+  const organizationInfo = ref<Organization>()
 
   // list group
-  const listGroup = ref<Group[]>()
+  const listUser = ref<UserGroup[]>([])
+
+  // list group
+  const listGroup = ref<Group[]>([])
 
   // list project
   const listProjects = ref<Project[]>()
@@ -43,6 +47,18 @@ export const useOrganizationStore = defineStore('organization', () => {
     )
   })
 
+  // watch(listGroup, () => {
+  //   listUser.value = listGroup.value.flatMap((entry) =>
+  //     entry.users.map((user) => ({
+  //       fullName: `${user.firstName} ${user.lastName}`,
+  //       email: user.email,
+  //       phone: user.phone,
+  //       role: getPositionUser(user.role),
+  //       group: entry.groupName === 'COMMON' ? 'Chưa có' : entry.groupName,
+  //     }))
+  //   )
+  // })
+
   async function getAllProjectsInOrganization(organizationId: number) {
     if (isLoading.value) {
       return
@@ -54,6 +70,24 @@ export const useOrganizationStore = defineStore('organization', () => {
       const response = await getAllProjectsInOrganizationApi(request)
 
       listProjects.value = response.contents.listProject
+    } catch (error) {
+      isError.value = true
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function getAllUserInOrganization(organizationId: number) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new GetAllUserInOrganizationRequest(organizationId)
+      const response = await getAllUserInOrganizationApi(request)
+
+      listUser.value = response.contents.listUser
     } catch (error) {
       isError.value = true
     } finally {
@@ -123,13 +157,45 @@ export const useOrganizationStore = defineStore('organization', () => {
     try {
       const request = new GetAllGroupInOrganizationRequest(organizationId)
       const response = await getAllGroupInOrganizationApi(request)
-      listGroup.value = response.contents.listGroup
+      listGroup.value = response.contents.listGroup ?? []
     } catch (error) {
       isError.value = true
     } finally {
       isLoading.value = false
     }
   }
+
+  async function getOrganizationInfo(organizationId: number) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new GetOrganizationInfoRequest(organizationId)
+      const response = await getOrganizationInfoApi(request)
+      organizationInfo.value = response.contents
+    } catch (error) {
+      isError.value = true
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // function getPositionUser(role: string) {
+  //   switch (role) {
+  //     case ROLE.PROJECT_MANAGER:
+  //       return 'Quản lý dự án'
+  //     case ROLE.CEO:
+  //       return 'CEO'
+  //     case ROLE.TEAMLEAD:
+  //       return 'Trưởng nhóm'
+  //     case ROLE.EMPLOYEE:
+  //       return 'Nhân viên'
+  //     default:
+  //       return ''
+  //   }
+  // }
 
   return {
     isLoading,
@@ -145,5 +211,7 @@ export const useOrganizationStore = defineStore('organization', () => {
     joinOrganization,
     getAllGroupInOrganization,
     getAllProjectsInOrganization,
+    getOrganizationInfo,
+    getAllUserInOrganization,
   }
 })

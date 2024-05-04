@@ -10,11 +10,6 @@
           </div>
         </div>
         <div class="px-4">
-          <div class="d-flex align-center flex-wrap gap-3 my-4">
-            <CommonFlatButton>Tất cả</CommonFlatButton>
-            <CommonFlatButton>Dự án đang thực hiện</CommonFlatButton>
-            <CommonFlatButton>Dự án đã hoàn thành</CommonFlatButton>
-          </div>
           <div class="mt-6 cursor-pointer">
             <p class="cursor-pointer" @click="isOpenCurrent = !isOpenCurrent">
               <v-icon
@@ -29,8 +24,10 @@
               <div
                 v-for="(item, index) in projectsCurrent"
                 :key="index"
-                :class="(item.isActive ? 'tab-active ' : '') + 'sidebar-tab'"
-                @click="gotoPage(item.path)"
+                :class="
+                  (item.id == projectId ? 'tab-active ' : '') + 'sidebar-tab'
+                "
+                @click="handleChooseProject(item.id)"
               >
                 <p class="icon-project">{{ item.img }}</p>
                 <p class="ml-2">{{ item.title }}</p>
@@ -52,8 +49,10 @@
               <div
                 v-for="(item, index) in projectsCompleted"
                 :key="index"
-                :class="(item.isActive ? 'tab-active ' : '') + 'sidebar-tab'"
-                @click="gotoPage(item.path)"
+                :class="
+                  (item.id == projectId ? 'tab-active ' : '') + 'sidebar-tab'
+                "
+                @click="handleChooseProject(item.id)"
               >
                 <p class="icon-project">{{ item.img }}</p>
                 <p class="ml-2">{{ item.title }}</p>
@@ -169,14 +168,14 @@
                   authenticationStore.role === ROLE.TEAMLEAD
                 "
                 class="btn-add cursor-pointer"
-                @click="handleToggleFormCreate"
+                @click="handleToggleTaskForm"
               >
                 <p class="text-lg">Tạo</p>
               </CommonFlatButton>
 
               <TaskForm
-                v-if="isOpenFormCreate"
-                @close-form="handleToggleFormCreate"
+                v-if="isOpenTaskForm"
+                @close-form="handleToggleTaskForm"
               />
             </div>
           </div>
@@ -206,7 +205,7 @@
 </template>
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { ROLE } from '~/constants'
+import { ROLE, TASKS } from '~/constants'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useOrganizationStore } from '~/stores/organization/organization-store'
 import { useProjectStore } from '~/stores/project/project-store'
@@ -229,28 +228,22 @@ const projectsCompleted = computed(() => getProjectsByStatus(true))
 
 const isOpenCurrent = ref(true)
 const isOpenComplete = ref(false)
-const isOpenFormCreate = ref(false)
+const isOpenTaskForm = ref(false)
 const isStatistical = ref(false)
 
 const getProjectsByStatus = (isCompleted = false) => {
   if (isCompleted) {
-    return listProjectCompleted.value?.map((item, index) => ({
+    return listProjectCompleted.value?.map((item) => ({
       img: item.projectName.slice(0, 1),
       title: item.projectName,
-      path: '/',
-      isActive: index === 0,
+      id: item.id,
     }))
   }
-  return listProjectCurrent.value?.map((item, index) => ({
+  return listProjectCurrent.value?.map((item) => ({
     img: item.projectName.slice(0, 1),
     title: item.projectName,
-    path: '/',
-    isActive: index === 0,
+    id: item.id,
   }))
-}
-
-const gotoPage = (url: string) => {
-  navigateTo({ path: url })
 }
 
 onMounted(async () => {
@@ -262,12 +255,23 @@ onMounted(async () => {
   }
 })
 
-const handleToggleFormCreate = () => {
-  isOpenFormCreate.value = !isOpenFormCreate.value
+watch(projectId, async () => {
+  await projectStore.getAllTaskInProject(projectId.value)
+})
+
+const handleToggleTaskForm = () => {
+  isOpenTaskForm.value = !isOpenTaskForm.value
 }
 
 const handleStatistical = () => {
   isStatistical.value = !isStatistical.value
+}
+
+function handleChooseProject(projectId: number) {
+  navigateTo({
+    path: TASKS,
+    query: { organizationId: organizationId.value, projectId },
+  })
 }
 </script>
 <style scoped lang="scss">
@@ -293,9 +297,6 @@ const handleStatistical = () => {
   padding: 10px 8px;
   display: flex;
   align-items: center;
-  :hover {
-    background-color: #e1d5d5;
-  }
 }
 .icon-sidebar {
   color: #28526e;

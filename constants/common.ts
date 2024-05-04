@@ -42,6 +42,7 @@ export const MAIL_OTHER_DATA_INFO = {
 
 export enum ROLE {
   ADMIN = 'ADMIN',
+  CEO = 'CEO',
   TEAMLEAD = 'TEAMLEAD',
   PROJECT_MANAGER = 'PROJECT_MANAGER',
   EMPLOYEE = 'EMPLOYEE',

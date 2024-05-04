@@ -54,10 +54,6 @@ const prop = defineProps({
   max-height: 356px;
   // aspect-ratio: 1/1;
 }
-.avatar:hover {
-  // border-radius: 50%;
-  background-color: map.get($colors, 'light-silver');
-}
 .title:hover {
   border-radius: 10px;
   background-color: map.get($colors, 'light-silver');

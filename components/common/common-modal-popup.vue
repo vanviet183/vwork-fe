@@ -37,7 +37,7 @@ const props = defineProps({
   padding: 20px;
   border-radius: 4px;
   background: white;
-  min-width: 600px;
+  width: 600px;
 }
 .popup-title {
   color: map.get($colors, 'text-color');

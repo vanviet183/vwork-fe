@@ -28,7 +28,7 @@
           name="userResponsible"
           item-label="title"
           placeholder="Người phụ trách"
-          :items="listUserInGroup ?? []"
+          :items="listUserGroup ?? []"
         ></CommonDropdown>
       </div>
 
@@ -36,9 +36,9 @@
       <CommonDropdownMultiple
         name="listUserImplement"
         placeholder="Người thực hiện"
-        :list-value="listUserInGroup ?? []"
+        :list-value="listUserGroup ?? []"
         item-label="title"
-        @change="handleListUserType"
+        @change="handleListUserImplement"
       />
 
       <CommonCheckbox name="prioritize" label="Ưu tiên" class="mt-1" />
@@ -71,7 +71,7 @@ import dayjs from 'dayjs'
 import _ from 'lodash'
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
-import { boolean, object, string } from 'yup'
+import { array, boolean, object, string } from 'yup'
 import { MAX_LENGTH_INPUT, ROLE, SCREEN_MODE } from '~/constants'
 import type { DataType } from '~/models/interface/common/data-type'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
@@ -98,7 +98,7 @@ const organizationStore = useOrganizationStore()
 const { listGroup } = storeToRefs(organizationStore)
 
 const groupStore = useGroupStore()
-const { listUser } = storeToRefs(groupStore)
+const { listUserInGroup } = storeToRefs(groupStore)
 
 const route = useRoute()
 const projectId = computed(() => Number(route.query.projectId))
@@ -112,15 +112,23 @@ onMounted(async () => {
 })
 
 const listGroupInOrganization = computed(() => getGroups())
-const listUserInGroup = computed(() => getUsers())
+const listUserGroup = computed(() => getUsers())
+const listUserChoose = ref()
 
 const schemaValidate = () => {
   const validate: { [key: string]: any } = {
     taskName: string().trim().required().max(MAX_LENGTH_INPUT),
-    userImplement: object().required(),
+    listUserImplement: array().of(
+      object().shape({ title: string(), value: string() })
+    ),
     prioritize: boolean().required(),
     startDate: string().trim().required(),
     endDate: string().trim().required(),
+  }
+  if (authenticationStore.role === ROLE.PROJECT_MANAGER) {
+    validate.groupImplement = object()
+  } else if (authenticationStore.role === ROLE.TEAMLEAD) {
+    validate.userResponsible = object()
   }
   return object().shape(validate)
 }
@@ -135,20 +143,30 @@ function onCancel() {
   emit('close-form')
 }
 
-const onSubmit = handleSubmit(async (values) => {
-  const result = await taskStore.createTask(
-    values.userImplement.value,
-    projectId.value,
-    values.taskName,
-    values.prioritize,
-    dayjs(values.startDate).format('YYYY/MM/DD'),
-    dayjs(values.endDate).format('YYYY/MM/DD')
-  )
-  if (result) {
-    await projectStore.getAllTaskInProject(projectId.value)
+const onSubmit = handleSubmit(
+  async (values) => {
+    console.log('value', values)
+
+    const listUserImplement = listUserChoose.value
+    const result = await taskStore.createTask(
+      projectId.value,
+      values.taskName,
+      undefined,
+      // values.groupImplement.value ?? undefined,
+      listUserImplement,
+      values.prioritize,
+      dayjs(values.startDate).format('YYYY/MM/DD'),
+      dayjs(values.endDate).format('YYYY/MM/DD')
+    )
+    if (result) {
+      await projectStore.getAllTaskInProject(projectId.value)
+    }
+    emit('close-form')
+  },
+  (err) => {
+    console.log(err)
   }
-  emit('close-form')
-})
+)
 
 function disableDate(time: Date): boolean {
   const fromDate = dayjs().format('YYYY/MM/DD')
@@ -179,17 +197,21 @@ function handleChangeEndDate(value: Date) {
   }
 }
 
-const listUserChoose = ref()
-function handleListUserType(value: DataType[]) {
+function handleListUserImplement(value: DataType[]) {
   const listUser = value.map((item) => {
     return Number(item.value)
   })
 
   listUserChoose.value = _.cloneDeep(listUser ?? [])
-  console.log(' listUserChoose', listUserChoose.value)
 }
 
 function getGroups() {
+  // if (
+  //   listGroup.value.length === 1 &&
+  //   listGroup.value[0].groupName === 'COMMON'
+  // ) {
+  //   return []
+  // }
   return listGroup.value?.map((item) => ({
     title: item.groupName,
     value: item.id,
@@ -197,7 +219,7 @@ function getGroups() {
 }
 
 const getUsers = () => {
-  return listUser.value?.map((item) => ({
+  return listUserInGroup.value?.map((item) => ({
     title: `${item.firstName} ${item.lastName}`,
     value: item.id,
   }))

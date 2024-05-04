@@ -29,10 +29,8 @@ const { value, errorMessage } = useField(name)
 const checkboxValue = ref(value.value || props.defaultValue)
 
 onMounted(() => {
-  if (props.defaultValue) {
-    checkboxValue.value = props.defaultValue
-    value.value = checkboxValue.value
-  }
+  checkboxValue.value = props.defaultValue
+  value.value = checkboxValue.value
 })
 
 watch(

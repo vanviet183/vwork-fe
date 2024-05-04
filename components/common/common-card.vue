@@ -23,7 +23,6 @@
               </div>
             </CommonBoxOptions>
           </div>
-          <!-- <v-icon icon="mdi-dots-vertical" class="mr-[-6px]"></v-icon> -->
         </div>
         <CommonConfirmPopup
           :is-show-popup="isOpenConfirmDelete"

@@ -6,6 +6,7 @@ export class User {
   lastName: string
   email: string
   avatar: string
+  phone: string
   role: string
   group?: Group
 
@@ -15,6 +16,7 @@ export class User {
     lastName: string,
     email: string,
     avatar: string,
+    phone: string,
     role: string,
     group?: Group
   ) {
@@ -23,6 +25,7 @@ export class User {
     this.lastName = lastName
     this.email = email
     this.avatar = avatar
+    this.phone = phone
     this.role = role
     this.group = group
   }

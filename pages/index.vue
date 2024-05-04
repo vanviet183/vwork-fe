@@ -56,7 +56,6 @@
             :subtitle="item.author"
             :percent="item.percent"
             :amount-task="item.tasks?.length"
-            :task-prioritize="item.taskPrioritize"
             background-color="#FFE7C1"
             @click="goToProject(item.id)"
           >

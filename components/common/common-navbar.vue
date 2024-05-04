@@ -80,6 +80,10 @@ import { useNavigationStore } from '~/stores/navigation/navigation-store'
 
 const authenticationStore = useAuthorizationStore()
 const navigationStore = useNavigationStore()
+
+const route = useRoute()
+const organizationId = computed(() => Number(route.query.organizationId))
+
 const menu = ref([
   {
     icon: 'mdi-home',
@@ -115,7 +119,7 @@ const tabNotification = ref([
 ])
 
 const gotoPage = (url: string) => {
-  navigateTo({ path: url })
+  navigateTo({ path: url, query: { organizationId: organizationId.value } })
 }
 
 const handleChangePassword = () => {

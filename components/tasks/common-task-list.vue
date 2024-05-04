@@ -6,15 +6,8 @@
     :hover="props.items.length > 0"
     @click:row="handleClickRow"
   >
-    <template #item.user="{ item }">
-      <!-- <v-avatar
-        :image="item.raw.users.avatar"
-        size="32"
-        class="cursor-pointer"
-        @click="() => {}"
-      >
-      </v-avatar> -->
-      <span>Viet</span>
+    <template #item.users="{ item }">
+      <span>{{ getUsersImplement(item.raw.users) }}</span>
     </template>
     <template #item.prioritize="{ item }">
       <v-icon
@@ -36,9 +29,10 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { TASKS_DETAIL } from '~/constants'
-import { useTaskStore } from '~/stores/task/task-store'
-const taskStore = useTaskStore()
-const { listTask } = storeToRefs(taskStore)
+import { useProjectStore } from '~/stores/project/project-store'
+
+const projectStore = useProjectStore()
+const { listTask } = storeToRefs(projectStore)
 
 const props = defineProps({
   items: {
@@ -58,7 +52,7 @@ const headers = ref([
   {
     title: 'Người thực hiện',
     align: 'start',
-    key: 'user',
+    key: 'users',
     sortable: false,
   },
   {
@@ -95,11 +89,21 @@ const handleComplete = (el: any) => {
   console.log('el', el)
 
   listTask.value = listTask.value?.filter((item) => el.id !== item.id)
-  console.log('hello')
+}
+
+function getUsersImplement(listUser: any[]) {
+  const data = listUser.map((item) => `${item.firstName} ${item.lastName}`)
+  return data.join(', ')
 }
 </script>
 <style scoped lang="scss">
+@use 'sass:map';
+
 :deep(.v-field__outline) {
   --v-field-border-opacity: 0 !important;
+}
+:deep(.v-data-table-header__content) {
+  font-weight: bold !important;
+  color: black;
 }
 </style>
