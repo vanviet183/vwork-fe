@@ -87,11 +87,13 @@ import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { object, string } from 'yup'
 import {
+  ADMIN,
   FORGET_PASSWORD,
   HOME,
   MAIL_ADDRESS_ADMIN,
   MAIL_OTHER_DATA_INFO,
   MAX_LENGTH_INPUT,
+  ROLE,
 } from '~/constants'
 import { useAuthStore } from '~/stores/auth/auth-store'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
@@ -111,7 +113,7 @@ const authenticationStore = useAuthorizationStore()
 
 const schemaValidate = () => {
   const validate: { [key: string]: any } = {
-    email: string().trim().email().required().max(MAX_LENGTH_INPUT),
+    email: string().trim().required().max(MAX_LENGTH_INPUT),
     password: string().trim().required().max(MAX_LENGTH_INPUT),
   }
   return object().shape(validate)
@@ -126,12 +128,18 @@ const { handleSubmit } = useForm({
 const onSubmit = handleSubmit(async (values) => {
   const result = await authStore.login(values.email, values.password)
   if (result) {
-    await userStore.getUserInfo(authenticationStore.userId)
+    if (authenticationStore.role !== ROLE.ADMIN) {
+      await userStore.getUserInfo(authenticationStore.userId)
 
-    if (userInfo.value?.organization) {
+      if (userInfo.value?.organization) {
+        navigateTo({
+          path: HOME,
+          query: { organizationId: userInfo.value?.organization.id },
+        })
+      }
+    } else {
       navigateTo({
-        path: HOME,
-        query: { organizationId: userInfo.value?.organization.id },
+        path: ADMIN,
       })
     }
   }

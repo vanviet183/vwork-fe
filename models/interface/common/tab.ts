@@ -1,4 +1,4 @@
 export interface Tab {
   title: string
-  value: string
+  value: number
 }

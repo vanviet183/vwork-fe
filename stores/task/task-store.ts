@@ -5,11 +5,13 @@ import { CreateTaskRequest } from '~/models/class/tasks/create-task/create-task-
 import { GetAllDocumentInTaskRequest } from '~/models/class/tasks/get-all-document-in-task/get-all-document-in-task-request'
 import { GetAllTaskRequireInTaskRequest } from '~/models/class/tasks/get-all-task-require-in-task/get-all-task-require-in-task-request'
 import { GetTaskInfoRequest } from '~/models/class/tasks/get-task-info/get-task-info-request'
+import { UpdateTaskRequest } from '~/models/class/tasks/update-task/update-task-request'
 import {
   createTaskApi,
   getAllDocumentInTaskApi,
   getAllTaskRequireInTaskApi,
   getTaskInfoApi,
+  updateStatusTaskApi,
 } from '~/services/task/task-service'
 
 export const useTaskStore = defineStore('task', () => {
@@ -73,6 +75,24 @@ export const useTaskStore = defineStore('task', () => {
     }
   }
 
+  async function updateStatusTask(taskId: number, status: string) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new UpdateTaskRequest(taskId, status)
+      await updateStatusTaskApi(request)
+      return true
+    } catch (error) {
+      isError.value = true
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   async function getAllTaskRequireInTask(taskId: number) {
     if (isLoading.value) {
       return
@@ -118,5 +138,6 @@ export const useTaskStore = defineStore('task', () => {
     getTaskInfo,
     getAllTaskRequireInTask,
     getAllDocumentInTask,
+    updateStatusTask,
   }
 })

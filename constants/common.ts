@@ -12,6 +12,12 @@ export enum SCREEN_MODE {
   PREVIEW = 'preview',
 }
 
+export enum TASK_STATUS {
+  DOING = 'Doing',
+  WAIT_ACCEPT = 'Wait',
+  COMPLETED = 'Completed',
+}
+
 export enum TAB_LOGIN {
   EMAIL,
   PHONE,

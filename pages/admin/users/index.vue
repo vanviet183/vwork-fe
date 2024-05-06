@@ -1,0 +1,142 @@
+<template>
+  <div class="wrapper d-flex">
+    <CommonSidebar>
+      <div class="px-4 text-center">
+        <p class="text-lg p-2 font-semibold">Quản trị viên</p>
+        <img
+          :src="adminInfo?.avatar"
+          alt="Banner Login"
+          class="max-w-[120px] m-auto"
+        />
+        <p class="font-semibold">
+          {{ `${adminInfo?.firstName} ${adminInfo?.lastName}` }}
+        </p>
+      </div>
+      <div class="mt-4 px-4">
+        <div v-for="item in listMenu" :key="item.title">
+          <div
+            :class="(isActivePage(item.to) ? 'tab-active ' : '') + 'custom-tab'"
+            @click="() => navigateTo({ path: item.to })"
+          >
+            {{ item.title }}
+          </div>
+        </div>
+      </div>
+      <div class="box-logout cursor-pointer" @click="handleLogout()">
+        <div class="px-4 d-flex align-center justify-between">
+          <p class="font-semibold">Đăng xuất</p>
+          <v-icon icon="mdi-logout" class="icon-sidebar"></v-icon>
+        </div>
+      </div>
+    </CommonSidebar>
+    <div class="flex-1 slideshow p-4">
+      <ListUserTable :items="users ?? []" />
+    </div>
+  </div>
+</template>
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { ADMIN, ADMIN_ORGANIZATIONS, ADMIN_USERS, LOGIN } from '~/constants'
+import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
+import { useUserStore } from '~/stores/user/user-store'
+
+const route = useRoute()
+const userStore = useUserStore()
+const { listAllUser, adminInfo } = storeToRefs(userStore)
+
+const authenticationStore = useAuthorizationStore()
+const { userId } = storeToRefs(authenticationStore)
+
+definePageMeta({
+  layout: false,
+})
+
+const listMenu = [
+  { to: ADMIN, title: 'Thống kê' },
+  { to: ADMIN_USERS, title: 'Quản lý người dùng' },
+  { to: ADMIN_ORGANIZATIONS, title: 'Quản lý tổ chức' },
+]
+
+const users = computed(() => getUsers())
+
+onMounted(async () => {
+  if (!adminInfo.value) {
+    await userStore.getAdminInfo(userId.value)
+  }
+  await userStore.getAllUser()
+})
+
+function isActivePage(currentPage: string) {
+  return route.path === currentPage
+}
+
+function getUsers() {
+  return listAllUser.value?.map((item) => {
+    const positionJob = getPositionUser(item.role)
+    return {
+      id: item.id,
+      fullName: `${item.firstName} ${item.lastName}`,
+      email: item.email,
+      phone: item.phone,
+      role: positionJob,
+    }
+  })
+}
+
+function getPositionUser(role: string) {
+  switch (role) {
+    case 'PROJECT_MANAGER':
+      return 'Quản lý dự án'
+    case 'CEO':
+      return 'CEO'
+    case 'TEAMLEAD':
+      return 'Trưởng nhóm'
+    case 'EMPLOYEE':
+      return 'Nhân viên'
+    default:
+      return ''
+  }
+}
+
+const handleLogout = async () => {
+  await authenticationStore.resetSessionAccess()
+  navigateTo({ path: LOGIN })
+}
+</script>
+<style scoped lang="scss">
+@use 'sass:map';
+
+.wrapper {
+  height: 100vh;
+  color: '#18baff' !important;
+}
+.form-action {
+  background-color: white;
+}
+.template-content {
+  padding: 0 96px;
+}
+.slideshow {
+  background-color: #f2f2f5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.tab-active {
+  background-color: #f2f2f2;
+}
+.custom-tab {
+  padding: 8px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.box-logout {
+  padding: 8px 0;
+  border-top: 1px solid #e1d5d5;
+  position: fixed;
+  width: 360px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+</style>

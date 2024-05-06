@@ -16,10 +16,30 @@
         class="icon-prioritize"
       ></v-icon>
     </template>
+    <template #item.status="{ item }">
+      <span>{{ getStatusTask(item.raw.status) }}</span>
+    </template>
     <template #item.options="{ item }">
       <CommonBoxOptions>
-        <div class="p-4 cursor-pointer" @click="handleComplete(item.columns)">
+        <div
+          v-if="authenticationStore.role === ROLE.PROJECT_MANAGER"
+          class="px-4 py-[6px] cursor-pointer"
+          @click="handleComplete(item.raw.id)"
+        >
           Đánh dấu hoàn thành
+        </div>
+        <div
+          v-else
+          class="px-4 py-[6px] cursor-pointer"
+          @click="handleChangeStatusWaitTask(item.raw.id)"
+        >
+          Đánh dấu chờ xét duyệt
+        </div>
+        <div class="px-4 py-[6px] cursor-pointer" @click="() => {}">
+          Sửa công việc
+        </div>
+        <div class="px-4 py-[6px] cursor-pointer" @click="() => {}">
+          Xoá công việc
         </div>
       </CommonBoxOptions>
     </template>
@@ -28,11 +48,19 @@
 </template>
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { TASKS_DETAIL } from '~/constants'
+import { ROLE, TASKS_DETAIL, TASK_STATUS } from '~/constants'
+import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useProjectStore } from '~/stores/project/project-store'
+import { useTaskStore } from '~/stores/task/task-store'
 
 const projectStore = useProjectStore()
 const { listTask } = storeToRefs(projectStore)
+
+const taskStore = useTaskStore()
+const authenticationStore = useAuthorizationStore()
+
+const route = useRoute()
+const projectId = computed(() => Number(route.query.projectId))
 
 const props = defineProps({
   items: {
@@ -46,13 +74,14 @@ const headers = ref([
     title: 'Tên công việc',
     align: 'start',
     key: 'taskName',
-    width: '280px',
+    width: '180px',
     sortable: false,
   },
   {
     title: 'Người thực hiện',
     align: 'start',
     key: 'users',
+    width: '180px',
     sortable: false,
   },
   {
@@ -74,6 +103,12 @@ const headers = ref([
     sortable: false,
   },
   {
+    title: 'Trạng thái',
+    align: 'start',
+    key: 'status',
+    sortable: false,
+  },
+  {
     title: '',
     align: 'end',
     key: 'options',
@@ -85,15 +120,33 @@ function handleClickRow(_item: any, row: any) {
   navigateTo({ path: TASKS_DETAIL, query: { taskId: row.item.raw.id } })
 }
 
-const handleComplete = (el: any) => {
-  console.log('el', el)
+const handleComplete = async (id: number) => {
+  const result = await taskStore.updateStatusTask(id, TASK_STATUS.COMPLETED)
+  if (result) {
+    await projectStore.getAllTaskInProject(projectId.value)
+  }
+}
 
-  listTask.value = listTask.value?.filter((item) => el.id !== item.id)
+async function handleChangeStatusWaitTask(id: number) {
+  await taskStore.updateStatusTask(id, TASK_STATUS.WAIT_ACCEPT)
 }
 
 function getUsersImplement(listUser: any[]) {
   const data = listUser.map((item) => `${item.firstName} ${item.lastName}`)
   return data.join(', ')
+}
+
+function getStatusTask(status: string) {
+  switch (status) {
+    case TASK_STATUS.DOING:
+      return 'Đang thực hiện'
+    case TASK_STATUS.COMPLETED:
+      return 'Đã hoàn thành'
+    case TASK_STATUS.WAIT_ACCEPT:
+      return 'Đang chờ duyệt'
+    default:
+      return 'Đang thực hiện'
+  }
 }
 </script>
 <style scoped lang="scss">

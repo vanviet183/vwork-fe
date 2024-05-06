@@ -23,7 +23,7 @@ const { accessToken } = storeToRefs(authorizationStore)
 const title = ref('VWork')
 
 registerLicense(
-  'Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCe0xzWmFZfVpgdVdMZFRbRXNPIiBoS35RckVnWXpfcnBcRGFaUE1z'
+  'Ngo9BigBOggjHTQxAR8/V1NBaF5cXmZCeExyWmFZfVpgcV9EYFZQRGYuP1ZhSXxXdkBjXH9bcnVUQ2NUV00='
 )
 
 onMounted(() => {

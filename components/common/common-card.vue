@@ -15,10 +15,10 @@
             <CommonBoxOptions>
               <div class="box-options">
                 <div class="option-item" @click="handleEditProject">
-                  <p>Edit</p>
+                  <p>Sửa dự án</p>
                 </div>
                 <div class="option-item" @click="handleDeleteProject">
-                  <p>Delete</p>
+                  <p>Xoá dự án</p>
                 </div>
               </div>
             </CommonBoxOptions>
@@ -46,13 +46,8 @@
         </div>
       </div>
       <div class="h-[50%] d-flex flex-col justify-between">
-        <div class="mt-3 d-flex align-center">
-          <v-icon
-            v-if="props.taskPrioritize"
-            icon="mdi-alert-circle"
-            class="mx-2"
-          ></v-icon>
-          <span class="task-prioritize">{{ props.taskPrioritize }}</span>
+        <div class="mt-3 ml-3">
+          <p class="duration-project">{{ props.duration }}</p>
         </div>
         <div class="d-flex align-center justify-end px-4 mb-2">
           <p class="amount-task">
@@ -88,7 +83,7 @@ const props = defineProps({
     required: false,
     default: undefined,
   },
-  taskPrioritize: {
+  duration: {
     type: String,
     default: '',
   },
@@ -158,10 +153,6 @@ function handleCancelDelete() {
 .percentage {
   font-weight: 600;
   margin-left: 8px;
-}
-.task-prioritize {
-  color: red;
-  font-weight: 600;
 }
 .box-options {
   padding: 8px 0;

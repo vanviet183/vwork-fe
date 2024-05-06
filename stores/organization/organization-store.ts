@@ -1,7 +1,9 @@
 import type { Group } from '~/models/class/common/group'
+import type { Meeting } from '~/models/class/common/meeting'
 import type { Organization } from '~/models/class/common/organization'
 import type { Project } from '~/models/class/common/project'
 import { GetAllGroupInOrganizationRequest } from '~/models/class/oranizations/get-all-group-in-organization/get-all-group-in-organization-request'
+import { GetAllMeetingInOrganizationRequest } from '~/models/class/oranizations/get-all-meeting-in-organization/get-all-meeting-in-organization-request'
 import { GetAllProjectByOrganizationRequest } from '~/models/class/oranizations/get-all-project-by-organization/get-all-project-by-organization-request'
 import { GetAllUserInOrganizationRequest } from '~/models/class/oranizations/get-all-user-in-organization/get-all-user-in-organization-request'
 import type { UserGroup } from '~/models/class/oranizations/get-all-user-in-organization/get-all-user-in-organization-response'
@@ -10,6 +12,8 @@ import { InitOrganizationRequest } from '~/models/class/oranizations/init/init-o
 import { JoinOrganizationRequest } from '~/models/class/oranizations/join/join-organization-request'
 import {
   getAllGroupInOrganizationApi,
+  getAllMeetingInOrganizationApi,
+  getAllOrganizationApi,
   getAllProjectsInOrganizationApi,
   getAllUserInOrganizationApi,
   getOrganizationInfoApi,
@@ -26,11 +30,17 @@ export const useOrganizationStore = defineStore('organization', () => {
 
   const organizationInfo = ref<Organization>()
 
+  // list organization
+  const listAllOrganization = ref<Organization[]>()
+
   // list group
   const listUser = ref<UserGroup[]>([])
 
   // list group
   const listGroup = ref<Group[]>([])
+
+  // list meeting
+  const listMeeting = ref<Meeting[]>([])
 
   // list project
   const listProjects = ref<Project[]>()
@@ -46,18 +56,6 @@ export const useOrganizationStore = defineStore('organization', () => {
       (item) => item.status === 'Completed'
     )
   })
-
-  // watch(listGroup, () => {
-  //   listUser.value = listGroup.value.flatMap((entry) =>
-  //     entry.users.map((user) => ({
-  //       fullName: `${user.firstName} ${user.lastName}`,
-  //       email: user.email,
-  //       phone: user.phone,
-  //       role: getPositionUser(user.role),
-  //       group: entry.groupName === 'COMMON' ? 'Chưa có' : entry.groupName,
-  //     }))
-  //   )
-  // })
 
   async function getAllProjectsInOrganization(organizationId: number) {
     if (isLoading.value) {
@@ -165,6 +163,23 @@ export const useOrganizationStore = defineStore('organization', () => {
     }
   }
 
+  async function getAllMeetingInOrganization(organizationId: number) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new GetAllMeetingInOrganizationRequest(organizationId)
+      const response = await getAllMeetingInOrganizationApi(request)
+      listMeeting.value = response.contents.listMeeting ?? []
+    } catch (error) {
+      isError.value = true
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   async function getOrganizationInfo(organizationId: number) {
     if (isLoading.value) {
       return
@@ -182,20 +197,21 @@ export const useOrganizationStore = defineStore('organization', () => {
     }
   }
 
-  // function getPositionUser(role: string) {
-  //   switch (role) {
-  //     case ROLE.PROJECT_MANAGER:
-  //       return 'Quản lý dự án'
-  //     case ROLE.CEO:
-  //       return 'CEO'
-  //     case ROLE.TEAMLEAD:
-  //       return 'Trưởng nhóm'
-  //     case ROLE.EMPLOYEE:
-  //       return 'Nhân viên'
-  //     default:
-  //       return ''
-  //   }
-  // }
+  async function getAllOrganization() {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const response = await getAllOrganizationApi()
+      listAllOrganization.value = response.contents.listOrganization
+    } catch (error) {
+      isError.value = true
+    } finally {
+      isLoading.value = false
+    }
+  }
 
   return {
     isLoading,
@@ -207,11 +223,15 @@ export const useOrganizationStore = defineStore('organization', () => {
     listProjectCurrent,
     listProjectCompleted,
     listGroup,
+    listMeeting,
+    listAllOrganization,
     initOrganization,
     joinOrganization,
     getAllGroupInOrganization,
     getAllProjectsInOrganization,
     getOrganizationInfo,
     getAllUserInOrganization,
+    getAllMeetingInOrganization,
+    getAllOrganization,
   }
 })

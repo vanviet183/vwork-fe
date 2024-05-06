@@ -9,12 +9,6 @@
         </div>
       </div>
       <div class="px-4">
-        <div class="d-flex align-center justify-between flex-wrap gap-3 my-4">
-          <CommonFlatButton class="w-[47%]" @click="handleClickGroup"
-            >Phòng ban</CommonFlatButton
-          >
-          <CommonFlatButton class="w-[47%]">Chức vụ</CommonFlatButton>
-        </div>
         <div class="box-group">
           <div
             class="d-flex align-center cursor-pointer my-4 custom-add"
@@ -132,8 +126,15 @@
             :class="(item.id == groupId ? 'tab-active ' : '') + 'sidebar-tab'"
             @click="handleChooseGroup(item.id)"
           >
-            <p class="icon-group">{{ item.img }}</p>
-            <p class="ml-2">{{ item.title }}</p>
+            <div class="d-flex align-center">
+              <p class="icon-group">{{ item.img }}</p>
+              <p class="ml-2">{{ item.title }}</p>
+            </div>
+            <v-icon
+              icon="mdi-pencil"
+              class="mr-2 text-xs"
+              @click="handleToggleGroupForm"
+            ></v-icon>
           </div>
         </div>
       </div>
@@ -157,14 +158,17 @@
       <div class="d-flex align-center justify-between">
         <div class="d-flex align-center">
           <p class="font-semibold">Số lượng:</p>
-          <p class="ml-2">{{ users.length }} thành viên</p>
+          <p class="ml-2">
+            {{ groupId == groupIdCommon ? listUser.length : users.length }}
+            thành viên
+          </p>
         </div>
         <div>
           <CommonTextSearch />
         </div>
       </div>
       <div class="box-users mt-5">
-        <CommonUserList :items="users" />
+        <CommonUserList :items="groupId == groupIdCommon ? listUser : users" />
       </div>
     </div>
   </div>
@@ -187,6 +191,8 @@ const isOpenGroupForm = ref(false)
 const groups = computed(() => getGroups())
 const users = computed(() => getUsers())
 
+const groupIdCommon = ref()
+
 onMounted(async () => {
   if (!listUser.value.length) {
     await organizationStore.getAllUserInOrganization(organizationId.value)
@@ -194,17 +200,17 @@ onMounted(async () => {
   if (!listGroup.value.length) {
     await organizationStore.getAllGroupInOrganization(organizationId.value)
   }
-  navigateTo({
-    path: MEMBERS,
-    query: {
-      organizationId: organizationId.value,
-      groupId: listGroup.value[0].id,
-    },
-  })
-})
+  groupIdCommon.value = listGroup.value[0].id
 
-watch(groupId, () => {
-  console.log(groupId.value)
+  if (!groupId.value) {
+    navigateTo({
+      path: MEMBERS,
+      query: {
+        organizationId: organizationId.value,
+        groupId: groupIdCommon.value,
+      },
+    })
+  }
 })
 
 function handleCreateUser() {
@@ -215,12 +221,10 @@ function handleToggleGroupForm() {
   isOpenGroupForm.value = !isOpenGroupForm.value
 }
 
-function handleClickGroup() {}
-
 const getGroups = () => {
   return listGroup.value?.map((item) => ({
     img: item.groupName.slice(0, 1),
-    title: item.groupName === 'COMMON' ? 'Chung' : item.groupName,
+    title: item.groupName === 'COMMON' ? 'Tất cả' : item.groupName,
     id: item.id,
   }))
 }
@@ -254,6 +258,7 @@ function handleChooseGroup(groupId: number) {
   padding: 10px 8px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   cursor: pointer;
 }
 .tab-active {

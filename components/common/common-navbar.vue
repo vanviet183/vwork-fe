@@ -24,38 +24,34 @@
       </div>
 
       <div class="d-flex align-center">
-        <CommonTextSearch></CommonTextSearch>
-        <CommonBoxOptions icon="mdi-bell" :is-close-on-content="false">
-          <div class="px-5 pt-5">
-            <CommonTab :items="tabNotification" :is-content="true"></CommonTab>
-          </div>
-        </CommonBoxOptions>
+        <CommonTextSearch />
         <CommonBoxOptions :is-avatar="true">
           <div class="w-[372px] p-5">
             <div class="text-center box1 py-2 pointer-events-none">
-              <v-avatar
-                :image="Avatar"
-                size="80"
-                class="cursor-pointer"
-                @click="() => {}"
-              ></v-avatar>
-              <p class="mt-4">Vitcon123</p>
+              <img
+                :src="userInfo?.avatar"
+                class="h-[80px] m-auto"
+                alt="Vwork Logo"
+              />
+              <p class="my-4">
+                {{ `${userInfo?.firstName} ${userInfo?.lastName}` }}
+              </p>
               <p>Trang cá nhân của bạn</p>
             </div>
             <div class="box2 py-2">
               <div class="p-2 option-item" @click="handleChangePassword()">
                 <v-icon icon="mdi-key-variant" class="icon-nav"></v-icon>
-                <span class="ml-2">Doi mat khau</span>
+                <span class="ml-2">Đổi mật khẩu</span>
               </div>
               <div class="p-2 option-item" @click="handleChangeUser()">
                 <v-icon icon="mdi-account-edit" class="icon-nav"></v-icon>
-                <span class="ml-2">Chinh sau thong tin</span>
+                <span class="ml-2">Chỉnh sửa thông tin</span>
               </div>
             </div>
             <div class="box3 pt-2" @click="handleLogout()">
               <div class="p-2 option-item">
                 <v-icon icon="mdi-logout" class="icon-nav"></v-icon>
-                <span class="ml-2">Dang xuat</span>
+                <span class="ml-2">Đăng xuất</span>
               </div>
             </div>
           </div>
@@ -65,7 +61,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import Avatar from '~/assets/img/avatar.jpeg'
+import { storeToRefs } from 'pinia'
 import {
   HOME,
   LOGIN,
@@ -77,9 +73,13 @@ import {
 } from '~/constants'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useNavigationStore } from '~/stores/navigation/navigation-store'
+import { useUserStore } from '~/stores/user/user-store'
 
 const authenticationStore = useAuthorizationStore()
 const navigationStore = useNavigationStore()
+
+const userStore = useUserStore()
+const { userInfo } = storeToRefs(userStore)
 
 const route = useRoute()
 const organizationId = computed(() => Number(route.query.organizationId))
@@ -100,21 +100,6 @@ const menu = ref([
   {
     icon: 'mdi-calendar-check-outline',
     path: TASKS,
-  },
-])
-
-const tabNotification = ref([
-  {
-    title: 'Tất cả',
-    value: '1',
-  },
-  {
-    title: 'Công việc',
-    value: '2',
-  },
-  {
-    title: 'Lịch họp',
-    value: '3',
   },
 ])
 

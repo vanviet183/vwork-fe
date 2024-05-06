@@ -7,6 +7,8 @@ import type { GetAllTaskRequireInTaskRequest } from '~/models/class/tasks/get-al
 import type { GetAllTaskRequireInTaskResponse } from '~/models/class/tasks/get-all-task-require-in-task/get-all-task-require-in-task-response'
 import type { GetTaskInfoRequest } from '~/models/class/tasks/get-task-info/get-task-info-request'
 import type { GetTaskInfoResponse } from '~/models/class/tasks/get-task-info/get-task-info-response'
+import type { UpdateTaskRequest } from '~/models/class/tasks/update-task/update-task-request'
+import type { UpdateTaskResponse } from '~/models/class/tasks/update-task/update-task-response'
 import { useAxiosClient } from '~/services/axios-client'
 
 const ApiPath = {
@@ -14,6 +16,7 @@ const ApiPath = {
   GET_TASK_INFO: '/tasks',
   GET_ALL_TASK_REQUIRE_IN_TASK: '/tasks',
   GET_ALL_DOCUMENT_IN_TASK: '/tasks',
+  UPDATE_STATUS_TASK: '/tasks/status',
 }
 
 export const createTaskApi = async (createTaskRequest: CreateTaskRequest) => {
@@ -21,6 +24,18 @@ export const createTaskApi = async (createTaskRequest: CreateTaskRequest) => {
   const response = await axiosClient.post<CreateTaskResponse>(
     ApiPath.CREATE_TASK,
     createTaskRequest
+  )
+
+  return new BaseResponse(response.data)
+}
+
+export const updateStatusTaskApi = async (
+  updateTaskRequest: UpdateTaskRequest
+) => {
+  const { axiosClient } = useAxiosClient()
+  const response = await axiosClient.post<UpdateTaskResponse>(
+    ApiPath.UPDATE_STATUS_TASK,
+    updateTaskRequest
   )
 
   return new BaseResponse(response.data)

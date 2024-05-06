@@ -13,8 +13,17 @@
     </template>
     <template #item.options="{ item }">
       <CommonBoxOptions>
-        <div class="p-4 cursor-pointer" @click="handleComplete(item.columns)">
-          Đánh dấu hoàn thành
+        <div
+          class="px-4 py-2 cursor-pointer"
+          @click="handleViewUser(item.columns)"
+        >
+          Xem thông tin thành viên
+        </div>
+        <div
+          class="px-4 py-2 cursor-pointer"
+          @click="handleEditUser(item.columns)"
+        >
+          Sửa thông tin thành viên
         </div>
       </CommonBoxOptions>
     </template>
@@ -78,7 +87,11 @@ function handleClickRow(_item: any, row: any) {
   navigateTo({ path: USER, query: { userId: row.item.raw.id } })
 }
 
-const handleComplete = (el: any) => {
+const handleViewUser = (el: any) => {
+  console.log('el', el)
+}
+
+const handleEditUser = (el: any) => {
   console.log('el', el)
 }
 </script>

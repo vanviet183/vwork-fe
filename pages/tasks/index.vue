@@ -60,28 +60,30 @@
             </div>
           </div>
         </div>
-        <div class="box-saved">
+        <div class="box-saved cursor-pointer" @click="handleOpenSaved">
           <div class="px-4 d-flex align-center">
-            <p>Luu tru</p>
+            <p>Tài liệu dự án</p>
             <v-icon icon="mdi-chevron-right" class="icon-sidebar"></v-icon>
           </div>
         </div>
       </CommonSidebar>
 
-      <div class="box-content flex-1">
+      <div v-if="isOpenSaved" class="box-content flex-1">
+        <CommonSaved class="p-5" />
+      </div>
+      <div v-else class="box-content flex-1">
         <div
           v-if="
             authenticationStore.role === ROLE.PROJECT_MANAGER ||
             authenticationStore.role === ROLE.TEAMLEAD
           "
-          class="pt-5 pl-5 d-flex gap-3"
+          class="pt-4 pl-5 d-flex gap-3 pb-4"
         >
-          <CommonFlatButton @click="handleStatistical"
-            >Thống kê</CommonFlatButton
-          >
-          <CommonFlatButton @click="handleStatistical"
-            >Danh sách công việc</CommonFlatButton
-          >
+          <CommonGroupTab
+            :items="listTab"
+            :default-value="tabActive"
+            @change="handleSelectTab"
+          />
         </div>
         <p v-else class="pt-5 pl-5">Công việc của tôi</p>
         <div v-if="!isStatistical">
@@ -230,6 +232,7 @@ const isOpenCurrent = ref(true)
 const isOpenComplete = ref(false)
 const isOpenTaskForm = ref(false)
 const isStatistical = ref(false)
+const isOpenSaved = ref(false)
 
 const getProjectsByStatus = (isCompleted = false) => {
   if (isCompleted) {
@@ -263,16 +266,39 @@ const handleToggleTaskForm = () => {
   isOpenTaskForm.value = !isOpenTaskForm.value
 }
 
-const handleStatistical = () => {
-  isStatistical.value = !isStatistical.value
-}
-
 function handleChooseProject(projectId: number) {
   navigateTo({
     path: TASKS,
     query: { organizationId: organizationId.value, projectId },
   })
 }
+
+function handleOpenSaved() {
+  isOpenSaved.value = !isOpenSaved.value
+}
+
+const tabActive = ref(1)
+function handleSelectTab(value: any) {
+  tabActive.value = value
+}
+
+const listTab = [
+  {
+    title: 'Danh sách công việc',
+    value: 1,
+  },
+  {
+    title: 'Tiến độ dự án',
+    value: 2,
+  },
+]
+watch(tabActive, () => {
+  if (tabActive.value === 2) {
+    isStatistical.value = true
+  } else {
+    isStatistical.value = false
+  }
+})
 </script>
 <style scoped lang="scss">
 @use 'sass:map';
@@ -317,6 +343,7 @@ function handleChooseProject(projectId: number) {
 .box-saved {
   border-top: 1px solid #e1d5d5;
   position: fixed;
+  padding: 8px 0;
   width: 360px;
   bottom: 0;
   left: 0;

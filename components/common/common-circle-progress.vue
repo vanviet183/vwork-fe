@@ -1,17 +1,22 @@
 <template>
   <div class="text-center">
     <v-progress-circular
-      :model-value="value"
+      :model-value="props.percent"
       :rotate="360"
-      :size="100"
+      :size="200"
       :width="15"
       color="blue"
     >
-      <template #default> {{ `${value}%` }} </template>
+      <template #default> {{ `${props.percent} Công việc` }} </template>
     </v-progress-circular>
   </div>
 </template>
 <script setup lang="ts">
-const value = ref(50)
+const props = defineProps({
+  percent: {
+    type: Number,
+    required: true,
+  },
+})
 </script>
 <style scoped lang="scss"></style>

@@ -78,6 +78,10 @@ export const useProjectStore = defineStore('project', () => {
       const request = new GetAllTaskInProjectRequest(projectId)
       const response = await getAllTaskInProjectApi(request)
       listTask.value = response.contents.listTask ?? []
+
+      listTask.value?.sort((item1, item2) =>
+        item2.status.localeCompare(item1.status)
+      )
     } catch (error) {
       isError.value = true
     } finally {

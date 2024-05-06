@@ -20,7 +20,7 @@
         <CommonDatePicker
           class="target-day"
           name="startDate"
-          placeholder="YYYY/MM/DD"
+          placeholder="DD/MM/YYYY"
           :disabled-date="disableDate"
           :default-value="startDate ?? new Date()"
           @change="handleChangeStartDate"
@@ -30,7 +30,7 @@
         <CommonDatePicker
           class="target-day"
           name="endDate"
-          placeholder="YYYY/MM/DD"
+          placeholder="DD/MM/YYYY"
           :disabled-date="disableDate"
           :default-value="endDate ?? new Date()"
           @change="handleChangeEndDate"
@@ -103,8 +103,8 @@ const onSubmit = handleSubmit(
       userId.value,
       values.projectName,
       values.description,
-      dayjs(values.startDate).format('YYYY/MM/DD'),
-      dayjs(values.endDate).format('YYYY/MM/DD')
+      dayjs(values.startDate).format('DD/MM/YYYY'),
+      dayjs(values.endDate).format('DD/MM/YYYY')
     )
 
     if (result) {
@@ -120,8 +120,8 @@ const onSubmit = handleSubmit(
 function handleChangeStartDate(value: Date) {
   startDate.value = value
   if (
-    dayjs(startDate.value).format('YYYY/MM/DD') >
-      dayjs(endDate.value).format('YYYY/MM/DD') &&
+    dayjs(startDate.value).format('DD/MM/YYYY') >
+      dayjs(endDate.value).format('DD/MM/YYYY') &&
     startDate.value
   ) {
     endDate.value = startDate.value
@@ -131,8 +131,8 @@ function handleChangeStartDate(value: Date) {
 function handleChangeEndDate(value: Date) {
   endDate.value = value
   if (
-    dayjs(startDate.value).format('YYYY/MM/DD') >
-      dayjs(endDate.value).format('YYYY/MM/DD') &&
+    dayjs(startDate.value).format('DD/MM/YYYY') >
+      dayjs(endDate.value).format('DD/MM/YYYY') &&
     endDate.value &&
     startDate.value
   ) {
@@ -141,8 +141,8 @@ function handleChangeEndDate(value: Date) {
 }
 
 function disableDate(time: Date): boolean {
-  const fromDate = dayjs().format('YYYY/MM/DD')
-  const targetDate = dayjs(time).format('YYYY/MM/DD')
+  const fromDate = dayjs().format('DD/MM/YYYY')
+  const targetDate = dayjs(time).format('DD/MM/YYYY')
   return targetDate < fromDate
 }
 </script>

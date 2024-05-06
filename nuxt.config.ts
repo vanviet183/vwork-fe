@@ -16,6 +16,8 @@ export default defineNuxtConfig({
     { path: '~/components/task-require', extensions: ['.vue'] },
     { path: '~/components/documents', extensions: ['.vue'] },
     { path: '~/components/group', extensions: ['.vue'] },
+    { path: '~/components/meeting', extensions: ['.vue'] },
+    { path: '~/components/admin', extensions: ['.vue'] },
     '~/components',
   ],
   runtimeConfig: {

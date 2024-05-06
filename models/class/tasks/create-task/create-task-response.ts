@@ -1,59 +1,35 @@
+import type { Document } from '../../common/document'
+import type { TaskRequire } from '../../common/task-require'
 import type { User } from '../../common/user'
-
-class TaskParent {
-  id: number
-  taskName: string
-  prioritize: number
-  status: number
-  startDate: string
-  finishDay: string
-  endDate: string
-  users: User[]
-
-  constructor(
-    id: number,
-    taskName: string,
-    prioritize: number,
-    status: number,
-    startDate: string,
-    finishDay: string,
-    endDate: string,
-    users: User[]
-  ) {
-    this.id = id
-    this.taskName = taskName
-    this.prioritize = prioritize
-    this.startDate = startDate
-    this.endDate = endDate
-    this.finishDay = finishDay
-    this.status = status
-    this.users = users
-  }
-}
 
 export class CreateTaskResponse {
   id: number
-  parentTask?: TaskParent
   taskName: string
+  userResponsible: number
   prioritize: number
-  status: number
+  status: string
   startDate: string
-  finishDay: string
   endDate: string
+  finishDay: string
   users: User[]
+  documents: Document[]
+  taskRequires: TaskRequire[]
 
   constructor(
     id: number,
     taskName: string,
+    userResponsible: number,
     prioritize: number,
-    status: number,
+    status: string,
     startDate: string,
-    finishDay: string,
     endDate: string,
+    finishDay: string,
     users: User[],
-    parentTask?: TaskParent
+    documents: Document[],
+    taskRequires: TaskRequire[]
   ) {
     this.id = id
+    this.userResponsible = userResponsible
     this.taskName = taskName
     this.prioritize = prioritize
     this.startDate = startDate
@@ -61,6 +37,7 @@ export class CreateTaskResponse {
     this.finishDay = finishDay
     this.status = status
     this.users = users
-    this.parentTask = parentTask
+    this.documents = documents
+    this.taskRequires = taskRequires
   }
 }

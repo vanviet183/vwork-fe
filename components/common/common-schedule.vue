@@ -7,23 +7,26 @@
       :event-settings="eventSettings"
       :cell-click="cellClickHandler"
       :action-complete="handleCreated"
+      :destroyed="handlePopupClose"
+      :popup-open="onPopupOpen"
+      :popup-close="handlePopupClose"
     >
       <e-views>
         <e-view option="Day"></e-view>
         <e-view option="Week"></e-view>
         <e-view option="WorkWeek"></e-view>
         <e-view option="Month"></e-view>
-        <e-view option="Agenda"></e-view>
       </e-views>
       <e-resources>
         <e-resource
-          field="OwnerId"
-          title="Owner"
+          field="userId"
+          title="Người tham gia"
           name="Owners"
           :data-source="ownerDataSource"
-          text-field="OwnerText"
-          id-field="Id"
-          color-field="OwnerColor"
+          text-field="fullName"
+          id-field="userId"
+          color-field="ownerColor"
+          :allow-multiple="true"
         >
         </e-resource>
       </e-resources>
@@ -31,84 +34,173 @@
   </div>
 </template>
 <script setup lang="ts">
+import { L10n } from '@syncfusion/ej2-base'
 import {
-  Agenda,
   Day,
+  DragAndDrop,
   ResourceDirective as EResource,
   ResourcesDirective as EResources,
   ViewDirective as EView,
   ViewsDirective as EViews,
   ScheduleComponent as EjsSchedule,
   Month,
+  Resize,
   Week,
   WorkWeek,
 } from '@syncfusion/ej2-vue-schedule'
+import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
+import { useMeetingStore } from '~/stores/meeting/meeting-store'
 import { useOrganizationStore } from '~/stores/organization/organization-store'
 
-provide('schedule', [Day, Week, WorkWeek, Month, Agenda])
+provide('schedule', [Day, Week, WorkWeek, Month, DragAndDrop, Resize])
 
 const organizationStore = useOrganizationStore()
-const { listUser } = storeToRefs(organizationStore)
+const { listUser, listMeeting } = storeToRefs(organizationStore)
 
-// const selectedDate = new Date(2023, 7, 8)
-const selectedDate = new Date()
-const eventSettings = {
-  dataSource: [
-    {
-      Id: 1,
-      Subject: 'Surgery - Andrew',
-      EventType: 'Confirmed',
-      StartTime: new Date(2023, 7, 10, 9, 0),
-      EndTime: new Date(2023, 7, 10, 10, 0),
-      OwnerId: 2,
+const route = useRoute()
+const organizationId = computed(() => Number(route.query.organizationId))
+
+const meetingStore = useMeetingStore()
+
+L10n.load({
+  'en-US': {
+    schedule: {
+      saveButton: 'Lưu',
+      cancelButton: 'Đóng',
+      deleteButton: 'Xoá',
+      newEvent: 'Thêm cuộc họp',
+      editEvent: 'Sửa cuộc họp',
+      moreDetails: 'Chi tiết',
+      addTitle: 'Thêm nội dung',
+      save: 'Lưu',
     },
-    {
-      Id: 2,
-      Subject: 'Consulting - John',
-      EventType: 'Confirmed',
-      StartTime: new Date(2023, 7, 9, 10, 0),
-      EndTime: new Date(2023, 7, 9, 11, 30),
-      OwnerId: 3,
-    },
-    {
-      Id: 3,
-      Subject: 'Therapy - Robert',
-      EventType: 'Requested',
-      StartTime: new Date(2023, 7, 8, 11, 30),
-      EndTime: new Date(2023, 7, 8, 12, 30),
-      OwnerId: 1,
-    },
-  ],
+  },
+})
+
+onMounted(async () => {
+  await organizationStore.getAllMeetingInOrganization(organizationId.value)
+
+  if (!listUser.value.length) {
+    await organizationStore.getAllUserInOrganization(organizationId.value)
+  }
+})
+
+const ownerDataSource = computed(() => getUsers())
+const dataMeetings = computed(() => getMeetings())
+
+const fieldsMeeting = {
+  subject: {
+    name: 'subject',
+    title: 'Nội dung',
+    validation: { required: true },
+  },
+  startTime: {
+    name: 'startTime',
+    title: 'Thời gian bắt đầu',
+    validation: { required: true },
+  },
+  endTime: {
+    name: 'endTime',
+    title: 'Thời gian kết thúc',
+    validation: { required: true },
+  },
+  location: {
+    name: 'location',
+    title: 'Địa điểm',
+    validation: { required: true },
+  },
+  description: { name: 'description', title: 'Mô tả' },
 }
 
-// const ownerDataSource = computed(() => getUsers())
+const selectedDate = computed(() => getSelectedDate())
+const eventSettings = computed(() => {
+  return {
+    enableTooltip: true,
+    dataSource: dataMeetings.value ?? [],
+    fields: fieldsMeeting,
+  }
+})
 
-const getUsers = () => {
+function onPopupOpen(args: any) {
+  args.duration = 60
+}
+
+function getSelectedDate() {
+  if (dataMeetings.value.at(0)?.startTime) {
+    return new Date(dataMeetings.value[0].startTime)
+  }
+
+  return new Date()
+}
+
+function getUsers() {
   return listUser.value?.map((item, index) => ({
-    OwnerText: `${item.firstName} ${item.lastName}`,
-    Id: item.id,
-    OwnerColor: listColor[index],
+    fullName: item.fullName,
+    userId: item.id,
+    ownerColor: listColor[index],
   }))
+}
+
+function getMeetings() {
+  return listMeeting.value?.flatMap((item) =>
+    item.users.map((user) => ({
+      id: item.id,
+      subject: item.title,
+      eventType: 'Requested',
+      startTime: new Date(item.startTime),
+      endTime: new Date(item.endTime),
+      userId: user.id, // Use the actual user object here
+    }))
+  )
 }
 
 const listColor = ['#ffaa00', '#f8a398', '#7499e1']
 
 function cellClickHandler(args: any) {
-  // Handle cell click event here
-  console.log('Cell clicked:', args)
+  console.log('hello')
 }
 
-function handleCreated(args: any) {
-  // Handle cell click event here
-  console.log('Created:', args)
+async function handleCreated(args: any) {
+  if (args.requestType === 'eventCreated') {
+    // create
+    console.log(args)
+    const { subject, startTime, endTime, location, description } = args.data[0]
+
+    const listUser = args.data.map((item: any) => Number(item.userId))
+    await meetingStore.createMeeting(
+      organizationId.value,
+      subject,
+      dayjs(startTime).format('DD/MM/YYYY HH:mm'),
+      dayjs(endTime).format('DD/MM/YYYY HH:mm'),
+      description ?? '',
+      location ?? '',
+      listUser
+    )
+  }
+  if (args.requestType === 'eventChanged') {
+    // edit
+  }
 }
 
-const ownerDataSource = [
-  { OwnerText: 'Nancy', Id: 1, OwnerColor: '#ffaa00' },
-  { OwnerText: 'Steven', Id: 2, OwnerColor: '#f8a398' },
-  { OwnerText: 'Michael', Id: 3, OwnerColor: '#7499e1' },
-]
+function handlePopupClose(args: any) {
+  if (args.type === 'Editor') {
+    if (args.event) {
+      if (
+        (args.event.target as any).classList.contains('e-quick-dialog-delete')
+      ) {
+        // Handle the code if "delete" button is clicked.
+        console.log('click delete')
+      }
+    }
+  }
+}
+
+// const ownerDataSource = [
+//   { fullName: 'Nancy', id: 1, ownerColor: '#ffaa00' },
+//   { fullName: 'Steven', id: 2, ownerColor: '#f8a398' },
+//   { fullName: 'Michael', id: 3, ownerColor: '#7499e1' },
+// ]
 </script>
 <style>
 @import '~/node_modules/@syncfusion/ej2-base/styles/material.css';

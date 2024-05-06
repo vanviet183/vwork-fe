@@ -1,9 +1,13 @@
 <template>
   <CommonConfirmPopup
     :is-show-popup="true"
-    :title="props.mode === SCREEN_MODE.EDIT ? 'Edit' : 'Create'"
-    :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Edit' : 'Create'"
-    negative-title="Cancel"
+    :title="
+      props.mode === SCREEN_MODE.EDIT
+        ? 'Sửa thông tin thành viên'
+        : 'Thêm thành viên'
+    "
+    :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Sửa' : 'Thêm'"
+    negative-title="Huỷ"
     :positive-action="onSubmit"
     :negative-action="onCancel"
   >
@@ -13,7 +17,7 @@
         color="white"
         class="mb-4"
         @click="handleUploadExcel"
-        >Excel</CommonFlatButton
+        >Thêm danh sách</CommonFlatButton
       >
     </div>
     <form>
@@ -25,7 +29,9 @@
           accept=".csv"
           :default-value="undefined"
         />
-        <p class="custom-link">Mẫu danh sách</p>
+        <p class="custom-link" @click="handleDownloadTemplateCsv">
+          Mẫu danh sách
+        </p>
       </div>
       <div v-show="!isExcel">
         <CommonTextField name="firstName" placeholder="Họ"></CommonTextField>
@@ -183,7 +189,9 @@ const { handleSubmit } = useForm({
 })
 
 const onSubmit = handleSubmit(async (values) => {
-  if (!isExcel) {
+  if (!isExcel.value) {
+    console.log('value', values)
+
     const result = await userStore.createUser(
       values.firstName,
       values.lastName,
@@ -197,6 +205,8 @@ const onSubmit = handleSubmit(async (values) => {
       await organizationStore.getAllUserInOrganization(organizationId.value)
     }
   } else {
+    console.log('helo')
+
     const result = await userStore.createListUser(
       organizationId.value,
       values.fileUpload[0]
@@ -223,6 +233,12 @@ function getGroups() {
     title: item.groupName,
     value: item.id,
   }))
+}
+
+const PATH_DOWNLOAD_CSV =
+  'http://localhost:3005/uploads/templates/list-user.csv'
+function handleDownloadTemplateCsv() {
+  window.open(PATH_DOWNLOAD_CSV, '_blank')
 }
 </script>
 <style lang="scss" scoped>

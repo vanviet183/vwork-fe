@@ -7,89 +7,105 @@
       <v-icon icon="mdi-arrow-left" class="mr-2"></v-icon>
       <p>Danh sách công việc</p>
     </div>
-    <div class="d-flex justify-between content-task-detail mt-4">
-      <div class="mt-4 w-[60%] pr-4">
-        <p class="task-name">{{ taskInfo?.taskName }}</p>
-        <p class="mt-4 font-semibold">Nội dung công việc</p>
-        <CommonTextarea
-          name="description"
-          readonly
-          default-value="helllo"
-          class="pt-0"
-        />
-        <p class="my-4 font-semibold">Yêu cầu công việc</p>
-        <div v-if="!taskInfo?.parentTask">
-          <div
-            v-for="(item, index) in listTaskRequire"
-            :key="index"
-            class="d-flex align-center custom-task-require"
-          >
-            <v-icon
-              v-if="item.important"
-              icon="mdi-flag-variant"
-              class="icon-important mr-2"
-            ></v-icon>
-            <p :class="item.important ? 'text-important' : ''">
-              {{ item.requireContent }}
-            </p>
-          </div>
-          <div
-            class="d-flex align-center cursor-pointer mt-4 custom-add"
-            @click="handleToggleTaskRequireForm"
-          >
-            <v-icon icon="mdi-plus" class="mr-2"></v-icon>
-            <p>Thêm yêu cầu công việc</p>
-          </div>
-        </div>
+    <div class="content-task-detail mt-4">
+      <div class="text-end">
+        <v-icon
+          icon="mdi-pencil"
+          class="mr-2 cursor-pointer"
+          @click="handleToggleEditTaskForm"
+        ></v-icon>
       </div>
-      <div class="w-[40%] custom-info-task pl-4">
-        <p class="font-semibold">Thông tin</p>
-        <div class="d-flex mt-4 custom-info">
-          <div class="label-info">
-            <p>Người thực hiện</p>
-            <p>Ưu tiên</p>
-            <p>Ngày bắt đầu</p>
-            <p>Ngày kết thúc</p>
-            <p>Ngày hoàn thành</p>
-          </div>
-          <div class="content-info ml-4">
-            <p>{{ getUsersImplement(taskInfo?.users ?? []) }}</p>
-            <p>
+      <div class="d-flex justify-between mt-4">
+        <div class="mt-4 w-[60%] pr-4">
+          <p class="task-name">{{ taskInfo?.taskName }}</p>
+          <p class="mt-4 font-semibold">Nội dung công việc</p>
+          <CommonTextarea
+            name="description"
+            readonly
+            :default-value="taskInfo?.taskName"
+            class="pt-0"
+          />
+          <p class="my-4 font-semibold">Yêu cầu công việc</p>
+          <div v-if="!taskInfo?.taskRequires">
+            <div
+              v-for="(item, index) in listTaskRequire"
+              :key="index"
+              class="d-flex align-center custom-task-require"
+            >
               <v-icon
-                v-if="taskInfo?.prioritize"
+                v-if="item.important"
                 icon="mdi-flag-variant"
-                class="icon-prioritize"
+                class="icon-important mr-2"
               ></v-icon>
-            </p>
-            <p>{{ taskInfo?.startDate }}</p>
-            <p>{{ taskInfo?.endDate }}</p>
-            <p>{{ taskInfo?.finishDay }}</p>
+              <p :class="item.important ? 'text-important' : ''">
+                {{ item.requireContent }}
+              </p>
+            </div>
+            <div
+              class="d-flex align-center cursor-pointer mt-4 custom-add"
+              @click="handleToggleTaskRequireForm"
+            >
+              <v-icon icon="mdi-plus" class="mr-2"></v-icon>
+              <p>Thêm yêu cầu công việc</p>
+            </div>
           </div>
         </div>
+        <div class="w-[40%] custom-info-task pl-4">
+          <p class="font-semibold">Thông tin</p>
+          <div class="d-flex mt-4 custom-info">
+            <div class="label-info">
+              <p>Người chịu trách nhiệm:</p>
+              <p>Người thực hiện:</p>
+              <p>Ưu tiên:</p>
+              <p>Ngày bắt đầu:</p>
+              <p>Ngày kết thúc:</p>
+              <p>Ngày hoàn thành:</p>
+            </div>
+            <div class="content-info ml-4">
+              <p>{{ getUsersImplement(taskInfo?.users ?? []) }}</p>
+              <p>{{ getUsersImplement(taskInfo?.users ?? []) }}</p>
+              <p>
+                <v-icon
+                  v-if="taskInfo?.prioritize"
+                  icon="mdi-flag-variant"
+                  class="icon-prioritize"
+                ></v-icon>
+              </p>
+              <p>{{ taskInfo?.startDate }}</p>
+              <p>{{ taskInfo?.endDate }}</p>
+              <p>{{ taskInfo?.finishDay }}</p>
+            </div>
+          </div>
 
-        <p class="font-semibold mt-4"></p>
-        <div class="d-flex align-center justify-between">
-          <p>Đính kèm {{ `(${listDocument?.length})` }}</p>
-          <div
-            class="d-flex align-center custom-add"
-            @click="handleToggleDocumentForm"
-          >
-            <v-icon icon="mdi-plus" class="mr-1"></v-icon>
-            <p>Thêm</p>
+          <div class="d-flex align-center justify-between mt-4">
+            <p>Đính kèm {{ `(${listDocument?.length})` }}</p>
+            <div
+              class="d-flex align-center custom-add"
+              @click="handleToggleDocumentForm"
+            >
+              <v-icon icon="mdi-plus" class="mr-1"></v-icon>
+              <p>Thêm</p>
+            </div>
           </div>
-        </div>
-        <div
-          v-for="(item, index) in listDocument"
-          :key="index"
-          class="d-flex align-center custom-task-document"
-          @click="handleDownloadFile(item.filePath)"
-        >
-          <p>
-            {{ item.fileName }}
-          </p>
+          <div
+            v-for="(item, index) in listDocument"
+            :key="index"
+            class="d-flex align-center custom-task-document"
+            @click="handleDownloadFile(item.filePath)"
+          >
+            <p>
+              {{ item.fileName }}
+            </p>
+          </div>
         </div>
       </div>
     </div>
+
+    <TaskForm
+      v-if="isOpenTaskForm"
+      :mode="SCREEN_MODE.EDIT"
+      @close-form="handleToggleEditTaskForm"
+    />
     <TaskRequireForm
       v-if="isOpenTaskRequireForm"
       @close-form="handleToggleTaskRequireForm"
@@ -102,6 +118,7 @@
 </template>
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { SCREEN_MODE } from '~/constants'
 import { useTaskStore } from '~/stores/task/task-store'
 
 const route = useRoute()
@@ -112,6 +129,7 @@ const taskStore = useTaskStore()
 const { taskInfo, listTaskRequire, listDocument } = storeToRefs(taskStore)
 
 const isOpenTaskRequireForm = ref(false)
+const isOpenTaskForm = ref(false)
 const isOpenDocumentForm = ref(false)
 
 onMounted(async () => {
@@ -139,6 +157,10 @@ const handleToggleDocumentForm = () => {
 
 function handleDownloadFile(filePath: string) {
   window.open(filePath, '_blank')
+}
+
+function handleToggleEditTaskForm() {
+  isOpenTaskForm.value = !isOpenTaskForm.value
 }
 </script>
 <style scoped lang="scss">

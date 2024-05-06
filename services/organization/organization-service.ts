@@ -1,6 +1,9 @@
+import type { GetAllOrganizationResponse } from '~/models/class/admin/get-all-organization/get-all-organization-response'
 import { BaseResponse } from '~/models/class/common/base-response'
 import type { GetAllGroupInOrganizationRequest } from '~/models/class/oranizations/get-all-group-in-organization/get-all-group-in-organization-request'
 import type { GetAllGroupInOrganizationResponse } from '~/models/class/oranizations/get-all-group-in-organization/get-all-group-in-organization-response'
+import type { GetAllMeetingInOrganizationRequest } from '~/models/class/oranizations/get-all-meeting-in-organization/get-all-meeting-in-organization-request'
+import type { GetAllMeetingInOrganizationResponse } from '~/models/class/oranizations/get-all-meeting-in-organization/get-all-meeting-in-organization-response'
 import type { GetAllProjectByOrganizationRequest } from '~/models/class/oranizations/get-all-project-by-organization/get-all-project-by-organization-request'
 import type { GetAllProjectByOrganizationResponse } from '~/models/class/oranizations/get-all-project-by-organization/get-all-project-by-organization-response'
 import type { GetAllUserInOrganizationRequest } from '~/models/class/oranizations/get-all-user-in-organization/get-all-user-in-organization-request'
@@ -20,6 +23,7 @@ const ApiPath = {
   GET_ALL_PROJECT_IN_ORGANIZATION: '/organizations',
   GET_ALL_USER_IN_ORGANIZATION: '/organizations',
   GET_ORGANIZATION_INFO: '/organizations',
+  GET_ALL_ORGANIZATION: '/organizations',
 }
 
 export const initOrganizationApi = async (
@@ -52,6 +56,26 @@ export const getAllGroupInOrganizationApi = async (
   const { axiosClient } = useAxiosClient()
   const response = await axiosClient.get<GetAllGroupInOrganizationResponse>(
     `${ApiPath.GET_ALL_GROUP_IN_ORGANIZATION}/${getAllGroupInOrganizationRequest.organizationId}/groups`
+  )
+
+  return new BaseResponse(response.data)
+}
+
+export const getAllMeetingInOrganizationApi = async (
+  getAllMeetingInOrganizationRequest: GetAllMeetingInOrganizationRequest
+) => {
+  const { axiosClient } = useAxiosClient()
+  const response = await axiosClient.get<GetAllMeetingInOrganizationResponse>(
+    `${ApiPath.GET_ALL_GROUP_IN_ORGANIZATION}/${getAllMeetingInOrganizationRequest.organizationId}/meetings`
+  )
+
+  return new BaseResponse(response.data)
+}
+
+export const getAllOrganizationApi = async () => {
+  const { axiosClient } = useAxiosClient()
+  const response = await axiosClient.get<GetAllOrganizationResponse>(
+    ApiPath.GET_ALL_ORGANIZATION
   )
 
   return new BaseResponse(response.data)

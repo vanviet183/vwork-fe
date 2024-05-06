@@ -11,3 +11,7 @@ export const LOGIN = '/login'
 export const REGISTER = '/register'
 export const MEETINGS = '/meetings'
 export const ORGANIZATION = '/organizations'
+
+export const ADMIN = '/admin'
+export const ADMIN_USERS = '/admin/users'
+export const ADMIN_ORGANIZATIONS = '/admin/organizations'

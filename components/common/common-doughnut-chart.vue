@@ -11,21 +11,39 @@
 
 <script setup lang="ts">
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from 'chart.js'
-import { storeToRefs } from 'pinia'
 import { Doughnut } from 'vue-chartjs'
-import { useProjectStore } from '~/stores/project/project-store'
 
-const projectStore = useProjectStore()
-const { listTask } = storeToRefs(projectStore)
 ChartJS.register(ArcElement, Tooltip, Legend)
 
+const props = defineProps({
+  datasetItems: {
+    type: Array<number>,
+    required: true,
+  },
+  totalTask: {
+    type: Number,
+    required: true,
+  },
+})
+
+const datasets = ref(props.datasetItems)
+
+watch(
+  () => props.datasetItems,
+  () => {
+    console.log('datasetItems', props.datasetItems)
+
+    datasets.value = props.datasetItems
+  }
+)
+
 const chartData = {
-  labels: ['Red', 'Orange', 'Yellow', 'Green', 'Blue'],
+  labels: ['Đúng hạn', 'Muộn', 'Chưa tới hạn', 'Quá hạn'],
   datasets: [
     {
-      label: 'Dataset 1',
-      data: [20, 50, 20, 60, 20],
-      backgroundColor: ['Red', 'Orange', 'Yellow', 'Green', 'Blue'],
+      label: 'Số lượng',
+      data: datasets.value,
+      backgroundColor: ['Green', 'Yellow', 'Orange', 'Red'],
     },
   ],
 }
@@ -46,7 +64,7 @@ const customTitleInside = {
     ctx.fillStyle = 'black'
     ctx.textBaseline = 'middle'
 
-    const text1 = listTask.value?.length
+    const text1 = props.totalTask
     const text2 = 'Công việc'
 
     const textX = chart.getDatasetMeta(0).data[0].x

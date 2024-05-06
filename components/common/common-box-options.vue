@@ -2,13 +2,12 @@
   <v-menu :close-on-content-click="prop.isCloseOnContent">
     <template #activator="{ props }">
       <div class="cursor-pointer edit-more" v-bind="props">
-        <div v-if="prop.isAvatar" class="avatar">
-          <v-avatar
-            :image="Avatar"
-            size="42"
-            class="cursor-pointer"
-            @click="() => {}"
-          ></v-avatar>
+        <div v-if="prop.isAvatar" class="avatar d-flex align-center">
+          <img
+            :src="userInfo?.avatar"
+            class="h-[42px] m-auto cursor-pointer"
+            alt="Vwork Logo"
+          />
           <v-icon icon="mdi-menu-down" class="ml-1"></v-icon>
         </div>
         <div v-else class="title px-2 py-2">
@@ -22,7 +21,8 @@
 </template>
 
 <script setup lang="ts">
-import Avatar from '~/assets/img/avatar.jpeg'
+import { storeToRefs } from 'pinia'
+import { useUserStore } from '~/stores/user/user-store'
 
 const prop = defineProps({
   isAvatar: {
@@ -42,6 +42,9 @@ const prop = defineProps({
     default: true,
   },
 })
+
+const userStore = useUserStore()
+const { userInfo } = storeToRefs(userStore)
 </script>
 
 <style scoped lang="scss">
@@ -56,7 +59,6 @@ const prop = defineProps({
 }
 .title:hover {
   border-radius: 10px;
-  background-color: map.get($colors, 'light-silver');
 }
 .options-container {
   background-color: white;
