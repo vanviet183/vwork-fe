@@ -5,11 +5,14 @@
         <p class="text-lg p-2 font-semibold">Quản trị viên</p>
         <img
           :src="adminInfo?.avatar"
-          alt="Banner Login"
+          alt="Avatar"
           class="max-w-[120px] m-auto"
         />
         <p class="font-semibold">
-          {{ `${adminInfo?.firstName} ${adminInfo?.lastName}` }}
+          <span>
+            {{ adminInfo?.firstName }}
+          </span>
+          <span>{{ adminInfo?.lastName ?? '' }}</span>
         </p>
       </div>
       <div class="mt-4 px-4">
@@ -53,7 +56,13 @@
 </template>
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { ADMIN, ADMIN_ORGANIZATIONS, ADMIN_USERS, LOGIN } from '~/constants'
+import {
+  ADMIN,
+  ADMIN_GROUPS,
+  ADMIN_ORGANIZATIONS,
+  ADMIN_USERS,
+  LOGIN,
+} from '~/constants'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useNavigationStore } from '~/stores/navigation/navigation-store'
 import { useUserStore } from '~/stores/user/user-store'
@@ -72,8 +81,9 @@ definePageMeta({
 
 const listMenu = [
   { to: ADMIN, title: 'Thống kê' },
-  { to: ADMIN_USERS, title: 'Quản lý người dùng' },
   { to: ADMIN_ORGANIZATIONS, title: 'Quản lý tổ chức' },
+  { to: ADMIN_GROUPS, title: 'Quản lý nhóm' },
+  { to: ADMIN_USERS, title: 'Quản lý người dùng' },
 ]
 
 onMounted(async () => {
@@ -91,7 +101,7 @@ const handleLogout = async () => {
 
 .wrapper {
   height: 100vh;
-  color: '#18baff' !important;
+  background-color: '#18baff' !important;
 }
 .form-action {
   background-color: white;

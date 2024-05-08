@@ -1,15 +1,20 @@
+import { AlertType } from '~/constants'
 import { Project } from '~/models/class/common/project'
 import { Task } from '~/models/class/common/task'
 import { CreateProjectRequest } from '~/models/class/projects/create-project/create-project-request'
+import { DeleteProjectRequest } from '~/models/class/projects/delete-project/delete-project-request'
 import { GetAllTaskInProjectRequest } from '~/models/class/projects/get-all-task-in-project/get-all-task-in-project-request'
 import { GetProjectInfoRequest } from '~/models/class/projects/get-project-info/get-project-info-request'
 import {
   createProjectApi,
+  deleteProjectApi,
   getAllTaskInProjectApi,
   getProjectInfoApi,
 } from '~/services/project/project-service'
+import { useAlertStore } from '../alert/alert-store'
 
 export const useProjectStore = defineStore('project', () => {
+  const alertStore = useAlertStore()
   const isLoading = ref(false)
   const isError = ref(false)
   const error = ref('')
@@ -28,6 +33,28 @@ export const useProjectStore = defineStore('project', () => {
       const response = await getProjectInfoApi(request)
 
       projectInfo.value = response.contents
+    } catch (error) {
+      isError.value = true
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function deleteProject(projectId: number) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new DeleteProjectRequest(projectId)
+      const response = await deleteProjectApi(request)
+      if (response.message) {
+        alertStore.setAlertMessage({
+          message: response.message,
+          type: AlertType.success,
+        })
+      }
     } catch (error) {
       isError.value = true
     } finally {
@@ -98,5 +125,6 @@ export const useProjectStore = defineStore('project', () => {
     createProject,
     getProjectInfo,
     getAllTaskInProject,
+    deleteProject,
   }
 })

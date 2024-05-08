@@ -27,8 +27,8 @@
         <CommonConfirmPopup
           :is-show-popup="isOpenConfirmDelete"
           title="Bạn có chắc chắn muốn xóa dự án này không?"
-          positive-title="Delete"
-          negative-title="Cancel"
+          positive-title="Đồng ý"
+          negative-title="Huỷ"
           :positive-action="handleDelete"
           :negative-action="handleCancelDelete"
         >
@@ -63,8 +63,20 @@
 </template>
 <script setup lang="ts">
 import Avatar from '~/assets/img/avatar.jpeg'
+import { useOrganizationStore } from '~/stores/organization/organization-store'
+import { useProjectStore } from '~/stores/project/project-store'
+
+const projectStore = useProjectStore()
+const organizationStore = useOrganizationStore()
+
+const route = useRoute()
+const organizationId = computed(() => Number(route.query.organizationId))
 
 const props = defineProps({
+  projectId: {
+    type: Number,
+    required: true,
+  },
   title: {
     type: String,
     required: true,
@@ -112,7 +124,9 @@ const handleDeleteProject = () => {
   isOpenConfirmDelete.value = true
 }
 
-function handleDelete() {
+async function handleDelete() {
+  await projectStore.deleteProject(props.projectId)
+  await organizationStore.getAllProjectsInOrganization(organizationId.value)
   isOpenConfirmDelete.value = false
 }
 

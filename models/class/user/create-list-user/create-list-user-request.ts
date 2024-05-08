@@ -1,9 +1,7 @@
 export class CreateListUserRequest {
-  organizationId: number
   file: File
 
-  constructor(organizationId: number, file: File) {
-    this.organizationId = organizationId
+  constructor(file: File) {
     this.file = file
   }
 }

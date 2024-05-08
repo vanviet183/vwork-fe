@@ -3,7 +3,7 @@
     <el-date-picker
       v-model="selectedDate"
       class="custom-date-picker"
-      format="DD/MM/YYYY"
+      format="YYYY/MM/DD"
       v-bind="$attrs"
       type="date"
       size="large"

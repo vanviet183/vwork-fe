@@ -1,49 +1,45 @@
 <template>
-  <v-data-table
-    :headers="headers"
-    :items="props.items"
-    item-value="id"
-    :hover="(props.items ?? []).length > 0"
-    @click:row="handleClickRow"
-  >
-    <template #item.status="{ item }">
-      <div v-if="item.raw.status === 1">
-        <p>Hoạt động</p>
-      </div>
-    </template>
-    <template #item.options="{ item }">
-      <CommonBoxOptions>
-        <div
-          class="px-4 py-2 cursor-pointer"
-          @click="handleViewUser(item.columns)"
-        >
-          Xem thông tin thành viên
+  <div>
+    <v-data-table
+      :headers="headers"
+      :items="props.items"
+      item-value="id"
+      :hover="(props.items ?? []).length > 0"
+      @click:row="handleClickRow"
+    >
+      <template #item.status="{ item }">
+        <div v-if="item.raw.status === 1">
+          <p>Hoạt động</p>
         </div>
-        <div
-          class="px-4 py-2 cursor-pointer"
-          @click="handleEditUser(item.columns)"
-        >
-          Sửa thông tin thành viên
-        </div>
-        <div
-          class="px-4 py-2 cursor-pointer"
-          @click="handleDeleteUser(item.raw.id)"
-        >
-          Xoá người dùng
-        </div>
-      </CommonBoxOptions>
-      <CommonConfirmPopup
-        :is-show-popup="isOpenConfirmDelete"
-        title="Bạn có chắc chắn muốn xóa người dùng này không?"
-        positive-title="Đồng ý"
-        negative-title="Huỷ"
-        :positive-action="handleDelete"
-        :negative-action="handleCancelDelete"
-      >
-      </CommonConfirmPopup>
-    </template>
-    <template #item.bottom=""></template>
-  </v-data-table>
+      </template>
+      <template #item.options="{ item }">
+        <CommonBoxOptions>
+          <div
+            class="px-4 py-2 cursor-pointer"
+            @click="handleEditUser(item.columns)"
+          >
+            Sửa thông tin người dùng
+          </div>
+          <div
+            class="px-4 py-2 cursor-pointer"
+            @click="handleDeleteUser(item.raw.id)"
+          >
+            Xoá người dùng
+          </div>
+        </CommonBoxOptions>
+      </template>
+      <template #item.bottom=""></template>
+    </v-data-table>
+    <CommonConfirmPopup
+      :is-show-popup="isOpenConfirmDelete"
+      title="Bạn có chắc chắn muốn xóa người dùng này không?"
+      positive-title="Đồng ý"
+      negative-title="Huỷ"
+      :positive-action="handleDelete"
+      :negative-action="handleCancelDelete"
+    >
+    </CommonConfirmPopup>
+  </div>
 </template>
 <script setup lang="ts">
 import { USER } from '~/constants'
@@ -101,10 +97,6 @@ function handleCancelDelete() {
 
 function handleClickRow(_item: any, row: any) {
   navigateTo({ path: USER, query: { userId: row.item.raw.id } })
-}
-
-const handleViewUser = (el: any) => {
-  console.log('el', el)
 }
 
 const handleEditUser = (el: any) => {

@@ -5,11 +5,14 @@
         <p class="text-lg p-2 font-semibold">Quản trị viên</p>
         <img
           :src="adminInfo?.avatar"
-          alt="Banner Login"
+          alt="Avatar"
           class="max-w-[120px] m-auto"
         />
         <p class="font-semibold">
-          {{ `${adminInfo?.firstName} ${adminInfo?.lastName}` }}
+          <span>
+            {{ adminInfo?.firstName }}
+          </span>
+          <span>{{ adminInfo?.lastName ?? '' }}</span>
         </p>
       </div>
       <div class="mt-4 px-4">
@@ -30,13 +33,32 @@
       </div>
     </CommonSidebar>
     <div class="flex-1 slideshow p-4">
+      <div class="text-end mb-4">
+        <CommonFlatButton
+          background-color="#28526e"
+          color="white"
+          class="btn-login mt-4"
+          @click="handleCreateUser"
+          >Thêm thành viên
+        </CommonFlatButton>
+      </div>
+      <CreateUserForm
+        v-if="isOpenFormCreateUser"
+        @close-form="handleCreateUser"
+      />
       <ListUserTable :items="users ?? []" />
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { ADMIN, ADMIN_ORGANIZATIONS, ADMIN_USERS, LOGIN } from '~/constants'
+import {
+  ADMIN,
+  ADMIN_GROUPS,
+  ADMIN_ORGANIZATIONS,
+  ADMIN_USERS,
+  LOGIN,
+} from '~/constants'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useUserStore } from '~/stores/user/user-store'
 
@@ -51,12 +73,14 @@ definePageMeta({
   layout: false,
 })
 
+const isOpenFormCreateUser = ref(false)
+
 const listMenu = [
   { to: ADMIN, title: 'Thống kê' },
-  { to: ADMIN_USERS, title: 'Quản lý người dùng' },
   { to: ADMIN_ORGANIZATIONS, title: 'Quản lý tổ chức' },
+  { to: ADMIN_GROUPS, title: 'Quản lý nhóm' },
+  { to: ADMIN_USERS, title: 'Quản lý người dùng' },
 ]
-
 const users = computed(() => getUsers())
 
 onMounted(async () => {
@@ -102,13 +126,17 @@ const handleLogout = async () => {
   await authenticationStore.resetSessionAccess()
   navigateTo({ path: LOGIN })
 }
+
+function handleCreateUser() {
+  isOpenFormCreateUser.value = !isOpenFormCreateUser.value
+}
 </script>
 <style scoped lang="scss">
 @use 'sass:map';
 
 .wrapper {
   height: 100vh;
-  color: '#18baff' !important;
+  background-color: '#18baff' !important;
 }
 .form-action {
   background-color: white;
@@ -118,9 +146,6 @@ const handleLogout = async () => {
 }
 .slideshow {
   background-color: #f2f2f5;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 .tab-active {
   background-color: #f2f2f2;

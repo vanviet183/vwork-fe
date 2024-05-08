@@ -1,3 +1,4 @@
+import { AlertType } from '~/constants'
 import type { User } from '~/models/class/common/user'
 import { CreateListUserRequest } from '~/models/class/user/create-list-user/create-list-user-request'
 import { CreateUserRequest } from '~/models/class/user/create-user/create-user-request'
@@ -48,7 +49,7 @@ export const useUserStore = defineStore('user', () => {
     isError.value = false
     try {
       const response = await getAllUserApi()
-      listAllUser.value = response.contents.listUser
+      listAllUser.value = response.contents?.listUser
     } catch (error) {
       isError.value = true
     } finally {
@@ -79,7 +80,6 @@ export const useUserStore = defineStore('user', () => {
     phone: string,
     email: string,
     password: string,
-    groupId: number,
     role: string
   ) {
     if (isLoading.value) {
@@ -94,10 +94,15 @@ export const useUserStore = defineStore('user', () => {
         phone,
         email,
         password,
-        groupId,
         role
       )
-      await createUserApi(request)
+      const response = await createUserApi(request)
+      if (response.message) {
+        alertStore.setAlertMessage({
+          message: response.message,
+          type: AlertType.success,
+        })
+      }
       return true
     } catch (error) {
       isError.value = true
@@ -107,15 +112,21 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  async function createListUser(organizationId: number, file: File) {
+  async function createListUser(file: File) {
     if (isLoading.value) {
       return
     }
     isLoading.value = true
     isError.value = false
     try {
-      const request = new CreateListUserRequest(organizationId, file)
-      await createListUserApi(request)
+      const request = new CreateListUserRequest(file)
+      const response = await createListUserApi(request)
+      if (response.message) {
+        alertStore.setAlertMessage({
+          message: response.message,
+          type: AlertType.success,
+        })
+      }
       return true
     } catch (error) {
       isError.value = true

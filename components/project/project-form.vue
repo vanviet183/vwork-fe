@@ -1,9 +1,9 @@
 <template>
   <CommonConfirmPopup
     :is-show-popup="true"
-    :title="props.mode === SCREEN_MODE.EDIT ? 'Edit' : 'Create'"
-    :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Edit' : 'Create'"
-    negative-title="Cancel"
+    :title="props.mode === SCREEN_MODE.EDIT ? 'Sửa dự án' : 'Thêm dự án'"
+    :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Sửa' : 'Thêm'"
+    negative-title="Huỷ"
     :positive-action="onSubmit"
     :negative-action="onCancel"
   >
@@ -20,9 +20,9 @@
         <CommonDatePicker
           class="target-day"
           name="startDate"
-          placeholder="DD/MM/YYYY"
+          placeholder="YYYY/MM/DD"
           :disabled-date="disableDate"
-          :default-value="startDate ?? new Date()"
+          :default-value="startDate"
           @change="handleChangeStartDate"
         ></CommonDatePicker>
 
@@ -30,9 +30,9 @@
         <CommonDatePicker
           class="target-day"
           name="endDate"
-          placeholder="DD/MM/YYYY"
+          placeholder="YYYY/MM/DD"
           :disabled-date="disableDate"
-          :default-value="endDate ?? new Date()"
+          :default-value="endDate"
           @change="handleChangeEndDate"
         ></CommonDatePicker>
       </form>
@@ -63,8 +63,8 @@ const props = defineProps({
   },
 })
 
-const startDate = ref()
-const endDate = ref()
+const startDate = ref(new Date())
+const endDate = ref(new Date(dayjs().add(1, 'm').format('YYYY/MM/DD')))
 
 const route = useRoute()
 const organizationId = computed(() => Number(route.query.organizationId))
@@ -103,8 +103,8 @@ const onSubmit = handleSubmit(
       userId.value,
       values.projectName,
       values.description,
-      dayjs(values.startDate).format('DD/MM/YYYY'),
-      dayjs(values.endDate).format('DD/MM/YYYY')
+      dayjs(values.startDate).format('YYYY/MM/DD'),
+      dayjs(values.endDate).format('YYYY/MM/DD')
     )
 
     if (result) {
@@ -120,8 +120,8 @@ const onSubmit = handleSubmit(
 function handleChangeStartDate(value: Date) {
   startDate.value = value
   if (
-    dayjs(startDate.value).format('DD/MM/YYYY') >
-      dayjs(endDate.value).format('DD/MM/YYYY') &&
+    dayjs(startDate.value).format('YYYY/MM/DD') >
+      dayjs(endDate.value).format('YYYY/MM/DD') &&
     startDate.value
   ) {
     endDate.value = startDate.value
@@ -131,8 +131,8 @@ function handleChangeStartDate(value: Date) {
 function handleChangeEndDate(value: Date) {
   endDate.value = value
   if (
-    dayjs(startDate.value).format('DD/MM/YYYY') >
-      dayjs(endDate.value).format('DD/MM/YYYY') &&
+    dayjs(startDate.value).format('YYYY/MM/DD') >
+      dayjs(endDate.value).format('YYYY/MM/DD') &&
     endDate.value &&
     startDate.value
   ) {
@@ -141,8 +141,8 @@ function handleChangeEndDate(value: Date) {
 }
 
 function disableDate(time: Date): boolean {
-  const fromDate = dayjs().format('DD/MM/YYYY')
-  const targetDate = dayjs(time).format('DD/MM/YYYY')
+  const fromDate = dayjs().format('YYYY/MM/DD')
+  const targetDate = dayjs(time).format('YYYY/MM/DD')
   return targetDate < fromDate
 }
 </script>

@@ -59,13 +59,6 @@
           @click:append-inner="visible = !visible"
         ></CommonTextField>
         <CommonDropdown
-          name="group"
-          item-label="title"
-          class="mt-4"
-          placeholder="Nhóm"
-          :items="listGroupInOrganization ?? []"
-        ></CommonDropdown>
-        <CommonDropdown
           name="role"
           item-label="title"
           placeholder="Chức vụ"
@@ -103,8 +96,6 @@ const { listGroup } = storeToRefs(organizationStore)
 const route = useRoute()
 const organizationId = computed(() => Number(route.query.organizationId))
 
-const listGroupInOrganization = computed(() => getGroups())
-
 const listRoleOrganization = [
   {
     title: 'CEO',
@@ -131,12 +122,6 @@ const listRoleOrganization = [
 const visible = ref(false)
 const isExcel = ref(false)
 
-onMounted(async () => {
-  if (!listGroup.value.length) {
-    await organizationStore.getAllGroupInOrganization(organizationId.value)
-  }
-})
-
 const schemaValidate = () => {
   let validate: { [key: string]: any } = {}
   if (!isExcel.value) {
@@ -146,7 +131,6 @@ const schemaValidate = () => {
       phone: string().trim().required().max(MAX_LENGTH_INPUT),
       email: string().trim().email().required().max(MAX_LENGTH_INPUT),
       password: string().trim().required().max(MAX_LENGTH_INPUT),
-      group: object().required(),
       role: object().required(),
     }
   } else {
@@ -155,7 +139,7 @@ const schemaValidate = () => {
         .min(1, '必須項目です')
         .test({
           name: 'fileCsvFormat',
-          message: 'ファイル形式はCSVである必要があります',
+          message: 'Định dạng tệp phải là CSV',
           test: (file) => {
             if (!file || !file[0]?.size) {
               return true // No files uploaded, validation passes
@@ -165,7 +149,7 @@ const schemaValidate = () => {
         })
         .test({
           name: 'fileCsvSize',
-          message: replaceParams('ERR_MESSAGE.ERR_OVER_MAX_CSV_FILE_SIZE', {
+          message: replaceParams('File vượt quá 20MB', {
             '{size}': 20,
           }),
           exclusive: true,
@@ -190,30 +174,22 @@ const { handleSubmit } = useForm({
 
 const onSubmit = handleSubmit(async (values) => {
   if (!isExcel.value) {
-    console.log('value', values)
-
     const result = await userStore.createUser(
       values.firstName,
       values.lastName,
       values.phone,
       values.email,
       values.password,
-      values.group.value,
       values.role.value
     )
     if (result) {
-      await organizationStore.getAllUserInOrganization(organizationId.value)
+      await userStore.getAllUser()
     }
   } else {
-    console.log('helo')
-
-    const result = await userStore.createListUser(
-      organizationId.value,
-      values.fileUpload[0]
-    )
+    const result = await userStore.createListUser(values.fileUpload[0])
 
     if (result) {
-      await organizationStore.getAllUserInOrganization(organizationId.value)
+      await userStore.getAllUser()
     }
   }
 

@@ -171,8 +171,8 @@ async function handleCreated(args: any) {
     await meetingStore.createMeeting(
       organizationId.value,
       subject,
-      dayjs(startTime).format('DD/MM/YYYY HH:mm'),
-      dayjs(endTime).format('DD/MM/YYYY HH:mm'),
+      dayjs(startTime).format('YYYY/MM/DD HH:mm'),
+      dayjs(endTime).format('YYYY/MM/DD HH:mm'),
       description ?? '',
       location ?? '',
       listUser

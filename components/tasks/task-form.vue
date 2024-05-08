@@ -49,7 +49,7 @@
       <CommonDatePicker
         class="target-day"
         name="startDate"
-        placeholder="DD/MM/YYYY"
+        placeholder="YYYY/MM/DD"
         :disabled-date="disableDate"
         :default-value="startDate ?? new Date()"
         @change="handleChangeStartDate"
@@ -59,7 +59,7 @@
       <CommonDatePicker
         class="target-day"
         name="endDate"
-        placeholder="DD/MM/YYYY"
+        placeholder="YYYY/MM/DD"
         :disabled-date="disableDate"
         :default-value="endDate ?? new Date()"
         @change="handleChangeEndDate"
@@ -159,8 +159,8 @@ const onSubmit = handleSubmit(
       // values.groupImplement.value ?? undefined,
       listUserImplement,
       values.prioritize,
-      dayjs(values.startDate).format('DD/MM/YYYY'),
-      dayjs(values.endDate).format('DD/MM/YYYY')
+      dayjs(values.startDate).format('YYYY/MM/DD'),
+      dayjs(values.endDate).format('YYYY/MM/DD')
     )
     if (result) {
       await projectStore.getAllTaskInProject(projectId.value)
@@ -173,16 +173,16 @@ const onSubmit = handleSubmit(
 )
 
 function disableDate(time: Date): boolean {
-  const fromDate = dayjs().format('DD/MM/YYYY')
-  const targetDate = dayjs(time).format('DD/MM/YYYY')
+  const fromDate = dayjs().format('YYYY/MM/DD')
+  const targetDate = dayjs(time).format('YYYY/MM/DD')
   return targetDate < fromDate
 }
 
 function handleChangeStartDate(value: Date) {
   startDate.value = value
   if (
-    dayjs(startDate.value).format('DD/MM/YYYY') >
-      dayjs(endDate.value).format('DD/MM/YYYY') &&
+    dayjs(startDate.value).format('YYYY/MM/DD') >
+      dayjs(endDate.value).format('YYYY/MM/DD') &&
     startDate.value
   ) {
     endDate.value = startDate.value
@@ -192,8 +192,8 @@ function handleChangeStartDate(value: Date) {
 function handleChangeEndDate(value: Date) {
   endDate.value = value
   if (
-    dayjs(startDate.value).format('DD/MM/YYYY') >
-      dayjs(endDate.value).format('DD/MM/YYYY') &&
+    dayjs(startDate.value).format('YYYY/MM/DD') >
+      dayjs(endDate.value).format('YYYY/MM/DD') &&
     endDate.value &&
     startDate.value
   ) {

@@ -1,5 +1,5 @@
-export class BaseResponse {
-  contents?: any
+export class BaseResponse<T> {
+  contents?: T
 
   message?: string
 

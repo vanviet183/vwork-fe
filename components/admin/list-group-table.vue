@@ -23,13 +23,13 @@
             class="px-4 py-2 cursor-pointer"
             @click="handleEditOrganization(item.columns)"
           >
-            Sửa thông tin tổ chức
+            Sửa thông tin nhóm
           </div>
           <div
             class="px-4 py-2 cursor-pointer"
             @click="handleDeleteOrganization(item.raw.id)"
           >
-            Xoá tổ chức
+            Xoá nhóm
           </div>
         </CommonBoxOptions>
       </template>
@@ -37,7 +37,7 @@
     </v-data-table>
     <CommonConfirmPopup
       :is-show-popup="isOpenConfirmDelete"
-      title="Bạn có chắc chắn muốn xóa người dùng này không?"
+      title="Bạn có chắc chắn muốn xóa nhóm này không?"
       positive-title="Đồng ý"
       negative-title="Huỷ"
       :positive-action="handleDelete"
@@ -65,34 +65,22 @@ const organizationId = ref()
 
 const headers = ref([
   {
-    title: 'Tên tổ chức',
+    title: 'Tên nhóm',
     align: 'start',
-    key: 'organizationName',
+    key: 'groupName',
     width: '200px',
     sortable: false,
   },
   {
-    title: 'Tổng giám đốc',
+    title: 'Trưởng nhóm',
     align: 'start',
     key: 'author',
     sortable: false,
   },
   {
-    title: 'Email',
+    title: 'Tổ chức',
     align: 'start',
-    key: 'email',
-    sortable: false,
-  },
-  {
-    title: 'Số điện thoại',
-    align: 'start',
-    key: 'phone',
-    sortable: false,
-  },
-  {
-    title: 'Ngày thành lập',
-    align: 'start',
-    key: 'createdAt',
+    key: 'organizationName',
     sortable: false,
   },
   {

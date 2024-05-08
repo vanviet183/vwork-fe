@@ -1,8 +1,6 @@
-import type { User } from '../../common/user'
-
 export class JoinOrganizationResponse {
   id: number
-  author: User
+  author: string
   organizationName: string
   email: string
   phone: string
@@ -10,7 +8,7 @@ export class JoinOrganizationResponse {
 
   constructor(
     id: number,
-    author: User,
+    author: string,
     organizationName: string,
     email: string,
     phone: string,

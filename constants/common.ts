@@ -57,11 +57,11 @@ export enum ROLE {
 
 export const yupValidationMeesage = {
   mixed: {
-    required: 'Required',
+    required: 'Vui lòng nhập trường này',
   },
   string: {
-    max: '${max}ki tu',
-    email: 'email',
-    url: 'url',
+    max: 'Vượt quá ${max} ký tự',
+    email: 'Vui lòng nhập email hợp lệ',
+    url: 'Vui lòng nhập url hợp lệ',
   },
 }

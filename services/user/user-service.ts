@@ -1,11 +1,11 @@
 import type { GetAllUserResponse } from '~/models/class/admin/get-all-user/get-all-user-response'
 import { BaseResponse } from '~/models/class/common/base-response'
 import type { CreateListUserRequest } from '~/models/class/user/create-list-user/create-list-user-request'
-import type { CreateListUserResponse } from '~/models/class/user/create-list-user/create-user-response'
+import type { CreateListUserResponse } from '~/models/class/user/create-list-user/create-list-user-response'
 import type { CreateUserRequest } from '~/models/class/user/create-user/create-user-request'
 import type { CreateUserResponse } from '~/models/class/user/create-user/create-user-response'
-import { GetUserInfoResponse } from '~/models/class/user/get-user-info-response'
 import { GetUserInfoRequest } from '~/models/class/user/get-user-info/get-user-info-request'
+import type { GetUserInfoResponse } from '~/models/class/user/get-user-info/get-user-info-response'
 import { useAxiosClient } from '~/services/axios-client'
 
 const ApiPath = {
@@ -29,11 +29,11 @@ export const getUserInfoApi = async (
 
 export const getAllUserApi = async () => {
   const { axiosClient } = useAxiosClient()
-  const response = await axiosClient.get<GetAllUserResponse>(
+  const response = await axiosClient.get<BaseResponse<GetAllUserResponse>>(
     ApiPath.GET_ALL_USER
   )
 
-  return new BaseResponse(response.data)
+  return new BaseResponse<GetAllUserResponse>(response.data)
 }
 
 export const getAdminInfoApi = async (
@@ -49,25 +49,25 @@ export const getAdminInfoApi = async (
 
 export const createUserApi = async (createUserRequest: CreateUserRequest) => {
   const { axiosClient } = useAxiosClient()
-  const response = await axiosClient.post<CreateUserResponse>(
+  const response = await axiosClient.post<BaseResponse<CreateUserResponse>>(
     ApiPath.CREATE_USER,
     createUserRequest
   )
-
-  return new BaseResponse(response.data)
+  const { contents, message } = response.data
+  return new BaseResponse(contents, message)
 }
 
 export const createListUserApi = async (
   createListUserRequest: CreateListUserRequest
 ) => {
   const { axiosClient } = useAxiosClient()
-  const response = await axiosClient.post<CreateListUserResponse>(
+  const response = await axiosClient.post<BaseResponse<CreateListUserResponse>>(
     ApiPath.CREATE_LIST_USER,
-    { ...createListUserRequest, file: createListUserRequest.file },
+    { file: createListUserRequest.file },
     {
       headers: { 'Content-Type': 'multipart/form-data' },
     }
   )
-
-  return new BaseResponse(response.data)
+  const { contents, message } = response.data
+  return new BaseResponse(contents, message)
 }

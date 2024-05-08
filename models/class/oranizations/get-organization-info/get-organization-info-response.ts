@@ -3,7 +3,7 @@ import type { Project } from '../../common/project'
 
 export class GetOrganizationInfoResponse {
   id: number
-  author: number
+  author: string
   organizationName: string
   email: string
   phone: string
@@ -12,7 +12,7 @@ export class GetOrganizationInfoResponse {
 
   constructor(
     id: number,
-    author: number,
+    author: string,
     organizationName: string,
     email: string,
     phone: string,

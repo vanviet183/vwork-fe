@@ -44,6 +44,7 @@
           <CommonCard
             v-for="item in listProjectCurrent"
             :key="item.id"
+            :project-id="item.id"
             :title="item.projectName"
             :subtitle="item.author"
             :percent="item.percent"
@@ -71,6 +72,7 @@
           <CommonCard
             v-for="item in listProjectCompleted"
             :key="item.id"
+            :project-id="item.id"
             :title="item.projectName"
             :subtitle="item.author"
             :percent="item.percent"

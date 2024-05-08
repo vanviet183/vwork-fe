@@ -38,16 +38,16 @@
           background-color="#28526e"
           color="white"
           class="btn-login mt-4"
-          @click="handleOpenFormInitOrganization"
-          >Thêm tổ chức
+          @click="handleOpenFormInitGroup"
+          >Thêm nhóm
         </CommonFlatButton>
       </div>
-      <InitOrganizationForm
-        v-if="isOpenFormInitOrganization"
+      <GroupForm
+        v-if="isOpenFormInitGroup"
         :mode="SCREEN_MODE.NEW"
-        @close-form="handleOpenFormInitOrganization"
+        @close-form="handleOpenFormInitGroup"
       />
-      <ListOrganizationTable :items="listAllOrganization ?? []" />
+      <ListGroupTable :items="listAllGroup ?? []" />
     </div>
   </div>
 </template>
@@ -62,12 +62,10 @@ import {
   SCREEN_MODE,
 } from '~/constants'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
-import { useOrganizationStore } from '~/stores/organization/organization-store'
+import { useGroupStore } from '~/stores/group/group-store'
 import { useUserStore } from '~/stores/user/user-store'
 
 const route = useRoute()
-const organizationStore = useOrganizationStore()
-const { listAllOrganization } = storeToRefs(organizationStore)
 
 const authenticationStore = useAuthorizationStore()
 const { userId } = storeToRefs(authenticationStore)
@@ -75,11 +73,14 @@ const { userId } = storeToRefs(authenticationStore)
 const userStore = useUserStore()
 const { adminInfo } = storeToRefs(userStore)
 
+const groupStore = useGroupStore()
+const { listAllGroup } = storeToRefs(groupStore)
+
 definePageMeta({
   layout: false,
 })
 
-const isOpenFormInitOrganization = ref(false)
+const isOpenFormInitGroup = ref(false)
 
 const listMenu = [
   { to: ADMIN, title: 'Thống kê' },
@@ -92,7 +93,7 @@ onMounted(async () => {
   if (!adminInfo.value) {
     await userStore.getAdminInfo(userId.value)
   }
-  await organizationStore.getAllOrganization()
+  await groupStore.getAllGroup()
 })
 
 function isActivePage(currentPage: string) {
@@ -104,8 +105,8 @@ const handleLogout = async () => {
   navigateTo({ path: LOGIN })
 }
 
-function handleOpenFormInitOrganization() {
-  isOpenFormInitOrganization.value = !isOpenFormInitOrganization.value
+function handleOpenFormInitGroup() {
+  isOpenFormInitGroup.value = !isOpenFormInitGroup.value
 }
 </script>
 <style scoped lang="scss">

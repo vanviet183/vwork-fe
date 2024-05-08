@@ -1,18 +1,18 @@
 export class CreateGroupRequest {
-  organizationId: number
   groupName: string
-  teamlead: number
+  authorId: number
+  organizationId: number
   listUser: number[]
 
   constructor(
-    organizationId: number,
     groupName: string,
-    teamlead: number,
+    authorId: number,
+    organizationId: number,
     listUser: number[]
   ) {
-    this.organizationId = organizationId
     this.groupName = groupName
-    this.teamlead = teamlead
+    this.authorId = authorId
+    this.organizationId = organizationId
     this.listUser = listUser
   }
 }

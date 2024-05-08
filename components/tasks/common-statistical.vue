@@ -127,8 +127,8 @@ function getDatasetsTaskStatus() {
     if (item.status === 'Completed') {
       if (
         item.finishDay &&
-        dayjs(item.finishDay).format('DD/MM/YYYY') >=
-          dayjs(item.endDate).format('DD/MM/YYYY')
+        dayjs(item.finishDay).format('YYYY/MM/DD') >=
+          dayjs(item.endDate).format('YYYY/MM/DD')
       ) {
         completedOnTime++
       } else {
@@ -136,7 +136,7 @@ function getDatasetsTaskStatus() {
       }
     } else if (item.status === 'Doing') {
       if (
-        dayjs().format('DD/MM/YYYY') <= dayjs(item.endDate).format('DD/MM/YYYY')
+        dayjs().format('YYYY/MM/DD') <= dayjs(item.endDate).format('YYYY/MM/DD')
       ) {
         doingOnTime++
       } else {
@@ -161,8 +161,8 @@ function getStatiscalUserTask() {
       const overdueTasks = userTasks?.filter(
         (task) =>
           task.status === 'Doing' &&
-          dayjs(task.finishDay ?? '').format('DD/MM/YYYY') >
-            dayjs(task.endDate).format('DD/MM/YYYY')
+          dayjs(task.finishDay ?? '').format('YYYY/MM/DD') >
+            dayjs(task.endDate).format('YYYY/MM/DD')
       ).length
 
       return {
@@ -181,8 +181,8 @@ function getStatiscalUserTask() {
 function getStatiscalUserTaskByToDay() {
   const listTaskToday = listTask.value?.filter(
     (item) =>
-      dayjs().format('DD/MM/YYYY') ===
-      dayjs(item.startDate).format('DD/MM/YYYY')
+      dayjs().format('YYYY/MM/DD') ===
+      dayjs(item.startDate).format('YYYY/MM/DD')
   )
   const data = listTaskToday?.flatMap((item) =>
     item.users.map((user) => {

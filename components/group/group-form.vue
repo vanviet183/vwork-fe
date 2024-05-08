@@ -1,24 +1,30 @@
 <template>
   <CommonConfirmPopup
     :is-show-popup="true"
-    :title="
-      props.mode === SCREEN_MODE.EDIT ? 'Sửa phòng ban' : 'Thêm phòng ban'
-    "
+    :title="props.mode === SCREEN_MODE.EDIT ? 'Sửa nhóm' : 'Thêm nhóm'"
     :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Sửa' : 'Thêm'"
     negative-title="Huỷ"
     :positive-action="onSubmit"
     :negative-action="onCancel"
   >
     <form class="form-container">
-      <p class="mb-2">Tên phòng ban</p>
+      <p class="mb-2">Tên nhóm</p>
       <CommonTextField name="groupName" autofocus />
 
-      <p class="mt-4 mb-2">Trưởng phòng</p>
+      <p class="mt-4 mb-2">Trưởng nhóm</p>
       <CommonDropdown
-        name="teamlead"
+        name="author"
         item-label="title"
-        placeholder="Trưởng phòng"
-        :items="userItems ?? []"
+        placeholder="Trưởng nhóm"
+        :items="userTeamleads ?? []"
+      ></CommonDropdown>
+
+      <p class="mt-4 mb-2">Tổ chức</p>
+      <CommonDropdown
+        name="organization"
+        item-label="title"
+        placeholder="Tổ chức"
+        :items="organizationItems ?? []"
       ></CommonDropdown>
 
       <p class="mt-4 mb-2">Danh sách thành viên</p>
@@ -38,12 +44,11 @@ import _ from 'lodash'
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { array, object, string } from 'yup'
-import { MAX_LENGTH_INPUT, SCREEN_MODE } from '~/constants'
+import { MAX_LENGTH_INPUT, ROLE, SCREEN_MODE } from '~/constants'
 import type { DataType } from '~/models/interface/common/data-type'
-import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useGroupStore } from '~/stores/group/group-store'
 import { useOrganizationStore } from '~/stores/organization/organization-store'
-import { useProjectStore } from '~/stores/project/project-store'
+import { useUserStore } from '~/stores/user/user-store'
 
 const emit = defineEmits(['close-form'])
 
@@ -55,38 +60,62 @@ const props = defineProps({
   },
 })
 
-const projectStore = useProjectStore()
-const authenticationStore = useAuthorizationStore()
+const userStore = useUserStore()
+const { listAllUser } = storeToRefs(userStore)
+
+const userTeamleads = computed(() => getUserTeamleads())
+const organizationItems = computed(() => getOrganizations())
+
+const listUserChoose = ref()
+const userItems = computed(() => getUsers())
 
 const organizationStore = useOrganizationStore()
-const { listGroup, listUser } = storeToRefs(organizationStore)
+const { listAllOrganization } = storeToRefs(organizationStore)
 
 const groupStore = useGroupStore()
-const { listUserInGroup } = storeToRefs(groupStore)
 
-const route = useRoute()
-const projectId = computed(() => Number(route.query.projectId))
-const organizationId = computed(() => Number(route.query.organizationId))
-
-const userItems = computed(() => getUsers())
-const listUserChoose = ref()
+onMounted(async () => {
+  if (!listAllUser.value?.length) {
+    await userStore.getAllUser()
+  }
+  if (!listAllOrganization.value?.length) {
+    await organizationStore.getAllOrganization()
+  }
+})
 
 const getUsers = () => {
-  return listUser.value?.map((item) => ({
-    title: item.fullName,
+  const listUserEmployee = listAllUser.value?.filter(
+    (item) => item.role === ROLE.EMPLOYEE
+  )
+  return listUserEmployee?.map((item) => ({
+    title: `${item.firstName} ${item.lastName}`,
     value: item.id,
   }))
 }
 
-watch(userItems, () => {
-  console.log(userItems.value)
-})
+function getOrganizations() {
+  return listAllOrganization.value?.map((item) => ({
+    title: item.organizationName,
+    value: item.id,
+  }))
+}
+
+function getUserTeamleads() {
+  const listUserTeamlead = listAllUser.value?.filter(
+    (item) => item.role === ROLE.TEAMLEAD
+  )
+  return listUserTeamlead?.map((item) => ({
+    title: `${item.firstName} ${item.lastName}`,
+    value: item.id,
+  }))
+}
 
 const schemaValidate = () => {
   const validate: { [key: string]: any } = {
     groupName: string().trim().required().max(MAX_LENGTH_INPUT),
+    organization: object().required(),
+    author: object().required(),
     listUser: array().of(object().shape({ title: string(), value: string() })),
-    teamlead: object().required(),
   }
 
   return object().shape(validate)
@@ -104,17 +133,14 @@ function onCancel() {
 
 const onSubmit = handleSubmit(
   async (values) => {
-    console.log('value', values)
-
     const result = await groupStore.createGroup(
-      organizationId.value,
       values.groupName,
-      values.teamlead.value,
+      values.author.value,
+      values.organization.value,
       listUserChoose.value
     )
     if (result) {
-      await organizationStore.getAllGroupInOrganization(organizationId.value)
-      await organizationStore.getAllUserInOrganization(organizationId.value)
+      await groupStore.getAllGroup()
     }
     emit('close-form')
   },

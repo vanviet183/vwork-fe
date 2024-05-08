@@ -1,16 +1,19 @@
+import { AlertType } from '~/constants'
 import type { Group } from '~/models/class/common/group'
 import type { Meeting } from '~/models/class/common/meeting'
 import type { Organization } from '~/models/class/common/organization'
 import type { Project } from '~/models/class/common/project'
+import { InitOrganizationRequest } from '~/models/class/oranizations/create-organization/init-organization-request'
+import { DeleteOrganizationRequest } from '~/models/class/oranizations/delete-organization/delete-organization-request'
 import { GetAllGroupInOrganizationRequest } from '~/models/class/oranizations/get-all-group-in-organization/get-all-group-in-organization-request'
 import { GetAllMeetingInOrganizationRequest } from '~/models/class/oranizations/get-all-meeting-in-organization/get-all-meeting-in-organization-request'
 import { GetAllProjectByOrganizationRequest } from '~/models/class/oranizations/get-all-project-by-organization/get-all-project-by-organization-request'
 import { GetAllUserInOrganizationRequest } from '~/models/class/oranizations/get-all-user-in-organization/get-all-user-in-organization-request'
 import type { UserGroup } from '~/models/class/oranizations/get-all-user-in-organization/get-all-user-in-organization-response'
 import { GetOrganizationInfoRequest } from '~/models/class/oranizations/get-organization-info/get-organization-info-request'
-import { InitOrganizationRequest } from '~/models/class/oranizations/init/init-organization-request'
 import { JoinOrganizationRequest } from '~/models/class/oranizations/join/join-organization-request'
 import {
+  deleteOrganizationApi,
   getAllGroupInOrganizationApi,
   getAllMeetingInOrganizationApi,
   getAllOrganizationApi,
@@ -94,11 +97,11 @@ export const useOrganizationStore = defineStore('organization', () => {
   }
 
   async function initOrganization(
-    userId: number,
     organizationName: string,
+    description: string,
     email: string,
     phone: string,
-    role: string
+    userId: number
   ) {
     if (isLoading.value) {
       return
@@ -107,14 +110,42 @@ export const useOrganizationStore = defineStore('organization', () => {
     isError.value = false
     try {
       const initOrganiztionRequest = new InitOrganizationRequest(
-        userId,
         organizationName,
+        description,
         email,
         phone,
-        role
+        userId
       )
       const response = await initOrganizationApi(initOrganiztionRequest)
-      organizationInfo.value = response.contents
+      if (response.message) {
+        alertStore.setAlertMessage({
+          message: response.message,
+          type: AlertType.success,
+        })
+      }
+      return true
+    } catch (error) {
+      isError.value = true
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function deleteOrganization(projectId: number) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new DeleteOrganizationRequest(projectId)
+      const response = await deleteOrganizationApi(request)
+      if (response.message) {
+        alertStore.setAlertMessage({
+          message: response.message,
+          type: AlertType.success,
+        })
+      }
     } catch (error) {
       isError.value = true
     } finally {
@@ -205,7 +236,7 @@ export const useOrganizationStore = defineStore('organization', () => {
     isError.value = false
     try {
       const response = await getAllOrganizationApi()
-      listAllOrganization.value = response.contents.listOrganization
+      listAllOrganization.value = response.contents?.listOrganization
     } catch (error) {
       isError.value = true
     } finally {
@@ -233,5 +264,6 @@ export const useOrganizationStore = defineStore('organization', () => {
     getAllUserInOrganization,
     getAllMeetingInOrganization,
     getAllOrganization,
+    deleteOrganization,
   }
 })

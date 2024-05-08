@@ -4,7 +4,6 @@ export class CreateUserRequest {
   phone: string
   email: string
   password: string
-  groupId: number
   role: string
 
   constructor(
@@ -13,8 +12,6 @@ export class CreateUserRequest {
     phone: string,
     email: string,
     password: string,
-    groupId: number,
-
     role: string
   ) {
     this.firstName = firstName
@@ -22,7 +19,6 @@ export class CreateUserRequest {
     this.phone = phone
     this.email = email
     this.password = password
-    this.groupId = groupId
     this.role = role
   }
 }

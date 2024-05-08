@@ -1,3 +1,4 @@
+import type { GetAllGroupResponse } from '~/models/class/admin/get-all-group/get-all-group-response'
 import { BaseResponse } from '~/models/class/common/base-response'
 import type { CreateGroupRequest } from '~/models/class/groups/create-group/create-group-request'
 import type { CreateGroupResponse } from '~/models/class/groups/create-group/create-group-response'
@@ -7,6 +8,7 @@ import { useAxiosClient } from '~/services/axios-client'
 
 const ApiPath = {
   GET_ALL_USER_IN_GROUP: '/groups',
+  GET_ALL_GROUP: '/groups',
   CREATE_GROUP: '/groups/create',
 }
 
@@ -25,10 +27,20 @@ export const createGroupApi = async (
   createGroupRequest: CreateGroupRequest
 ) => {
   const { axiosClient } = useAxiosClient()
-  const response = await axiosClient.post<CreateGroupResponse>(
+  const response = await axiosClient.post<BaseResponse<CreateGroupResponse>>(
     ApiPath.CREATE_GROUP,
     createGroupRequest
   )
 
-  return new BaseResponse(response.data)
+  const { contents, message } = response.data
+  return new BaseResponse<CreateGroupResponse>(contents, message)
+}
+
+export const getAllGroupApi = async () => {
+  const { axiosClient } = useAxiosClient()
+  const response = await axiosClient.get<BaseResponse<GetAllGroupResponse>>(
+    ApiPath.GET_ALL_GROUP
+  )
+
+  return new BaseResponse<GetAllGroupResponse>(response.data)
 }

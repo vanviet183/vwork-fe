@@ -1,21 +1,21 @@
 export class InitOrganizationRequest {
-  userId: number
   organizationName: string
+  description: string
   email: string
   phone: string
-  role: string
+  userId: number
 
   constructor(
-    userId: number,
     organizationName: string,
+    description: string,
     email: string,
     phone: string,
-    role: string
+    userId: number
   ) {
     this.userId = userId
     this.organizationName = organizationName
+    this.description = description
     this.email = email
     this.phone = phone
-    this.role = role
   }
 }

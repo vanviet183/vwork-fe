@@ -1,7 +1,7 @@
-import type { Group } from './group'
-import type { Project } from './project'
+import type { Group } from '../../common/group'
+import type { Project } from '../../common/project'
 
-export class Organization {
+export class InitOrganizationResponse {
   id: number
   author: string
   organizationName: string
