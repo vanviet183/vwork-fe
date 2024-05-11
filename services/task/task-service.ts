@@ -21,12 +21,13 @@ const ApiPath = {
 
 export const createTaskApi = async (createTaskRequest: CreateTaskRequest) => {
   const { axiosClient } = useAxiosClient()
-  const response = await axiosClient.post<CreateTaskResponse>(
+  const response = await axiosClient.post<BaseResponse<CreateTaskResponse>>(
     ApiPath.CREATE_TASK,
     createTaskRequest
   )
 
-  return new BaseResponse(response.data)
+  const { contents, message } = response.data
+  return new BaseResponse<CreateTaskResponse>(contents, message)
 }
 
 export const updateStatusTaskApi = async (
@@ -67,9 +68,11 @@ export const getAllDocumentInTaskApi = async (
   getAllDocumentInTaskRequest: GetAllDocumentInTaskRequest
 ) => {
   const { axiosClient } = useAxiosClient()
-  const response = await axiosClient.get<GetAllDocumentInTaskResponse>(
+  const response = await axiosClient.get<
+    BaseResponse<GetAllDocumentInTaskResponse>
+  >(
     `${ApiPath.GET_ALL_DOCUMENT_IN_TASK}/${getAllDocumentInTaskRequest.taskId}/documents`
   )
 
-  return new BaseResponse(response.data)
+  return new BaseResponse<GetAllDocumentInTaskResponse>(response.data)
 }

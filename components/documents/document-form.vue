@@ -12,6 +12,7 @@
     :negative-action="onCancel"
   >
     <form class="form-container">
+      <p class="mb-2">File tài liệu</p>
       <CommonUploadFile
         name="fileUpload"
         class="my-[15px]"
@@ -19,6 +20,13 @@
         accept="*"
         :default-value="undefined"
       />
+      <p class="mt-3 mb-2">Loại tài liệu</p>
+      <CommonDropdown
+        name="type"
+        item-label="title"
+        placeholder="Loại tài liệu"
+        :items="listTypeDocument ?? []"
+      ></CommonDropdown>
     </form>
   </CommonConfirmPopup>
 </template>
@@ -26,8 +34,7 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
 import { array, object } from 'yup'
-import { SCREEN_MODE } from '~/constants'
-import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
+import { SCREEN_MODE, TYPE_DOCUMENT } from '~/constants'
 import { useDocumentStore } from '~/stores/document/document-store'
 import { useTaskStore } from '~/stores/task/task-store'
 
@@ -43,7 +50,6 @@ const props = defineProps({
 
 const documentStore = useDocumentStore()
 const taskStore = useTaskStore()
-const authenticationStore = useAuthorizationStore()
 
 const route = useRoute()
 const taskId = computed(() => Number(route.query.taskId))
@@ -54,7 +60,7 @@ const schemaValidate = () => {
       .min(1, '必須項目です')
       .test({
         name: 'fileCsvSize',
-        message: replaceParams('ERR_MESSAGE.ERR_OVER_MAX_CSV_FILE_SIZE', {
+        message: replaceParams('File vượt quá 20MB', {
           '{size}': 20,
         }),
         exclusive: true,
@@ -66,6 +72,7 @@ const schemaValidate = () => {
         },
       })
       .required(),
+    type: object().required(),
   }
 
   return object().shape(validate)
@@ -77,17 +84,35 @@ const { handleSubmit } = useForm({
   validationSchema: schema,
 })
 
+const listTypeDocument = [
+  {
+    title: 'Tài liệu thiết kế',
+    value: TYPE_DOCUMENT.DESIGN,
+  },
+  {
+    title: 'Tài liệu yêu cầu',
+    value: TYPE_DOCUMENT.REQUIRE,
+  },
+  {
+    title: 'Tài liệu hướng dẫn',
+    value: TYPE_DOCUMENT.MANUAL,
+  },
+  {
+    title: 'Tài liệu báo cáo',
+    value: TYPE_DOCUMENT.REPORT,
+  },
+]
+
 function onCancel() {
   emit('close-form')
 }
 
 const onSubmit = handleSubmit(
   async (values) => {
-    console.log('value', values)
-
     const result = await documentStore.createDocument(
       taskId.value,
-      values.fileUpload[0]
+      values.fileUpload[0],
+      values.type.value
     )
     if (result) {
       await taskStore.getAllDocumentInTask(taskId.value)

@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper-tasks">
-    <div class="d-flex">
+    <div>
       <CommonSidebar>
         <div class="px-4">
           <p class="text-3xl p-2 font-semibold">Quản lý công việc</p>
@@ -68,138 +68,143 @@
         </div>
       </CommonSidebar>
 
-      <div v-if="isOpenSaved" class="box-content flex-1">
-        <CommonSaved class="p-5" />
-      </div>
-      <div v-else class="box-content flex-1">
-        <div
-          v-if="
-            authenticationStore.role === ROLE.PROJECT_MANAGER ||
-            authenticationStore.role === ROLE.TEAMLEAD
-          "
-          class="pt-4 pl-5 d-flex gap-3 pb-4"
-        >
-          <CommonGroupTab
-            :items="listTab"
-            :default-value="tabActive"
-            @change="handleSelectTab"
-          />
+      <div class="ml-[360px]">
+        <div v-if="isOpenSaved" class="box-content flex-1">
+          <CommonSaved class="p-5" @close="handleOpenSaved" />
         </div>
-        <p v-else class="pt-5 pl-5">Công việc của tôi</p>
-        <div v-if="!isStatistical">
-          <div class="box-options d-flex justify-between">
-            <div class="d-flex alignt-center gap-3">
-              <CommonBoxOptions title="Bộ lọc" icon="mdi-filter-outline">
-                <div class="box-options">
-                  <div class="option-item" @click="() => {}">
-                    <p>
-                      <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                      <span>Giao cho toi</span>
-                    </p>
+        <div v-else class="box-content flex-1 custom-content">
+          <div
+            v-if="
+              authenticationStore.role === ROLE.PROJECT_MANAGER ||
+              authenticationStore.role === ROLE.TEAMLEAD
+            "
+            class="pt-4 pl-5 d-flex gap-3 pb-4"
+          >
+            <CommonGroupTab
+              :items="listTab"
+              :default-value="tabActive"
+              @change="handleSelectTab"
+            />
+          </div>
+          <p v-else class="pt-5 pl-5">Công việc của tôi</p>
+          <div v-if="!isStatistical">
+            <div class="box-options d-flex justify-between">
+              <div class="d-flex alignt-center gap-3">
+                <CommonBoxOptions title="Bộ lọc" icon="mdi-filter-outline">
+                  <div class="box-options">
+                    <div class="option-item" @click="() => {}">
+                      <p>
+                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
+                        <span>Giao cho toi</span>
+                      </p>
+                    </div>
+                    <div class="option-item" @click="() => {}">
+                      <p>
+                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
+                        <span>Tao boi toi</span>
+                      </p>
+                    </div>
+                    <div class="option-item" @click="() => {}">
+                      <p>
+                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
+                        <span>Dang theo doi</span>
+                      </p>
+                    </div>
+                    <div class="option-item" @click="() => {}">
+                      <p>
+                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
+                        <span>Uu tien</span>
+                      </p>
+                    </div>
                   </div>
-                  <div class="option-item" @click="() => {}">
-                    <p>
-                      <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                      <span>Tao boi toi</span>
-                    </p>
+                </CommonBoxOptions>
+                <CommonBoxOptions title="Sap xep" icon="mdi-swap-vertical">
+                  <div class="box-options">
+                    <div class="option-item" @click="() => {}">
+                      <p>
+                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
+                        <span>Theo thoi han giam dan</span>
+                      </p>
+                    </div>
+                    <div class="option-item" @click="() => {}">
+                      <p>
+                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
+                        <span>Theo thoi han tang dan</span>
+                      </p>
+                    </div>
+                    <div class="option-item" @click="() => {}">
+                      <p>
+                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
+                        <span>Theo do uu tien</span>
+                      </p>
+                    </div>
+                    <div class="option-item" @click="() => {}">
+                      <p>
+                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
+                        <span>Theo thoi gian tao</span>
+                      </p>
+                    </div>
                   </div>
-                  <div class="option-item" @click="() => {}">
-                    <p>
-                      <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                      <span>Dang theo doi</span>
-                    </p>
+                </CommonBoxOptions>
+                <CommonBoxOptions
+                  title="Trạng thái"
+                  icon="mdi-view-list-outline"
+                >
+                  <div class="box-options">
+                    <div class="option-item" @click="() => {}">
+                      <p>
+                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
+                        <span>Da hoan thanh</span>
+                      </p>
+                    </div>
+                    <div class="option-item" @click="() => {}">
+                      <p>
+                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
+                        <span>Chua hoan thanh</span>
+                      </p>
+                    </div>
                   </div>
-                  <div class="option-item" @click="() => {}">
-                    <p>
-                      <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                      <span>Uu tien</span>
-                    </p>
-                  </div>
-                </div>
-              </CommonBoxOptions>
-              <CommonBoxOptions title="Sap xep" icon="mdi-swap-vertical">
-                <div class="box-options">
-                  <div class="option-item" @click="() => {}">
-                    <p>
-                      <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                      <span>Theo thoi han giam dan</span>
-                    </p>
-                  </div>
-                  <div class="option-item" @click="() => {}">
-                    <p>
-                      <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                      <span>Theo thoi han tang dan</span>
-                    </p>
-                  </div>
-                  <div class="option-item" @click="() => {}">
-                    <p>
-                      <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                      <span>Theo do uu tien</span>
-                    </p>
-                  </div>
-                  <div class="option-item" @click="() => {}">
-                    <p>
-                      <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                      <span>Theo thoi gian tao</span>
-                    </p>
-                  </div>
-                </div>
-              </CommonBoxOptions>
-              <CommonBoxOptions title="Trạng thái" icon="mdi-view-list-outline">
-                <div class="box-options">
-                  <div class="option-item" @click="() => {}">
-                    <p>
-                      <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                      <span>Da hoan thanh</span>
-                    </p>
-                  </div>
-                  <div class="option-item" @click="() => {}">
-                    <p>
-                      <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                      <span>Chua hoan thanh</span>
-                    </p>
-                  </div>
-                </div>
-              </CommonBoxOptions>
-            </div>
-            <div class="d-flex align-center">
-              <CommonTextSearch />
-              <CommonFlatButton
-                v-if="
-                  authenticationStore.role === ROLE.PROJECT_MANAGER ||
-                  authenticationStore.role === ROLE.TEAMLEAD
-                "
-                class="btn-add cursor-pointer"
-                @click="handleToggleTaskForm"
-              >
-                <p class="text-lg">Tạo</p>
-              </CommonFlatButton>
+                </CommonBoxOptions>
+              </div>
+              <div class="d-flex align-center">
+                <CommonTextSearch />
+                <CommonFlatButton
+                  v-if="
+                    authenticationStore.role === ROLE.PROJECT_MANAGER ||
+                    authenticationStore.role === ROLE.TEAMLEAD
+                  "
+                  class="btn-add cursor-pointer"
+                  @click="handleToggleTaskForm"
+                >
+                  <p class="font-semibold">Thêm</p>
+                </CommonFlatButton>
 
-              <TaskForm
-                v-if="isOpenTaskForm"
-                @close-form="handleToggleTaskForm"
-              />
+                <TaskForm
+                  v-if="isOpenTaskForm"
+                  @close-form="handleToggleTaskForm"
+                />
+              </div>
+            </div>
+
+            <div class="box-tasks">
+              <div v-if="!listTaskInProject?.length">
+                <img
+                  src="~/assets/img/no-task.png"
+                  alt="Vwork Logo"
+                  class="m-auto"
+                />
+                <p class="text-center text-lg font-semibold">
+                  Không có công việc nào để hiển thị
+                </p>
+              </div>
+              <div v-else>
+                <CommonTaskList :items="listTaskItems" />
+              </div>
             </div>
           </div>
-
-          <div class="box-tasks">
-            <div v-if="!listTask?.length">
-              <img
-                src="~/assets/img/no-task.png"
-                alt="Vwork Logo"
-                class="m-auto"
-              />
-              <p class="text-center text-lg font-semibold">
-                Không có công việc nào để hiển thị
-              </p>
-            </div>
-            <div v-else>
-              <CommonTaskList :items="listTask" />
-            </div>
+          <div v-else>
+            <CommonStatistical />
           </div>
-        </div>
-        <div v-else>
-          <CommonStatistical />
         </div>
       </div>
     </div>
@@ -208,31 +213,114 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { ROLE, TASKS } from '~/constants'
+import type { Project } from '~/models/class/common/project'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useOrganizationStore } from '~/stores/organization/organization-store'
 import { useProjectStore } from '~/stores/project/project-store'
+import { useUserStore } from '~/stores/user/user-store'
 
 const projectStore = useProjectStore()
-const { listTask } = storeToRefs(projectStore)
+const { listTaskInProject } = storeToRefs(projectStore)
 
 const organizationStore = useOrganizationStore()
-const { listProjectCurrent, listProjectCompleted, listProjects } =
-  storeToRefs(organizationStore)
+const { listProjectInOrganization } = storeToRefs(organizationStore)
 
 const authenticationStore = useAuthorizationStore()
+const { organizationId } = storeToRefs(authenticationStore)
+
+const userStore = useUserStore()
+const { userInfo, listProjectOfUser } = storeToRefs(userStore)
 
 const route = useRoute()
 const projectId = computed(() => Number(route.query.projectId))
-const organizationId = computed(() => Number(route.query.organizationId))
 
 const projectsCurrent = computed(() => getProjectsByStatus())
 const projectsCompleted = computed(() => getProjectsByStatus(true))
+
+const listTaskItems = computed(() => getListTask() ?? [])
 
 const isOpenCurrent = ref(true)
 const isOpenComplete = ref(false)
 const isOpenTaskForm = ref(false)
 const isStatistical = ref(false)
 const isOpenSaved = ref(false)
+
+const tabActive = ref(1)
+
+const listTab = ref([
+  {
+    title: 'Danh sách công việc',
+    value: 1,
+  },
+])
+
+const listProjectCurrent = ref<Project[]>()
+const listProjectCompleted = ref<Project[]>()
+
+onMounted(async () => {
+  if (!projectId.value) {
+    const idProject =
+      authenticationStore.role === ROLE.PROJECT_MANAGER
+        ? listProjectInOrganization.value?.at(0)?.id
+        : listProjectOfUser.value.at(0)?.id
+    navigateTo({ path: TASKS, query: { projectId: idProject } })
+  }
+  if (!listProjectInOrganization.value?.length) {
+    await organizationStore.getAllProjectsInOrganization(organizationId.value)
+  }
+  if (!userInfo.value) {
+    await userStore.getUserInfo(authenticationStore.userId)
+  }
+  if (projectId.value) {
+    await projectStore.getAllTaskInProject(projectId.value)
+  }
+  if (
+    authenticationStore.role === ROLE.PROJECT_MANAGER ||
+    authenticationStore.role === ROLE.TEAMLEAD
+  ) {
+    listTab.value.push({
+      title: 'Tiến độ dự án',
+      value: 2,
+    })
+  }
+})
+
+watch(listProjectInOrganization, () => {
+  listProjectCurrent.value = listProjectInOrganization.value?.filter(
+    (item) => item.status === 'Doing'
+  )
+
+  listProjectCompleted.value = listProjectInOrganization.value?.filter(
+    (item) => item.status === 'Completed'
+  )
+})
+
+watch(listProjectOfUser, () => {
+  listProjectCurrent.value = listProjectOfUser.value?.filter(
+    (item) => item.status === 'Doing'
+  )
+
+  listProjectCompleted.value = listProjectOfUser.value?.filter(
+    (item) => item.status === 'Completed'
+  )
+})
+
+watch(projectId, async () => {
+  await projectStore.getAllTaskInProject(projectId.value)
+  await projectStore.getAllDocumentInProject(projectId.value)
+})
+
+watch(tabActive, () => {
+  if (tabActive.value === 2) {
+    isStatistical.value = true
+  } else {
+    isStatistical.value = false
+  }
+})
+
+const handleToggleTaskForm = () => {
+  isOpenTaskForm.value = !isOpenTaskForm.value
+}
 
 const getProjectsByStatus = (isCompleted = false) => {
   if (isCompleted) {
@@ -249,56 +337,38 @@ const getProjectsByStatus = (isCompleted = false) => {
   }))
 }
 
-onMounted(async () => {
-  if (!listProjects.value?.length) {
-    await organizationStore.getAllProjectsInOrganization(organizationId.value)
-  }
-  if (projectId.value) {
-    await projectStore.getAllTaskInProject(projectId.value)
-  }
-})
-
-watch(projectId, async () => {
-  await projectStore.getAllTaskInProject(projectId.value)
-})
-
-const handleToggleTaskForm = () => {
-  isOpenTaskForm.value = !isOpenTaskForm.value
-}
-
 function handleChooseProject(projectId: number) {
   navigateTo({
     path: TASKS,
-    query: { organizationId: organizationId.value, projectId },
+    query: { projectId },
   })
+  tabActive.value = 1
 }
 
 function handleOpenSaved() {
   isOpenSaved.value = !isOpenSaved.value
 }
 
-const tabActive = ref(1)
 function handleSelectTab(value: any) {
   tabActive.value = value
 }
 
-const listTab = [
-  {
-    title: 'Danh sách công việc',
-    value: 1,
-  },
-  {
-    title: 'Tiến độ dự án',
-    value: 2,
-  },
-]
-watch(tabActive, () => {
-  if (tabActive.value === 2) {
-    isStatistical.value = true
+function getListTask() {
+  if (authenticationStore.role === ROLE.PROJECT_MANAGER) {
+    return listTaskInProject.value
+  } else if (authenticationStore.role === ROLE.TEAMLEAD) {
+    return listTaskInProject.value?.filter((item) => {
+      const users = item.users
+
+      return users.find((item) => item.sector === userInfo.value?.sector)
+    })
   } else {
-    isStatistical.value = false
+    return listTaskInProject.value?.filter((item) => {
+      const users = item.users
+      return users.find((item) => item.id === userInfo.value?.id)
+    })
   }
-})
+}
 </script>
 <style scoped lang="scss">
 @use 'sass:map';
@@ -348,5 +418,8 @@ watch(tabActive, () => {
   bottom: 0;
   left: 0;
   right: 0;
+}
+.custom-content {
+  min-height: calc(100vh - 60px);
 }
 </style>

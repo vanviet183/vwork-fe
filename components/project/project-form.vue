@@ -66,15 +66,12 @@ const props = defineProps({
 const startDate = ref(new Date())
 const endDate = ref(new Date(dayjs().add(1, 'm').format('YYYY/MM/DD')))
 
-const route = useRoute()
-const organizationId = computed(() => Number(route.query.organizationId))
-
 const projectStore = useProjectStore()
 
 const organizationStore = useOrganizationStore()
 
 const authenticationStore = useAuthorizationStore()
-const { userId } = storeToRefs(authenticationStore)
+const { userId, organizationId } = storeToRefs(authenticationStore)
 
 function onCancel() {
   emit('close-form')

@@ -1,21 +1,18 @@
 import { AlertType } from '~/constants'
 import type { Group } from '~/models/class/common/group'
-import type { Meeting } from '~/models/class/common/meeting'
 import type { Organization } from '~/models/class/common/organization'
 import type { Project } from '~/models/class/common/project'
+import type { User } from '~/models/class/common/user'
 import { InitOrganizationRequest } from '~/models/class/oranizations/create-organization/init-organization-request'
 import { DeleteOrganizationRequest } from '~/models/class/oranizations/delete-organization/delete-organization-request'
 import { GetAllGroupInOrganizationRequest } from '~/models/class/oranizations/get-all-group-in-organization/get-all-group-in-organization-request'
-import { GetAllMeetingInOrganizationRequest } from '~/models/class/oranizations/get-all-meeting-in-organization/get-all-meeting-in-organization-request'
 import { GetAllProjectByOrganizationRequest } from '~/models/class/oranizations/get-all-project-by-organization/get-all-project-by-organization-request'
 import { GetAllUserInOrganizationRequest } from '~/models/class/oranizations/get-all-user-in-organization/get-all-user-in-organization-request'
-import type { UserGroup } from '~/models/class/oranizations/get-all-user-in-organization/get-all-user-in-organization-response'
 import { GetOrganizationInfoRequest } from '~/models/class/oranizations/get-organization-info/get-organization-info-request'
 import { JoinOrganizationRequest } from '~/models/class/oranizations/join/join-organization-request'
 import {
   deleteOrganizationApi,
   getAllGroupInOrganizationApi,
-  getAllMeetingInOrganizationApi,
   getAllOrganizationApi,
   getAllProjectsInOrganizationApi,
   getAllUserInOrganizationApi,
@@ -37,28 +34,13 @@ export const useOrganizationStore = defineStore('organization', () => {
   const listAllOrganization = ref<Organization[]>()
 
   // list group
-  const listUser = ref<UserGroup[]>([])
+  const listUserInOrganization = ref<User[]>()
 
   // list group
   const listGroup = ref<Group[]>([])
 
-  // list meeting
-  const listMeeting = ref<Meeting[]>([])
-
   // list project
-  const listProjects = ref<Project[]>()
-  const listProjectCurrent = ref<Project[]>()
-  const listProjectCompleted = ref<Project[]>()
-
-  watch(listProjects, () => {
-    listProjectCurrent.value = listProjects.value?.filter(
-      (item) => item.status === 'Doing'
-    )
-
-    listProjectCompleted.value = listProjects.value?.filter(
-      (item) => item.status === 'Completed'
-    )
-  })
+  const listProjectInOrganization = ref<Project[]>()
 
   async function getAllProjectsInOrganization(organizationId: number) {
     if (isLoading.value) {
@@ -70,7 +52,7 @@ export const useOrganizationStore = defineStore('organization', () => {
       const request = new GetAllProjectByOrganizationRequest(organizationId)
       const response = await getAllProjectsInOrganizationApi(request)
 
-      listProjects.value = response.contents.listProject
+      listProjectInOrganization.value = response.contents?.listProject ?? []
     } catch (error) {
       isError.value = true
     } finally {
@@ -88,7 +70,7 @@ export const useOrganizationStore = defineStore('organization', () => {
       const request = new GetAllUserInOrganizationRequest(organizationId)
       const response = await getAllUserInOrganizationApi(request)
 
-      listUser.value = response.contents.listUser
+      listUserInOrganization.value = response.contents?.listUser ?? []
     } catch (error) {
       isError.value = true
     } finally {
@@ -194,23 +176,6 @@ export const useOrganizationStore = defineStore('organization', () => {
     }
   }
 
-  async function getAllMeetingInOrganization(organizationId: number) {
-    if (isLoading.value) {
-      return
-    }
-    isLoading.value = true
-    isError.value = false
-    try {
-      const request = new GetAllMeetingInOrganizationRequest(organizationId)
-      const response = await getAllMeetingInOrganizationApi(request)
-      listMeeting.value = response.contents.listMeeting ?? []
-    } catch (error) {
-      isError.value = true
-    } finally {
-      isLoading.value = false
-    }
-  }
-
   async function getOrganizationInfo(organizationId: number) {
     if (isLoading.value) {
       return
@@ -249,12 +214,9 @@ export const useOrganizationStore = defineStore('organization', () => {
     isError,
     error,
     organizationInfo,
-    listUser,
-    listProjects,
-    listProjectCurrent,
-    listProjectCompleted,
+    listUserInOrganization,
+    listProjectInOrganization,
     listGroup,
-    listMeeting,
     listAllOrganization,
     initOrganization,
     joinOrganization,
@@ -262,7 +224,6 @@ export const useOrganizationStore = defineStore('organization', () => {
     getAllProjectsInOrganization,
     getOrganizationInfo,
     getAllUserInOrganization,
-    getAllMeetingInOrganization,
     getAllOrganization,
     deleteOrganization,
   }

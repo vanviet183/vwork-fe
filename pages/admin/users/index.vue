@@ -52,13 +52,7 @@
 </template>
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import {
-  ADMIN,
-  ADMIN_GROUPS,
-  ADMIN_ORGANIZATIONS,
-  ADMIN_USERS,
-  LOGIN,
-} from '~/constants'
+import { ADMIN_ORGANIZATIONS, ADMIN_USERS, LOGIN, SECTOR } from '~/constants'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useUserStore } from '~/stores/user/user-store'
 
@@ -76,16 +70,16 @@ definePageMeta({
 const isOpenFormCreateUser = ref(false)
 
 const listMenu = [
-  { to: ADMIN, title: 'Thống kê' },
+  // { to: ADMIN, title: 'Thống kê' },
   { to: ADMIN_ORGANIZATIONS, title: 'Quản lý tổ chức' },
-  { to: ADMIN_GROUPS, title: 'Quản lý nhóm' },
+  // { to: ADMIN_GROUPS, title: 'Quản lý nhóm' },
   { to: ADMIN_USERS, title: 'Quản lý người dùng' },
 ]
 const users = computed(() => getUsers())
 
 onMounted(async () => {
   if (!adminInfo.value) {
-    await userStore.getAdminInfo(userId.value)
+    await userStore.getUserInfo(userId.value)
   }
   await userStore.getAllUser()
 })
@@ -97,11 +91,14 @@ function isActivePage(currentPage: string) {
 function getUsers() {
   return listAllUser.value?.map((item) => {
     const positionJob = getPositionUser(item.role)
+    const sectorUser = getGroupForUser(item.sector)
     return {
       id: item.id,
       fullName: `${item.firstName} ${item.lastName}`,
       email: item.email,
       phone: item.phone,
+      sector: sectorUser,
+      organizationName: item.organization?.organizationName,
       role: positionJob,
     }
   })
@@ -117,6 +114,21 @@ function getPositionUser(role: string) {
       return 'Trưởng nhóm'
     case 'EMPLOYEE':
       return 'Nhân viên'
+    default:
+      return ''
+  }
+}
+
+function getGroupForUser(role: string) {
+  switch (role) {
+    case SECTOR.BA:
+      return 'BA'
+    case SECTOR.BACKEND:
+      return 'Backend'
+    case SECTOR.FRONTEND:
+      return 'Frontend'
+    case SECTOR.TESTER:
+      return 'Tester'
     default:
       return ''
   }

@@ -25,7 +25,22 @@
         :mode="SCREEN_MODE.NEW"
         @close-form="handleToggleFormCreate"
       />
-      <div v-if="!listProjects?.length" class="h-[500px]">
+      <div
+        v-if="
+          !listProjectInOrganization?.length &&
+          authenticationStore.role === ROLE.PROJECT_MANAGER
+        "
+        class="h-[500px]"
+      >
+        <CommonEmpty />
+      </div>
+      <div
+        v-if="
+          !listProjectOfUser?.length &&
+          authenticationStore.role !== ROLE.PROJECT_MANAGER
+        "
+        class="h-[500px]"
+      >
         <CommonEmpty />
       </div>
 
@@ -46,10 +61,13 @@
             :key="item.id"
             :project-id="item.id"
             :title="item.projectName"
-            :subtitle="item.author"
+            :author="item.author"
+            :avatar="userInfo?.avatar"
             :percent="item.percent"
             :amount-task="item.tasks?.length"
-            :duration="`${item.startDate} ~ ${item.endDate}`"
+            :start-date="item.startDate"
+            :end-date="item.endDate"
+            :description="item.description"
             background-color="#FFE7C1"
             @click="goToProject(item.id)"
           >
@@ -74,7 +92,7 @@
             :key="item.id"
             :project-id="item.id"
             :title="item.projectName"
-            :subtitle="item.author"
+            :author="item.author"
             :percent="item.percent"
             :amount-task="item.tasks?.length"
             :duration="`${item.startDate} ~ ${item.endDate}`"
@@ -92,25 +110,22 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import colors from '~/assets/scss/main.module.scss'
-import { HOME, ROLE, SCREEN_MODE, TASKS } from '~/constants'
+import { ROLE, SCREEN_MODE, TASKS } from '~/constants'
+import type { Project } from '~/models/class/common/project'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useOrganizationStore } from '~/stores/organization/organization-store'
 import { useUserStore } from '~/stores/user/user-store'
 
 const isOpenFormCreate = ref(false)
 
-const route = useRoute()
-const organizationId = computed(() => Number(route.query.organizationId))
-
-const userStore = useUserStore()
-const { userInfo } = storeToRefs(userStore)
-
 const authenticationStore = useAuthorizationStore()
-const { userId } = storeToRefs(authenticationStore)
+const { organizationId, userId } = storeToRefs(authenticationStore)
 
 const organizationStore = useOrganizationStore()
-const { listProjectCurrent, listProjectCompleted, listProjects } =
-  storeToRefs(organizationStore)
+const { listProjectInOrganization } = storeToRefs(organizationStore)
+
+const userStore = useUserStore()
+const { userInfo, listProjectOfUser } = storeToRefs(userStore)
 
 const tabActive = ref(1)
 function handleSelectTab(value: any) {
@@ -132,27 +147,44 @@ const listTab = [
   },
 ]
 
+const listProjectCurrent = ref<Project[]>()
+const listProjectCompleted = ref<Project[]>()
+
 onMounted(async () => {
-  if (organizationId.value) {
+  if (!userInfo.value) {
+    await userStore.getUserInfo(authenticationStore.userId)
+  }
+  if (authenticationStore.role === ROLE.PROJECT_MANAGER) {
     await organizationStore.getAllProjectsInOrganization(organizationId.value)
   } else {
-    await userStore.getUserInfo(userId.value)
-    if (userInfo.value?.organization) {
-      navigateTo({
-        path: HOME,
-        query: { organizationId: userInfo.value?.organization.id },
-      })
-      await organizationStore.getAllProjectsInOrganization(
-        userInfo.value?.organization.id
-      )
-    }
+    await userStore.getAllProjectsUserJoin(userId.value)
   }
+})
+
+watch(listProjectInOrganization, () => {
+  listProjectCurrent.value = listProjectInOrganization.value?.filter(
+    (item) => item.status === 'Doing'
+  )
+
+  listProjectCompleted.value = listProjectInOrganization.value?.filter(
+    (item) => item.status === 'Completed'
+  )
+})
+
+watch(listProjectOfUser, () => {
+  listProjectCurrent.value = listProjectOfUser.value?.filter(
+    (item) => item.status === 'Doing'
+  )
+
+  listProjectCompleted.value = listProjectOfUser.value?.filter(
+    (item) => item.status === 'Completed'
+  )
 })
 
 const goToProject = (projectId: number) => {
   navigateTo({
     path: TASKS,
-    query: { organizationId: organizationId.value, projectId },
+    query: { projectId },
   })
 }
 

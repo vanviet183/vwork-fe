@@ -3,7 +3,7 @@
     <v-layout class="main-layout">
       <div class="w-full">
         <CommonNavbar></CommonNavbar>
-        <v-main class="main-content">
+        <v-main class="main-content mt-[60px]">
           <slot></slot>
         </v-main>
       </div>

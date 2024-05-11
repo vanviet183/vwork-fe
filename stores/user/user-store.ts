@@ -1,7 +1,9 @@
 import { AlertType } from '~/constants'
+import { Project } from '~/models/class/common/project'
 import type { User } from '~/models/class/common/user'
 import { CreateListUserRequest } from '~/models/class/user/create-list-user/create-list-user-request'
 import { CreateUserRequest } from '~/models/class/user/create-user/create-user-request'
+import { GetAllProjectUserJoinRequest } from '~/models/class/user/get-all-project-user-join/get-all-project-user-join-request'
 
 import { GetUserInfoRequest } from '~/models/class/user/get-user-info/get-user-info-request'
 import type { GetUserInfoResponse } from '~/models/class/user/get-user-info/get-user-info-response'
@@ -9,6 +11,7 @@ import {
   createListUserApi,
   createUserApi,
   getAdminInfoApi,
+  getAllProjectsUserJoinApi,
   getAllUserApi,
   getUserInfoApi,
 } from '~/services/user/user-service'
@@ -23,6 +26,8 @@ export const useUserStore = defineStore('user', () => {
   const adminInfo = ref<GetUserInfoResponse>()
 
   const listAllUser = ref<User[]>()
+
+  const listProjectOfUser = ref<Project[]>([])
 
   async function getUserInfo(userId: number) {
     if (isLoading.value) {
@@ -57,6 +62,24 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  async function getAllProjectsUserJoin(userId: number) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new GetAllProjectUserJoinRequest(userId)
+
+      const response = await getAllProjectsUserJoinApi(request)
+      listProjectOfUser.value = response.contents?.listProject ?? []
+    } catch (error) {
+      isError.value = true
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   async function getAdminInfo(adminId: number) {
     if (isLoading.value) {
       return
@@ -80,6 +103,7 @@ export const useUserStore = defineStore('user', () => {
     phone: string,
     email: string,
     password: string,
+    sector: string,
     role: string
   ) {
     if (isLoading.value) {
@@ -94,6 +118,7 @@ export const useUserStore = defineStore('user', () => {
         phone,
         email,
         password,
+        sector,
         role
       )
       const response = await createUserApi(request)
@@ -143,6 +168,8 @@ export const useUserStore = defineStore('user', () => {
     userInfo,
     adminInfo,
     listAllUser,
+    listProjectOfUser,
+    getAllProjectsUserJoin,
     getUserInfo,
     getAdminInfo,
     createUser,

@@ -13,6 +13,7 @@ export enum SCREEN_MODE {
 }
 
 export enum TASK_STATUS {
+  NONE = 'None',
   DOING = 'Doing',
   WAIT_ACCEPT = 'Wait',
   COMPLETED = 'Completed',
@@ -53,6 +54,35 @@ export enum ROLE {
   PROJECT_MANAGER = 'PROJECT_MANAGER',
   EMPLOYEE = 'EMPLOYEE',
   ORTHERS = 'ORTHERS',
+}
+
+export enum SECTOR {
+  DEVOPS = 'DevOps',
+  BA = 'BA',
+  FRONTEND = 'Frontend',
+  BACKEND = 'Backend',
+  TESTER = 'Tester',
+}
+
+export enum TASK_PRIORITIZE {
+  HIGH = 'HIGH',
+  MIDDLE = 'MIDDLE',
+  LOW = 'LOW',
+  NONE = 'NONE',
+}
+
+export enum TASK_PHASE {
+  DESIGN = 'DESIGN',
+  CODE = 'CODE',
+  TEST = 'TEST',
+  MAINTAIN = 'MAINTAIN',
+}
+
+export enum TYPE_DOCUMENT {
+  DESIGN = 'DESIGN',
+  REQUIRE = 'REQUIRE',
+  MANUAL = 'MANUAL',
+  REPORT = 'REPORT',
 }
 
 export const yupValidationMeesage = {

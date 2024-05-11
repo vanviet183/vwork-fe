@@ -1,77 +1,50 @@
 <template>
   <CommonConfirmPopup
     :is-show-popup="true"
-    :title="
-      props.mode === SCREEN_MODE.EDIT ? 'Sửa công việc' : 'Thêm công việc'
-    "
+    :title="props.mode === SCREEN_MODE.EDIT ? 'Sửa cuộc họp' : 'Thêm cuộc họp'"
     :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Sửa' : 'Thêm'"
     negative-title="Huỷ"
     :positive-action="onSubmit"
     :negative-action="onCancel"
   >
     <form class="form-container">
-      <p class="mb-2">Nội dung công việc</p>
-      <CommonTextField
-        name="taskName"
-        placeholder="Nội dung công việc"
-        autofocus
-      />
+      <p class="mb-2">Tiêu đề cuộc họp</p>
+      <CommonTextField name="title" placeholder="Tiêu đề cuộc họp" autofocus />
 
-      <p class="mt-3 mb-2">Giai đoạn</p>
-      <CommonDropdown
-        name="phase"
-        item-label="title"
-        placeholder="Giai đoạn"
-        :items="listTaskPhase ?? []"
-      ></CommonDropdown>
+      <p class="mt-3 mb-2">Nội dung cuộc họp</p>
+      <CommonTextarea name="description" class="custom-textarea-padding" />
 
-      <div v-if="authenticationStore.role === ROLE.PROJECT_MANAGER">
-        <p class="mt-3 mb-2">Nhóm phụ trách</p>
-        <CommonDropdown
-          name="userResponsible"
-          item-label="title"
-          placeholder="Nhóm phụ trách"
-          :items="listGroupSector ?? []"
-          @change="handleSelectGroup"
-        ></CommonDropdown>
-      </div>
+      <p class="mt-3 mb-2">Địa điểm</p>
+      <CommonTextField name="location" placeholder="Địa điểm" autofocus />
 
-      <p class="mt-3 mb-2">Người thực hiện</p>
+      <p class="mt-3 mb-2">Thời gian bắt đầu</p>
+      <CommonDatetimePicker
+        class="target-day"
+        name="startTime"
+        placeholder="YYYY/MM/DD"
+        :disabled-date="disableDate"
+        :default-value="startTime ?? new Date()"
+        @change="handleChangeStartDate"
+      ></CommonDatetimePicker>
+
+      <p class="mt-3 mb-2">Thời gian kết thúc</p>
+      <CommonDatetimePicker
+        class="target-day"
+        name="endTime"
+        placeholder="YYYY/MM/DD"
+        :disabled-date="disableDate"
+        :default-value="endTime ?? new Date()"
+        @change="handleChangeEndDate"
+      ></CommonDatetimePicker>
+
+      <p class="mt-3 mb-2">Người tham gia</p>
       <CommonDropdownMultiple
-        name="listUserImplement"
-        placeholder="Người thực hiện"
+        name="listUserJoin"
+        placeholder="Người tham gia"
         :list-value="listUserItems ?? []"
         item-label="title"
-        @change="handleListUserImplement"
+        @change="handleListUserJoin"
       />
-
-      <p class="mt-3 mb-2">Độ ưu tiên</p>
-      <CommonDropdown
-        name="prioritize"
-        item-label="title"
-        placeholder="Ưu tiên"
-        :items="listPrioritize"
-      ></CommonDropdown>
-
-      <p class="mt-3 mb-2">Ngày bắt đầu</p>
-      <CommonDatePicker
-        class="target-day"
-        name="startDate"
-        placeholder="YYYY/MM/DD"
-        :disabled-date="disableDate"
-        :default-value="startDate ?? new Date()"
-        @change="handleChangeStartDate"
-      ></CommonDatePicker>
-
-      <p class="mt-3 mb-2">Ngày kết thúc</p>
-      <CommonDatePicker
-        class="target-day"
-        name="endDate"
-        placeholder="YYYY/MM/DD"
-        :disabled-date="disableDate"
-        :default-value="endDate ?? new Date()"
-        @change="handleChangeEndDate"
-      ></CommonDatePicker>
     </form>
   </CommonConfirmPopup>
 </template>
@@ -82,19 +55,12 @@ import _ from 'lodash'
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { array, object, string } from 'yup'
-import {
-  MAX_LENGTH_INPUT,
-  ROLE,
-  SCREEN_MODE,
-  SECTOR,
-  TASK_PHASE,
-  TASK_PRIORITIZE,
-} from '~/constants'
+import { MAX_LENGTH_INPUT, ROLE, SCREEN_MODE } from '~/constants'
 import type { DataType } from '~/models/interface/common/data-type'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
+import { useMeetingStore } from '~/stores/meeting/meeting-store'
 import { useOrganizationStore } from '~/stores/organization/organization-store'
 import { useProjectStore } from '~/stores/project/project-store'
-import { useTaskStore } from '~/stores/task/task-store'
 import { useUserStore } from '~/stores/user/user-store'
 
 const emit = defineEmits(['close-form'])
@@ -107,7 +73,7 @@ const props = defineProps({
   },
 })
 
-const taskStore = useTaskStore()
+const meetingStore = useMeetingStore()
 const projectStore = useProjectStore()
 
 const authenticationStore = useAuthorizationStore()
@@ -122,69 +88,8 @@ const { userInfo } = storeToRefs(userStore)
 const route = useRoute()
 const projectId = computed(() => Number(route.query.projectId))
 
-const startDate = ref()
-const endDate = ref()
-
-const listGroupSector = [
-  {
-    title: 'Nhóm DevOps',
-    value: SECTOR.DEVOPS,
-  },
-  {
-    title: 'Nhóm Business Analyst',
-    value: SECTOR.BA,
-  },
-  {
-    title: 'Nhóm Backend',
-    value: SECTOR.BACKEND,
-  },
-  {
-    title: 'Nhóm Frontend',
-    value: SECTOR.FRONTEND,
-  },
-  {
-    title: 'Nhóm Tester',
-    value: SECTOR.TESTER,
-  },
-]
-
-const listTaskPhase = [
-  {
-    title: 'Thiết kế',
-    value: TASK_PHASE.DESIGN,
-  },
-  {
-    title: 'Phát triển',
-    value: TASK_PHASE.CODE,
-  },
-  {
-    title: 'Kiểm thử',
-    value: TASK_PHASE.TEST,
-  },
-  {
-    title: 'Bảo trì',
-    value: TASK_PHASE.MAINTAIN,
-  },
-]
-
-const listPrioritize = [
-  {
-    title: 'Cao',
-    value: TASK_PRIORITIZE.HIGH,
-  },
-  {
-    title: 'Trung bình',
-    value: TASK_PRIORITIZE.MIDDLE,
-  },
-  {
-    title: 'Thấp',
-    value: TASK_PRIORITIZE.LOW,
-  },
-  {
-    title: 'Không ưu tiên',
-    value: TASK_PRIORITIZE.NONE,
-  },
-]
+const startTime = ref()
+const endTime = ref()
 
 const listUserItems = ref()
 const listUserChoose = ref()
@@ -200,19 +105,14 @@ onMounted(async () => {
 
 const schemaValidate = () => {
   const validate: { [key: string]: any } = {
-    taskName: string().trim().required().max(MAX_LENGTH_INPUT),
-    phase: object().required(),
-    listUserImplement: array().of(
+    title: string().trim().required().max(MAX_LENGTH_INPUT),
+    description: string().trim().required().max(MAX_LENGTH_INPUT),
+    location: string().trim().required().max(MAX_LENGTH_INPUT),
+    startTime: string().trim().required(),
+    endTime: string().trim().required(),
+    listUserJoin: array().of(
       object().shape({ title: string(), value: string() })
     ),
-    prioritize: object().required(),
-    startDate: string().trim().required(),
-    endDate: string().trim().required(),
-  }
-  if (authenticationStore.role === ROLE.PROJECT_MANAGER) {
-    validate.userResponsible = object().required()
-  } else if (authenticationStore.role === ROLE.TEAMLEAD) {
-    validate.userResponsible = string().trim()
   }
   return object().shape(validate)
 }
@@ -229,20 +129,18 @@ function onCancel() {
 
 const onSubmit = handleSubmit(
   async (values) => {
-    const listUserImplement = listUserChoose.value
-    const userResponsible =
-      authenticationStore.role === ROLE.PROJECT_MANAGER
-        ? values.userResponsible.value
-        : `${userInfo.value?.firstName} ${userInfo.value?.lastName}`
-    const result = await taskStore.createTask(
+    const listUserJoin = listUserChoose.value
+
+    const author = `${userInfo.value?.firstName} ${userInfo.value?.lastName}`
+    const result = await meetingStore.createMeeting(
       projectId.value,
-      values.taskName,
-      values.phase.value,
-      userResponsible,
-      listUserImplement,
-      values.prioritize.value,
-      dayjs(values.startDate).format('YYYY/MM/DD'),
-      dayjs(values.endDate).format('YYYY/MM/DD')
+      author,
+      values.title,
+      values.description,
+      values.location,
+      dayjs(values.startTime).format('YYYY/MM/DD'),
+      dayjs(values.endTime).format('YYYY/MM/DD'),
+      listUserJoin
     )
     if (result) {
       await projectStore.getAllTaskInProject(projectId.value)
@@ -261,38 +159,34 @@ function disableDate(time: Date): boolean {
 }
 
 function handleChangeStartDate(value: Date) {
-  startDate.value = value
+  startTime.value = value
   if (
-    dayjs(startDate.value).format('YYYY/MM/DD') >
-      dayjs(endDate.value).format('YYYY/MM/DD') &&
-    startDate.value
+    dayjs(startTime.value).format('YYYY/MM/DD') >
+      dayjs(endTime.value).format('YYYY/MM/DD') &&
+    startTime.value
   ) {
-    endDate.value = startDate.value
+    endTime.value = startTime.value
   }
 }
 
 function handleChangeEndDate(value: Date) {
-  endDate.value = value
+  endTime.value = value
   if (
-    dayjs(startDate.value).format('YYYY/MM/DD') >
-      dayjs(endDate.value).format('YYYY/MM/DD') &&
-    endDate.value &&
-    startDate.value
+    dayjs(startTime.value).format('YYYY/MM/DD') >
+      dayjs(endTime.value).format('YYYY/MM/DD') &&
+    endTime.value &&
+    startTime.value
   ) {
-    startDate.value = endDate.value
+    startTime.value = endTime.value
   }
 }
 
-function handleListUserImplement(value: DataType[]) {
+function handleListUserJoin(value: DataType[]) {
   const listUser = value.map((item) => {
     return Number(item.value)
   })
 
   listUserChoose.value = _.cloneDeep(listUser ?? [])
-}
-
-function handleSelectGroup(value: any) {
-  listUserItems.value = filterUserByGroup(value.value)
 }
 
 function filterUserByGroup(sector: string) {
@@ -326,12 +220,10 @@ function filterUserByGroup(sector: string) {
   cursor: pointer;
   color: map.get($colors, 'primary');
 }
-
 .custom-list-link {
   display: grid;
   grid-template-columns: 318px 170px auto;
 }
-
 .list-link-text {
   font-size: 12px;
   font-style: normal;
@@ -340,23 +232,19 @@ function filterUserByGroup(sector: string) {
   letter-spacing: 0.4px;
   color: map.get($colors, 'dim-gray');
 }
-
 .custom-border-list {
   background: white;
   box-shadow: 0px -1px 0px 0px map.get($colors, 'light-silver') inset;
 }
-
 .custom-icon-container {
   text-align: center;
   align-self: center;
   color: map.get($colors, 'granite-gray');
 }
-
 .custom-icon {
   padding: 4px;
   font-size: 18px;
 }
-
 .form-container {
   padding-top: 20px;
   max-height: 80vh;

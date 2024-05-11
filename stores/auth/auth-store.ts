@@ -29,6 +29,12 @@ export const useAuthStore = defineStore('auth', () => {
           refreshToken,
           role
         )
+        if (response.message) {
+          alertStore.setAlertMessage({
+            message: response.message,
+            type: AlertType.success,
+          })
+        }
         return true
       }
     } catch (error) {

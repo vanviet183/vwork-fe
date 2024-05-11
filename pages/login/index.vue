@@ -128,15 +128,15 @@ const { handleSubmit } = useForm({
 const onSubmit = handleSubmit(async (values) => {
   const result = await authStore.login(values.email, values.password)
   if (result) {
+    await userStore.getUserInfo(authenticationStore.userId)
     if (authenticationStore.role !== ROLE.ADMIN) {
-      await userStore.getUserInfo(authenticationStore.userId)
-
-      if (userInfo.value?.organization) {
-        navigateTo({
-          path: HOME,
-          query: { organizationId: userInfo.value?.organization.id },
-        })
+      const organizationId = userInfo.value?.organization?.id
+      if (organizationId) {
+        authenticationStore.setOrganizationId(organizationId)
       }
+      navigateTo({
+        path: HOME,
+      })
     } else {
       navigateTo({
         path: ADMIN,

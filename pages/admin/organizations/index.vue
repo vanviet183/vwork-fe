@@ -54,8 +54,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import {
-  ADMIN,
-  ADMIN_GROUPS,
   ADMIN_ORGANIZATIONS,
   ADMIN_USERS,
   LOGIN,
@@ -82,15 +80,15 @@ definePageMeta({
 const isOpenFormInitOrganization = ref(false)
 
 const listMenu = [
-  { to: ADMIN, title: 'Thống kê' },
+  // { to: ADMIN, title: 'Thống kê' },
   { to: ADMIN_ORGANIZATIONS, title: 'Quản lý tổ chức' },
-  { to: ADMIN_GROUPS, title: 'Quản lý nhóm' },
+  // { to: ADMIN_GROUPS, title: 'Quản lý nhóm' },
   { to: ADMIN_USERS, title: 'Quản lý người dùng' },
 ]
 
 onMounted(async () => {
   if (!adminInfo.value) {
-    await userStore.getAdminInfo(userId.value)
+    await userStore.getUserInfo(userId.value)
   }
   await organizationStore.getAllOrganization()
 })

@@ -4,6 +4,7 @@ export class Project {
   id: number
   projectName: string
   author: string
+  description: string
   status: string
   startDate: string
   endDate: string
@@ -15,6 +16,7 @@ export class Project {
     id: number,
     projectName: string,
     author: string,
+    description: string,
     status: string,
     startDate: string,
     endDate: string,
@@ -31,5 +33,6 @@ export class Project {
     this.percent = percent
     this.prioritize = prioritize
     this.tasks = tasks
+    this.description = description
   }
 }

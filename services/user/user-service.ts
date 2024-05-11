@@ -4,6 +4,8 @@ import type { CreateListUserRequest } from '~/models/class/user/create-list-user
 import type { CreateListUserResponse } from '~/models/class/user/create-list-user/create-list-user-response'
 import type { CreateUserRequest } from '~/models/class/user/create-user/create-user-request'
 import type { CreateUserResponse } from '~/models/class/user/create-user/create-user-response'
+import type { GetAllProjectUserJoinRequest } from '~/models/class/user/get-all-project-user-join/get-all-project-user-join-request'
+import type { GetAllProjectUserJoinResponse } from '~/models/class/user/get-all-project-user-join/get-all-project-user-join-response'
 import { GetUserInfoRequest } from '~/models/class/user/get-user-info/get-user-info-request'
 import type { GetUserInfoResponse } from '~/models/class/user/get-user-info/get-user-info-response'
 import { useAxiosClient } from '~/services/axios-client'
@@ -14,17 +16,18 @@ const ApiPath = {
   CREATE_USER: '/users/create',
   CREATE_LIST_USER: '/users/create-list-user',
   GET_ALL_USER: '/users',
+  GET_ALL_PROJECT_USER_JOIN: '/users',
 }
 
 export const getUserInfoApi = async (
   getUserInfoRequest: GetUserInfoRequest
 ) => {
   const { axiosClient } = useAxiosClient()
-  const response = await axiosClient.get<GetUserInfoResponse>(
+  const response = await axiosClient.get<BaseResponse<GetUserInfoResponse>>(
     `${ApiPath.GET_USER_INFO}/${getUserInfoRequest.userId}`
   )
 
-  return new BaseResponse(response.data)
+  return new BaseResponse<GetUserInfoResponse>(response.data)
 }
 
 export const getAllUserApi = async () => {
@@ -34,6 +37,19 @@ export const getAllUserApi = async () => {
   )
 
   return new BaseResponse<GetAllUserResponse>(response.data)
+}
+
+export const getAllProjectsUserJoinApi = async (
+  getAllProjectUserJoinRequest: GetAllProjectUserJoinRequest
+) => {
+  const { axiosClient } = useAxiosClient()
+  const response = await axiosClient.get<
+    BaseResponse<GetAllProjectUserJoinResponse>
+  >(
+    `${ApiPath.GET_ALL_PROJECT_USER_JOIN}/${getAllProjectUserJoinRequest.userId}/projects`
+  )
+
+  return new BaseResponse<GetAllProjectUserJoinResponse>(response.data)
 }
 
 export const getAdminInfoApi = async (

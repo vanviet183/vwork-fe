@@ -104,7 +104,7 @@ const menu = ref([
 ])
 
 const gotoPage = (url: string) => {
-  navigateTo({ path: url, query: { organizationId: organizationId.value } })
+  navigateTo({ path: url })
 }
 
 const handleChangePassword = () => {
@@ -128,6 +128,11 @@ const handleLogout = async () => {
   height: 60px;
   background-color: white;
   border-bottom: 1px solid #e1d5d5;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
 }
 .icon-nav {
   font-size: 28px;

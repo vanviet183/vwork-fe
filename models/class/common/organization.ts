@@ -1,4 +1,3 @@
-import type { Group } from './group'
 import type { Project } from './project'
 
 export class Organization {
@@ -7,7 +6,6 @@ export class Organization {
   organizationName: string
   email: string
   phone: string
-  groups: Group[]
   projects?: Project[]
 
   constructor(
@@ -16,7 +14,6 @@ export class Organization {
     organizationName: string,
     email: string,
     phone: string,
-    groups: Group[],
     projects?: Project[]
   ) {
     this.id = id
@@ -24,7 +21,6 @@ export class Organization {
     this.email = email
     this.phone = phone
     this.organizationName = organizationName
-    this.groups = groups
     this.projects = projects
   }
 }

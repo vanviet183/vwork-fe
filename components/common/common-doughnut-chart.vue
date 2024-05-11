@@ -31,8 +31,6 @@ const datasets = ref(props.datasetItems)
 watch(
   () => props.datasetItems,
   () => {
-    console.log('datasetItems', props.datasetItems)
-
     datasets.value = props.datasetItems
   }
 )
@@ -81,7 +79,9 @@ const customTitleInside = {
 const chartPlugins = ref([customTitleInside])
 </script>
 <style scoped lang="scss">
+@use 'sass:map';
+
 .container {
-  height: 300px;
+  height: 260px;
 }
 </style>

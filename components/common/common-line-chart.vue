@@ -15,7 +15,13 @@ import {
   Title,
   Tooltip,
 } from 'chart.js'
+import dayjs from 'dayjs'
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
+import { storeToRefs } from 'pinia'
 import { Line } from 'vue-chartjs'
+import { useProjectStore } from '~/stores/project/project-store'
+
+dayjs.extend(isSameOrBefore)
 
 ChartJS.register(
   CategoryScale,
@@ -27,13 +33,19 @@ ChartJS.register(
   Legend
 )
 
-const labels = Array.from({ length: 31 }, (_, i) => `Day ${i + 1}`)
+const projectStore = useProjectStore()
+const { projectInfo, listTaskInProject } = storeToRefs(projectStore)
+
+const labelsValue = computed(() => getDaysBetweenDates())
+const datasetsValue = computed(() => getStatiscalTaskByDate())
+
 const chartData = {
-  labels,
+  labels: labelsValue.value,
   datasets: [
     {
-      label: 'Dataset 2',
-      data: Array.from({ length: 15 }, () => Math.floor(Math.random() * 100)),
+      label: 'Số lượng công việc',
+      fill: true,
+      data: datasetsValue.value ?? [],
       borderColor: '#17b0e1',
       // pointRadius: 0, // hide point
       pointStyle: 'line',
@@ -45,6 +57,51 @@ const chartData = {
 
 const options = {
   responsive: true,
+  scales: {
+    y: {
+      display: true,
+      min: 0,
+      ticks: {
+        beginAtZero: true,
+      },
+    },
+  },
+}
+
+function getDaysBetweenDates() {
+  const start = dayjs(projectInfo.value?.startDate ?? '')
+  const end = dayjs(projectInfo.value?.endDate ?? '')
+  const days: string[] = []
+
+  for (
+    let current = start;
+    current.isSameOrBefore(end, 'day');
+    current = current.add(1, 'day')
+  ) {
+    days.push(current.format('DD/MM/YYYY'))
+  }
+  return days
+}
+
+interface TaskDate {
+  [day: string]: number
+}
+
+function getStatiscalTaskByDate() {
+  const taskObj: TaskDate = {}
+  const days = getDaysBetweenDates()
+  days.forEach((day) => {
+    if (!taskObj[day]) {
+      taskObj[day] = 0
+    }
+    const amoutTaskDay =
+      listTaskInProject.value?.filter(
+        (item) => dayjs(item.startDate).format('DD/MM/YYYY') === day
+      ) ?? []
+    taskObj[day] = amoutTaskDay.length
+  })
+
+  return Object.values(taskObj)
 }
 </script>
 <style scoped lang="scss"></style>

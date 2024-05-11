@@ -1,3 +1,4 @@
+import { AlertType } from '~/constants'
 import { User } from '~/models/class/common/user'
 import { GetAllUserInGroupRequest } from '~/models/class/groups/get-all-user-in-group/get-all-user-in-group-request'
 import { CreateMeetingRequest } from '~/models/class/meeting/create-meeting/create-meeting-request'
@@ -33,12 +34,13 @@ export const useMeetingStore = defineStore('meeting', () => {
   }
 
   async function createMeeting(
-    organizationId: number,
+    projectId: number,
+    author: string,
     title: string,
-    startTime: string,
-    endTime: string,
     description: string,
     location: string,
+    startTime: string,
+    endTime: string,
     listUser: number[]
   ) {
     if (isLoading.value) {
@@ -48,17 +50,23 @@ export const useMeetingStore = defineStore('meeting', () => {
     isError.value = false
     try {
       const request = new CreateMeetingRequest(
-        organizationId,
+        projectId,
+        author,
         title,
-        startTime,
-        endTime,
         description,
         location,
+        startTime,
+        endTime,
         listUser
       )
-      console.log('request', request)
 
-      await createMeetingApi(request)
+      const response = await createMeetingApi(request)
+      if (response.message) {
+        alertStore.setAlertMessage({
+          message: response.message,
+          type: AlertType.success,
+        })
+      }
       return true
     } catch (error) {
       isError.value = true

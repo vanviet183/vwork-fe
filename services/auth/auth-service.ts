@@ -12,12 +12,13 @@ const ApiPath = {
 
 export const loginApi = async (loginRequest: LoginRequest) => {
   const { axiosClient } = useAxiosClient()
-  const response = await axiosClient.post<LoginResponse>(
+  const response = await axiosClient.post<BaseResponse<LoginResponse>>(
     ApiPath.AUTH_LOGIN,
     loginRequest
   )
 
-  return new BaseResponse(response.data)
+  const { contents, message } = response.data
+  return new BaseResponse<LoginResponse>(contents, message)
 }
 
 export const registerApi = async (registerRequest: RegisterRequest) => {

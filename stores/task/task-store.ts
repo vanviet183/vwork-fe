@@ -1,3 +1,4 @@
+import { AlertType } from '~/constants'
 import type { Document } from '~/models/class/common/document'
 import { Task } from '~/models/class/common/task'
 import type { TaskRequire } from '~/models/class/common/task-require'
@@ -13,15 +14,17 @@ import {
   getTaskInfoApi,
   updateStatusTaskApi,
 } from '~/services/task/task-service'
+import { useAlertStore } from '../alert/alert-store'
 
 export const useTaskStore = defineStore('task', () => {
+  const alertStore = useAlertStore()
   const isLoading = ref(false)
   const isError = ref(false)
   const error = ref('')
 
   const taskInfo = ref<Task>()
   const listTaskRequire = ref<TaskRequire[]>()
-  const listDocument = ref<Document[]>()
+  const listDocumentInTask = ref<Document[]>()
 
   async function getTaskInfo(taskId: number) {
     if (isLoading.value) {
@@ -43,9 +46,10 @@ export const useTaskStore = defineStore('task', () => {
   async function createTask(
     projectId: number,
     taskName: string,
-    userResponsible: number | undefined,
+    phase: string,
+    userResponsible: string,
     listUserImplement: number[],
-    prioritize: boolean,
+    prioritize: string,
     startDate: string,
     endDate: string
   ) {
@@ -58,6 +62,7 @@ export const useTaskStore = defineStore('task', () => {
       const request = new CreateTaskRequest(
         projectId,
         taskName,
+        phase,
         userResponsible,
         listUserImplement,
         prioritize,
@@ -65,7 +70,12 @@ export const useTaskStore = defineStore('task', () => {
         endDate
       )
       const response = await createTaskApi(request)
-      taskInfo.value = response.contents
+      if (response.message) {
+        alertStore.setAlertMessage({
+          message: response.message,
+          type: AlertType.success,
+        })
+      }
       return true
     } catch (error) {
       isError.value = true
@@ -119,7 +129,7 @@ export const useTaskStore = defineStore('task', () => {
     try {
       const request = new GetAllDocumentInTaskRequest(taskId)
       const response = await getAllDocumentInTaskApi(request)
-      listDocument.value = response.contents.listDocument ?? []
+      listDocumentInTask.value = response.contents?.listDocument ?? []
     } catch (error) {
       isError.value = true
     } finally {
@@ -133,7 +143,7 @@ export const useTaskStore = defineStore('task', () => {
     error,
     taskInfo,
     listTaskRequire,
-    listDocument,
+    listDocumentInTask,
     createTask,
     getTaskInfo,
     getAllTaskRequireInTask,

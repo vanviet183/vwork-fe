@@ -5,8 +5,6 @@ import type { InitOrganizationResponse } from '~/models/class/oranizations/creat
 import type { DeleteOrganizationRequest } from '~/models/class/oranizations/delete-organization/delete-organization-request'
 import type { GetAllGroupInOrganizationRequest } from '~/models/class/oranizations/get-all-group-in-organization/get-all-group-in-organization-request'
 import type { GetAllGroupInOrganizationResponse } from '~/models/class/oranizations/get-all-group-in-organization/get-all-group-in-organization-response'
-import type { GetAllMeetingInOrganizationRequest } from '~/models/class/oranizations/get-all-meeting-in-organization/get-all-meeting-in-organization-request'
-import type { GetAllMeetingInOrganizationResponse } from '~/models/class/oranizations/get-all-meeting-in-organization/get-all-meeting-in-organization-response'
 import type { GetAllProjectByOrganizationRequest } from '~/models/class/oranizations/get-all-project-by-organization/get-all-project-by-organization-request'
 import type { GetAllProjectByOrganizationResponse } from '~/models/class/oranizations/get-all-project-by-organization/get-all-project-by-organization-response'
 import type { GetAllUserInOrganizationRequest } from '~/models/class/oranizations/get-all-user-in-organization/get-all-user-in-organization-request'
@@ -37,8 +35,7 @@ export const initOrganizationApi = async (
   >(ApiPath.INIT_ORGANIZATION, initOrganizationRequest)
 
   const { contents, message } = response.data
-
-  return new BaseResponse(contents, message)
+  return new BaseResponse<InitOrganizationResponse>(contents, message)
 }
 
 export const deleteOrganizationApi = async (
@@ -79,20 +76,6 @@ export const getAllGroupInOrganizationApi = async (
   return new BaseResponse(contents, message)
 }
 
-export const getAllMeetingInOrganizationApi = async (
-  getAllMeetingInOrganizationRequest: GetAllMeetingInOrganizationRequest
-) => {
-  const { axiosClient } = useAxiosClient()
-  const response = await axiosClient.get<
-    BaseResponse<GetAllMeetingInOrganizationResponse>
-  >(
-    `${ApiPath.GET_ALL_GROUP_IN_ORGANIZATION}/${getAllMeetingInOrganizationRequest.organizationId}/meetings`
-  )
-
-  const { contents, message } = response.data
-  return new BaseResponse(contents, message)
-}
-
 export const getAllOrganizationApi = async () => {
   const { axiosClient } = useAxiosClient()
   const response = await axiosClient.get<
@@ -112,8 +95,7 @@ export const getAllProjectsInOrganizationApi = async (
     `${ApiPath.GET_ALL_PROJECT_IN_ORGANIZATION}/${getAllProjectByOrganizationRequest.organizationId}/projects`
   )
 
-  const { contents, message } = response.data
-  return new BaseResponse(contents, message)
+  return new BaseResponse<GetAllProjectByOrganizationResponse>(response.data)
 }
 
 export const getAllUserInOrganizationApi = async (
@@ -126,8 +108,7 @@ export const getAllUserInOrganizationApi = async (
     `${ApiPath.GET_ALL_USER_IN_ORGANIZATION}/${getAllUserInOrganizationRequest.organizationId}/users`
   )
 
-  const { contents, message } = response.data
-  return new BaseResponse(contents, message)
+  return new BaseResponse<GetAllUserInOrganizationResponse>(response.data)
 }
 
 export const getOrganizationInfoApi = async (

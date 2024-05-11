@@ -7,11 +7,6 @@
       :hover="(props.items ?? []).length > 0"
       @click:row="handleClickRow"
     >
-      <template #item.status="{ item }">
-        <div v-if="item.raw.status === 1">
-          <p>Hoạt động</p>
-        </div>
-      </template>
       <template #item.options="{ item }">
         <CommonBoxOptions>
           <div
@@ -56,7 +51,13 @@ const headers = ref([
     title: 'Tên thành viên',
     align: 'start',
     key: 'fullName',
-    width: '280px',
+    width: '200px',
+    sortable: false,
+  },
+  {
+    title: 'Tổ chức',
+    align: 'start',
+    key: 'organizationName',
     sortable: false,
   },
   {
@@ -72,7 +73,13 @@ const headers = ref([
     sortable: false,
   },
   {
-    title: 'Vị trí công việc',
+    title: 'Nhóm',
+    align: 'start',
+    key: 'sector',
+    sortable: false,
+  },
+  {
+    title: 'Chức vụ',
     align: 'start',
     key: 'role',
     sortable: false,

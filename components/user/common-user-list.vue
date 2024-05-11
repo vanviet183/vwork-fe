@@ -40,9 +40,6 @@ const props = defineProps({
   },
 })
 
-const route = useRoute()
-const organizationId = computed(() => Number(route.query.organizationId))
-
 const headers = ref([
   {
     title: 'Tên thành viên',

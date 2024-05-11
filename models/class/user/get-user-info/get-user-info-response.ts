@@ -1,5 +1,4 @@
-import type { Group } from '../common/group'
-import type { Organization } from '../common/organization'
+import type { Organization } from '../../common/organization'
 
 export class GetUserInfoResponse {
   id: number
@@ -8,8 +7,8 @@ export class GetUserInfoResponse {
   email: string
   avatar: string
   role: string
+  sector: string
   organization?: Organization
-  group?: Group
 
   constructor(
     id: number,
@@ -18,8 +17,8 @@ export class GetUserInfoResponse {
     email: string,
     avatar: string,
     role: string,
-    organization?: Organization,
-    group?: Group
+    sector: string,
+    organization?: Organization
   ) {
     this.id = id
     this.firstName = firstName
@@ -27,7 +26,7 @@ export class GetUserInfoResponse {
     this.email = email
     this.avatar = avatar
     this.role = role
+    this.sector = sector
     this.organization = organization
-    this.group = group
   }
 }

@@ -3,12 +3,12 @@
     <v-card
       class="mx-auto card-item p-2"
       width="300"
-      height="180"
+      height="300"
       :v-bind="$attrs"
     >
       <div class="px-4 card-title">
-        <div class="d-flex align-center justify-between">
-          <p class="project-title py-2 w-[86%]">
+        <div class="d-flex justify-between">
+          <p class="project-title my-2 h-[56px]">
             {{ props.title }}
           </p>
           <div class="mr-[-16px]">
@@ -34,21 +34,35 @@
         >
         </CommonConfirmPopup>
         <div class="author-info pb-2">
-          <v-avatar
-            :image="Avatar"
-            size="32"
-            class="cursor-pointer"
-            @click="() => {}"
-          ></v-avatar>
+          <img
+            :src="props.avatar"
+            class="h-[40px] cursor-pointer avatar"
+            alt="Vwork Logo"
+          />
           <span class="ml-2">
-            {{ props.subtitle }}
+            {{ props.author }}
           </span>
         </div>
       </div>
-      <div class="h-[50%] d-flex flex-col justify-between">
-        <div class="mt-3 ml-3">
-          <p class="duration-project">{{ props.duration }}</p>
+      <div class="h-[58%] d-flex flex-col justify-between">
+        <div>
+          <div class="mt-3 ml-3">
+            <p class="description">
+              {{ props.description }}
+            </p>
+          </div>
+          <div class="mt-2 ml-3">
+            <p class="duration-start text-sm">
+              <span class="font-semibold">Ngay bat dau: </span>
+              <span>{{ props.startDate }}</span>
+            </p>
+            <p class="duration-end text-sm mt-2">
+              <span class="font-semibold">Ngay ket thuc: </span>
+              <span>{{ props.endDate }}</span>
+            </p>
+          </div>
         </div>
+
         <div class="d-flex align-center justify-end px-4 mb-2">
           <p class="amount-task">
             {{ props.amountTask ?? 0 }}
@@ -62,7 +76,6 @@
   </div>
 </template>
 <script setup lang="ts">
-import Avatar from '~/assets/img/avatar.jpeg'
 import { useOrganizationStore } from '~/stores/organization/organization-store'
 import { useProjectStore } from '~/stores/project/project-store'
 
@@ -81,9 +94,17 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  subtitle: {
+  author: {
     type: String,
     required: true,
+  },
+  avatar: {
+    type: String,
+    default: '',
+  },
+  description: {
+    type: String,
+    default: '',
   },
   percent: {
     type: Number,
@@ -95,7 +116,11 @@ const props = defineProps({
     required: false,
     default: undefined,
   },
-  duration: {
+  startDate: {
+    type: String,
+    default: '',
+  },
+  endDate: {
     type: String,
     default: '',
   },
@@ -146,11 +171,16 @@ function handleCancelDelete() {
 }
 .author-info {
   border-bottom: 1px solid #f2f2f5;
+  display: flex;
+  align-items: center;
+  justify-content: start;
 }
 .project-title {
   font-size: 18px;
   font-weight: 600;
-  white-space: pre;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -178,5 +208,14 @@ function handleCancelDelete() {
   &:hover {
     background-color: #f2f2f5;
   }
+}
+.description {
+  color: gray;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 48px;
 }
 </style>

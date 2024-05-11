@@ -1,5 +1,6 @@
 export class CreateMeetingRequest {
-  organizationId: number
+  projectId: number
+  author: string
   title: string
   startTime: string
   endTime: string
@@ -8,7 +9,8 @@ export class CreateMeetingRequest {
   listUser: number[]
 
   constructor(
-    organizationId: number,
+    projectId: number,
+    author: string,
     title: string,
     startTime: string,
     endTime: string,
@@ -16,7 +18,8 @@ export class CreateMeetingRequest {
     location: string,
     listUser: number[]
   ) {
-    this.organizationId = organizationId
+    this.projectId = projectId
+    this.author = author
     this.title = title
     this.startTime = startTime
     this.endTime = endTime

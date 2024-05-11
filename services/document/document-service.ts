@@ -12,7 +12,7 @@ export const createDocumentApi = async (
 ) => {
   const { axiosClient } = useAxiosClient()
 
-  const response = await axiosClient.post<CreateDocumentResponse>(
+  const response = await axiosClient.post<BaseResponse<CreateDocumentResponse>>(
     ApiPath.CREATE_DOCUMENT,
     { ...createDocumentRequest, file: createDocumentRequest.file },
     {
@@ -20,5 +20,6 @@ export const createDocumentApi = async (
     }
   )
 
-  return new BaseResponse(response.data)
+  const { contents, message } = response.data
+  return new BaseResponse<CreateDocumentResponse>(contents, message)
 }

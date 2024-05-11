@@ -9,10 +9,15 @@
     <template #item.users="{ item }">
       <span>{{ getUsersImplement(item.raw.users) }}</span>
     </template>
+
+    <template #item.taskName="{ item }">
+      <p class="custom-task-name">{{ item.raw.taskName }}</p>
+    </template>
     <template #item.prioritize="{ item }">
       <v-icon
-        v-if="item.raw.prioritize"
+        v-if="item.raw.prioritize !== TASK_PRIORITIZE.NONE"
         icon="mdi-flag-variant"
+        :color="getColorFlag(item.raw.prioritize)"
         class="icon-prioritize"
       ></v-icon>
     </template>
@@ -47,14 +52,12 @@
   </v-data-table>
 </template>
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
-import { ROLE, TASKS_DETAIL, TASK_STATUS } from '~/constants'
+import { ROLE, TASKS_DETAIL, TASK_PRIORITIZE, TASK_STATUS } from '~/constants'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useProjectStore } from '~/stores/project/project-store'
 import { useTaskStore } from '~/stores/task/task-store'
 
 const projectStore = useProjectStore()
-const { listTask } = storeToRefs(projectStore)
 
 const taskStore = useTaskStore()
 const authenticationStore = useAuthorizationStore()
@@ -148,6 +151,19 @@ function getStatusTask(status: string) {
       return 'Đang thực hiện'
   }
 }
+
+function getColorFlag(prioritize: string) {
+  switch (prioritize) {
+    case TASK_PRIORITIZE.HIGH:
+      return '#a8071a'
+    case TASK_PRIORITIZE.MIDDLE:
+      return '#d46b08'
+    case TASK_PRIORITIZE.LOW:
+      return '#0050b3'
+    default:
+      return ''
+  }
+}
 </script>
 <style scoped lang="scss">
 @use 'sass:map';
@@ -158,5 +174,13 @@ function getStatusTask(status: string) {
 :deep(.v-data-table-header__content) {
   font-weight: bold !important;
   color: black;
+}
+.custom-task-name {
+  margin: 8px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

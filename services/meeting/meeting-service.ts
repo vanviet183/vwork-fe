@@ -13,10 +13,11 @@ export const createMeetingApi = async (
   createMeetingRequest: CreateMeetingRequest
 ) => {
   const { axiosClient } = useAxiosClient()
-  const response = await axiosClient.post<CreateMeetingResponse>(
+  const response = await axiosClient.post<BaseResponse<CreateMeetingResponse>>(
     ApiPath.CREATE_MEETING,
     createMeetingRequest
   )
 
-  return new BaseResponse(response.data)
+  const { contents, message } = response.data
+  return new BaseResponse<CreateMeetingResponse>(contents, message)
 }

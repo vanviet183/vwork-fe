@@ -16,9 +16,9 @@
         ></v-icon>
       </div>
       <div class="d-flex justify-between mt-4">
-        <div class="mt-4 w-[60%] pr-4">
-          <p class="task-name">{{ taskInfo?.taskName }}</p>
-          <p class="mt-4 font-semibold">Nội dung công việc</p>
+        <div class="w-[60%] pr-4">
+          <!-- <p class="task-name">{{ taskInfo?.taskName }}</p> -->
+          <p class="font-semibold">Nội dung công việc</p>
           <CommonTextarea
             name="description"
             readonly
@@ -32,11 +32,14 @@
               :key="index"
               class="d-flex align-center custom-task-require"
             >
-              <v-icon
-                v-if="item.important"
-                icon="mdi-flag-variant"
-                class="icon-important mr-2"
-              ></v-icon>
+              <div class="w-[30px]">
+                <v-icon
+                  v-show="item.important"
+                  icon="mdi-flag-variant"
+                  class="icon-important mr-2"
+                ></v-icon>
+              </div>
+
               <p :class="item.important ? 'text-important' : ''">
                 {{ item.requireContent }}
               </p>
@@ -62,12 +65,13 @@
               <p>Ngày hoàn thành:</p>
             </div>
             <div class="content-info ml-4">
-              <p>{{ getUsersImplement(taskInfo?.users ?? []) }}</p>
+              <p>{{ getUserResponsible(taskInfo?.userResponsible ?? '') }}</p>
               <p>{{ getUsersImplement(taskInfo?.users ?? []) }}</p>
               <p>
                 <v-icon
-                  v-if="taskInfo?.prioritize"
+                  v-if="taskInfo?.prioritize !== TASK_PRIORITIZE.NONE"
                   icon="mdi-flag-variant"
+                  :color="getColorFlag(taskInfo?.prioritize ?? '')"
                   class="icon-prioritize"
                 ></v-icon>
               </p>
@@ -78,7 +82,7 @@
           </div>
 
           <div class="d-flex align-center justify-between mt-4">
-            <p>Đính kèm {{ `(${listDocument?.length})` }}</p>
+            <p>Đính kèm {{ `(${listDocumentInTask?.length})` }}</p>
             <div
               class="d-flex align-center custom-add"
               @click="handleToggleDocumentForm"
@@ -88,7 +92,7 @@
             </div>
           </div>
           <div
-            v-for="(item, index) in listDocument"
+            v-for="(item, index) in listDocumentInTask"
             :key="index"
             class="d-flex align-center custom-task-document"
             @click="handleDownloadFile(item.filePath)"
@@ -118,7 +122,7 @@
 </template>
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { SCREEN_MODE } from '~/constants'
+import { SCREEN_MODE, SECTOR, TASK_PRIORITIZE } from '~/constants'
 import { useTaskStore } from '~/stores/task/task-store'
 
 const route = useRoute()
@@ -126,7 +130,7 @@ const router = useRouter()
 const taskId = computed(() => Number(route.query.taskId))
 
 const taskStore = useTaskStore()
-const { taskInfo, listTaskRequire, listDocument } = storeToRefs(taskStore)
+const { taskInfo, listTaskRequire, listDocumentInTask } = storeToRefs(taskStore)
 
 const isOpenTaskRequireForm = ref(false)
 const isOpenTaskForm = ref(false)
@@ -147,6 +151,23 @@ function getUsersImplement(listUser: any[]) {
   return data.join(', ')
 }
 
+function getUserResponsible(userResponsible: string) {
+  switch (userResponsible) {
+    case SECTOR.DEVOPS:
+      return 'Nhóm DevOps'
+    case SECTOR.BA:
+      return 'Nhóm Business Analyst'
+    case SECTOR.BACKEND:
+      return 'Nhóm Backend'
+    case SECTOR.FRONTEND:
+      return 'Nhóm Frontend'
+    case SECTOR.TESTER:
+      return 'Nhóm Tester'
+    default:
+      return userResponsible
+  }
+}
+
 const handleToggleTaskRequireForm = () => {
   isOpenTaskRequireForm.value = !isOpenTaskRequireForm.value
 }
@@ -161,6 +182,19 @@ function handleDownloadFile(filePath: string) {
 
 function handleToggleEditTaskForm() {
   isOpenTaskForm.value = !isOpenTaskForm.value
+}
+
+function getColorFlag(prioritize: string) {
+  switch (prioritize) {
+    case TASK_PRIORITIZE.HIGH:
+      return '#a8071a'
+    case TASK_PRIORITIZE.MIDDLE:
+      return '#d46b08'
+    case TASK_PRIORITIZE.LOW:
+      return '#0050b3'
+    default:
+      return ''
+  }
 }
 </script>
 <style scoped lang="scss">

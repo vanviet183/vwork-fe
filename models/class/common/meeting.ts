@@ -3,8 +3,9 @@ import type { User } from './user'
 export class Meeting {
   id: number
   title: string
-  location: string
   description: string
+  author: string
+  location: string
   startTime: string
   endTime: string
   users: User[]
@@ -12,8 +13,9 @@ export class Meeting {
   constructor(
     id: number,
     title: string,
-    location: string,
     description: string,
+    author: string,
+    location: string,
     startTime: string,
     endTime: string,
     users: User[]
@@ -21,6 +23,7 @@ export class Meeting {
     this.id = id
     this.description = description
     this.location = location
+    this.author = author
     this.title = title
     this.startTime = startTime
     this.endTime = endTime

@@ -56,13 +56,7 @@
 </template>
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import {
-  ADMIN,
-  ADMIN_GROUPS,
-  ADMIN_ORGANIZATIONS,
-  ADMIN_USERS,
-  LOGIN,
-} from '~/constants'
+import { ADMIN, ADMIN_ORGANIZATIONS, ADMIN_USERS, LOGIN } from '~/constants'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useNavigationStore } from '~/stores/navigation/navigation-store'
 import { useUserStore } from '~/stores/user/user-store'
@@ -80,15 +74,15 @@ definePageMeta({
 })
 
 const listMenu = [
-  { to: ADMIN, title: 'Thống kê' },
+  // { to: ADMIN, title: 'Thống kê' },
   { to: ADMIN_ORGANIZATIONS, title: 'Quản lý tổ chức' },
-  { to: ADMIN_GROUPS, title: 'Quản lý nhóm' },
+  // { to: ADMIN_GROUPS, title: 'Quản lý nhóm' },
   { to: ADMIN_USERS, title: 'Quản lý người dùng' },
 ]
 
 onMounted(async () => {
   navigationStore.setCurrentRoute(ADMIN)
-  await userStore.getAdminInfo(userId.value)
+  await userStore.getUserInfo(userId.value)
 })
 
 const handleLogout = async () => {

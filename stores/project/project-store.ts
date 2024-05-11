@@ -1,14 +1,23 @@
 import { AlertType } from '~/constants'
-import { Project } from '~/models/class/common/project'
+import type { Document } from '~/models/class/common/document'
+import type { Meeting } from '~/models/class/common/meeting'
 import { Task } from '~/models/class/common/task'
+import type { User } from '~/models/class/common/user'
 import { CreateProjectRequest } from '~/models/class/projects/create-project/create-project-request'
 import { DeleteProjectRequest } from '~/models/class/projects/delete-project/delete-project-request'
+import { GetAllDocumentInProjectRequest } from '~/models/class/projects/get-all-document-in-project/get-all-document-in-project-request'
+import { GetAllMeetingInProjectRequest } from '~/models/class/projects/get-all-meeting-in-project/get-all-meeting-in-project-request'
 import { GetAllTaskInProjectRequest } from '~/models/class/projects/get-all-task-in-project/get-all-task-in-project-request'
+import { GetAllUserInProjectRequest } from '~/models/class/projects/get-all-user-in-project/get-all-user-in-project-request'
 import { GetProjectInfoRequest } from '~/models/class/projects/get-project-info/get-project-info-request'
+import type { GetProjectInfoResponse } from '~/models/class/projects/get-project-info/get-project-info-response'
 import {
   createProjectApi,
   deleteProjectApi,
+  getAllDocumentInProjectApi,
+  getAllMeetingInProjectApi,
   getAllTaskInProjectApi,
+  getAllUserInProjectApi,
   getProjectInfoApi,
 } from '~/services/project/project-service'
 import { useAlertStore } from '../alert/alert-store'
@@ -19,8 +28,11 @@ export const useProjectStore = defineStore('project', () => {
   const isError = ref(false)
   const error = ref('')
 
-  const projectInfo = ref<Project>()
-  const listTask = ref<Task[]>()
+  const projectInfo = ref<GetProjectInfoResponse>()
+  const listTaskInProject = ref<Task[]>()
+  const listDocumentInProject = ref<Document[]>()
+  const listUserInProject = ref<User[]>()
+  const listMeetingInProject = ref<Meeting[]>()
 
   async function getProjectInfo(projectId: number) {
     if (isLoading.value) {
@@ -85,8 +97,13 @@ export const useProjectStore = defineStore('project', () => {
         endDate
       )
       const response = await createProjectApi(request)
+      if (response.message) {
+        alertStore.setAlertMessage({
+          message: response.message,
+          type: AlertType.success,
+        })
+      }
       return true
-      projectInfo.value = response.contents
     } catch (error) {
       isError.value = true
       return false
@@ -104,11 +121,62 @@ export const useProjectStore = defineStore('project', () => {
     try {
       const request = new GetAllTaskInProjectRequest(projectId)
       const response = await getAllTaskInProjectApi(request)
-      listTask.value = response.contents.listTask ?? []
+      listTaskInProject.value = response.contents?.listTask ?? []
 
-      listTask.value?.sort((item1, item2) =>
+      listTaskInProject.value?.sort((item1, item2) =>
         item2.status.localeCompare(item1.status)
       )
+    } catch (error) {
+      isError.value = true
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function getAllDocumentInProject(projectId: number) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new GetAllDocumentInProjectRequest(projectId)
+      const response = await getAllDocumentInProjectApi(request)
+      listDocumentInProject.value = response.contents?.listDocument ?? []
+    } catch (error) {
+      isError.value = true
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function getAllUserInProject(projectId: number) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new GetAllUserInProjectRequest(projectId)
+      const response = await getAllUserInProjectApi(request)
+      listUserInProject.value = response.contents?.listUser ?? []
+    } catch (error) {
+      isError.value = true
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  async function getAllMeetingInProject(projectId: number) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new GetAllMeetingInProjectRequest(projectId)
+      const response = await getAllMeetingInProjectApi(request)
+      listMeetingInProject.value = response.contents?.listMeeting ?? []
     } catch (error) {
       isError.value = true
     } finally {
@@ -120,11 +188,17 @@ export const useProjectStore = defineStore('project', () => {
     isLoading,
     isError,
     error,
-    listTask,
+    listTaskInProject,
     projectInfo,
+    listDocumentInProject,
+    listUserInProject,
+    listMeetingInProject,
     createProject,
     getProjectInfo,
     getAllTaskInProject,
     deleteProject,
+    getAllDocumentInProject,
+    getAllUserInProject,
+    getAllMeetingInProject,
   }
 })

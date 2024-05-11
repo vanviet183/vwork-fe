@@ -5,6 +5,7 @@ export const useAuthorizationStore = defineStore(
     const accessToken = ref()
     const refreshToken = ref()
     const role = ref()
+    const organizationId = ref()
 
     function setSessionAccess(
       id: number,
@@ -25,13 +26,23 @@ export const useAuthorizationStore = defineStore(
       role.value = undefined
     }
 
+    function setOrganizationId(value: number) {
+      organizationId.value = value
+    }
+    function resetOrganizationId() {
+      organizationId.value = undefined
+    }
+
     return {
       userId,
       accessToken,
       refreshToken,
       role,
+      organizationId,
       setSessionAccess,
       resetSessionAccess,
+      setOrganizationId,
+      resetOrganizationId,
     }
   },
   {

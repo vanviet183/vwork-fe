@@ -5,8 +5,9 @@ import type { User } from './user'
 export class Task {
   id: number
   taskName: string
-  userResponsible: number
-  prioritize: number
+  phase: string
+  userResponsible: string
+  prioritize: string
   status: string
   startDate: string
   endDate: string
@@ -18,8 +19,10 @@ export class Task {
   constructor(
     id: number,
     taskName: string,
-    userResponsible: number,
-    prioritize: number,
+    phase: string,
+
+    userResponsible: string,
+    prioritize: string,
     status: string,
     startDate: string,
     endDate: string,
@@ -31,6 +34,7 @@ export class Task {
     this.id = id
     this.userResponsible = userResponsible
     this.taskName = taskName
+    this.phase = phase
     this.prioritize = prioritize
     this.startDate = startDate
     this.endDate = endDate

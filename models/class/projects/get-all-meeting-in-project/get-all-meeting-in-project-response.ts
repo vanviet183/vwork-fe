@@ -1,6 +1,6 @@
 import type { Meeting } from '../../common/meeting'
 
-export class GetAllMeetingInOrganizationResponse {
+export class GetAllMeetingInProjectResponse {
   listMeeting: Meeting[]
 
   constructor(listMeeting: Meeting[]) {

@@ -59,6 +59,13 @@
           @click:append-inner="visible = !visible"
         ></CommonTextField>
         <CommonDropdown
+          name="sector"
+          item-label="title"
+          placeholder="Lĩnh vực"
+          :items="listSector"
+          class="mt-4"
+        ></CommonDropdown>
+        <CommonDropdown
           name="role"
           item-label="title"
           placeholder="Chức vụ"
@@ -71,11 +78,9 @@
 </template>
 
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { array, object, string } from 'yup'
-import { MAX_LENGTH_INPUT, ROLE, SCREEN_MODE } from '~/constants'
-import { useOrganizationStore } from '~/stores/organization/organization-store'
+import { MAX_LENGTH_INPUT, ROLE, SCREEN_MODE, SECTOR } from '~/constants'
 import { useUserStore } from '~/stores/user/user-store'
 
 const emit = defineEmits(['close-form'])
@@ -89,12 +94,6 @@ const props = defineProps({
 })
 
 const userStore = useUserStore()
-
-const organizationStore = useOrganizationStore()
-const { listGroup } = storeToRefs(organizationStore)
-
-const route = useRoute()
-const organizationId = computed(() => Number(route.query.organizationId))
 
 const listRoleOrganization = [
   {
@@ -119,6 +118,29 @@ const listRoleOrganization = [
   },
 ]
 
+const listSector = [
+  {
+    title: 'Business Analyst',
+    value: SECTOR.BA,
+  },
+  {
+    title: 'Backend',
+    value: SECTOR.BACKEND,
+  },
+  {
+    title: 'Frontend',
+    value: SECTOR.FRONTEND,
+  },
+  {
+    title: 'Tester',
+    value: SECTOR.TESTER,
+  },
+  {
+    title: 'Lĩnh vực khác',
+    value: '',
+  },
+]
+
 const visible = ref(false)
 const isExcel = ref(false)
 
@@ -131,6 +153,7 @@ const schemaValidate = () => {
       phone: string().trim().required().max(MAX_LENGTH_INPUT),
       email: string().trim().email().required().max(MAX_LENGTH_INPUT),
       password: string().trim().required().max(MAX_LENGTH_INPUT),
+      sector: object().required(),
       role: object().required(),
     }
   } else {
@@ -168,6 +191,7 @@ const schemaValidate = () => {
 const schema = computed(() => schemaValidate())
 
 const onInvalid = (errors: any) => console.error(errors)
+
 const { handleSubmit } = useForm({
   validationSchema: schema,
 })
@@ -180,6 +204,7 @@ const onSubmit = handleSubmit(async (values) => {
       values.phone,
       values.email,
       values.password,
+      values.sector.value,
       values.role.value
     )
     if (result) {
@@ -202,13 +227,6 @@ function onCancel() {
 
 function handleUploadExcel() {
   isExcel.value = !isExcel.value
-}
-
-function getGroups() {
-  return listGroup.value?.map((item) => ({
-    title: item.groupName,
-    value: item.id,
-  }))
 }
 
 const PATH_DOWNLOAD_CSV =
