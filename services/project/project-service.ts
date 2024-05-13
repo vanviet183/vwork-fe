@@ -2,6 +2,8 @@ import { BaseResponse } from '~/models/class/common/base-response'
 import type { CreateProjectRequest } from '~/models/class/projects/create-project/create-project-request'
 import type { CreateProjectResponse } from '~/models/class/projects/create-project/create-project-response'
 import type { DeleteProjectRequest } from '~/models/class/projects/delete-project/delete-project-request'
+import type { EditProjectRequest } from '~/models/class/projects/edit-project/edit-project-request'
+import type { EditProjectResponse } from '~/models/class/projects/edit-project/edit-project-response'
 import type { GetAllDocumentInProjectRequest } from '~/models/class/projects/get-all-document-in-project/get-all-document-in-project-request'
 import type { GetAllDocumentInProjectResponse } from '~/models/class/projects/get-all-document-in-project/get-all-document-in-project-response'
 import type { GetAllMeetingInProjectRequest } from '~/models/class/projects/get-all-meeting-in-project/get-all-meeting-in-project-request'
@@ -16,6 +18,7 @@ import { useAxiosClient } from '~/services/axios-client'
 
 const ApiPath = {
   CREATE_PROJECT: '/projects/create',
+  EDIT_PROJECT: '/projects',
   GET_PROJECT_INFO: '/projects',
   GET_ALL_TASK_IN_PROJECT: '/projects',
   GET_ALL_USER_IN_PROJECT: '/projects',
@@ -57,6 +60,19 @@ export const createProjectApi = async (
   const { contents, message } = response.data
 
   return new BaseResponse(contents, message)
+}
+
+export const editProjectApi = async (
+  editProjectRequest: EditProjectRequest
+) => {
+  const { axiosClient } = useAxiosClient()
+  const response = await axiosClient.patch<BaseResponse<EditProjectResponse>>(
+    `${ApiPath.EDIT_PROJECT}/${editProjectRequest.projectId}`,
+    editProjectRequest
+  )
+
+  const { contents, message } = response.data
+  return new BaseResponse<EditProjectResponse>(contents, message)
 }
 
 export const getAllTaskInProjectApi = async (

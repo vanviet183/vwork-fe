@@ -27,6 +27,8 @@
         placeholder="Loại tài liệu"
         :items="listTypeDocument ?? []"
       ></CommonDropdown>
+
+      <CommonCheckbox name="isSaved" label="Lưu trữ" class="mt-1" />
     </form>
   </CommonConfirmPopup>
 </template>
@@ -112,7 +114,8 @@ const onSubmit = handleSubmit(
     const result = await documentStore.createDocument(
       taskId.value,
       values.fileUpload[0],
-      values.type.value
+      values.type.value,
+      values.isSaved
     )
     if (result) {
       await taskStore.getAllDocumentInTask(taskId.value)

@@ -1,6 +1,6 @@
 export class CreateMeetingRequest {
   projectId: number
-  author: string
+  userId: number
   title: string
   startTime: string
   endTime: string
@@ -10,16 +10,16 @@ export class CreateMeetingRequest {
 
   constructor(
     projectId: number,
-    author: string,
+    userId: number,
     title: string,
-    startTime: string,
-    endTime: string,
     description: string,
     location: string,
+    startTime: string,
+    endTime: string,
     listUser: number[]
   ) {
     this.projectId = projectId
-    this.author = author
+    this.userId = userId
     this.title = title
     this.startTime = startTime
     this.endTime = endTime

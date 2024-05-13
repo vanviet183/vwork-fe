@@ -5,6 +5,7 @@ import { Task } from '~/models/class/common/task'
 import type { User } from '~/models/class/common/user'
 import { CreateProjectRequest } from '~/models/class/projects/create-project/create-project-request'
 import { DeleteProjectRequest } from '~/models/class/projects/delete-project/delete-project-request'
+import { EditProjectRequest } from '~/models/class/projects/edit-project/edit-project-request'
 import { GetAllDocumentInProjectRequest } from '~/models/class/projects/get-all-document-in-project/get-all-document-in-project-request'
 import { GetAllMeetingInProjectRequest } from '~/models/class/projects/get-all-meeting-in-project/get-all-meeting-in-project-request'
 import { GetAllTaskInProjectRequest } from '~/models/class/projects/get-all-task-in-project/get-all-task-in-project-request'
@@ -14,6 +15,7 @@ import type { GetProjectInfoResponse } from '~/models/class/projects/get-project
 import {
   createProjectApi,
   deleteProjectApi,
+  editProjectApi,
   getAllDocumentInProjectApi,
   getAllMeetingInProjectApi,
   getAllTaskInProjectApi,
@@ -112,6 +114,42 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  async function editProject(
+    projectId: number,
+    projectName: string,
+    description: string,
+    startDate: string,
+    endDate: string
+  ) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new EditProjectRequest(
+        projectId,
+        projectName,
+        description,
+        startDate,
+        endDate
+      )
+      const response = await editProjectApi(request)
+      if (response.message) {
+        alertStore.setAlertMessage({
+          message: response.message,
+          type: AlertType.success,
+        })
+      }
+      return true
+    } catch (error) {
+      isError.value = true
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   async function getAllTaskInProject(projectId: number) {
     if (isLoading.value) {
       return
@@ -124,7 +162,7 @@ export const useProjectStore = defineStore('project', () => {
       listTaskInProject.value = response.contents?.listTask ?? []
 
       listTaskInProject.value?.sort((item1, item2) =>
-        item2.status.localeCompare(item1.status)
+        item1.startDate.localeCompare(item2.startDate)
       )
     } catch (error) {
       isError.value = true
@@ -200,5 +238,6 @@ export const useProjectStore = defineStore('project', () => {
     getAllDocumentInProject,
     getAllUserInProject,
     getAllMeetingInProject,
+    editProject,
   }
 })

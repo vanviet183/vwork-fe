@@ -1,5 +1,5 @@
 <template>
-  <div class="relative h-[450px] mb-4">
+  <div v-if="projectTaskData" class="relative h-[450px] mb-4">
     <div class="wrapper-gantt">
       <ejs-gantt
         id="GanttContainer"
@@ -20,13 +20,13 @@
             unit: 'Day',
           },
         }"
-        :toolbar="['PdfExport']"
+        :toolbar="['PdfExport', 'PrevTimeSpan', 'NextTimeSpan']"
         :toolbar-click="toolbarClick"
         :selection-settings="{ mode: 'Both' }"
         :allow-pdf-export="true"
-        :project-end-date="new Date(projectInfo?.endDate ?? '')"
       ></ejs-gantt>
       <!-- :project-start-date="new Date(projectInfo?.startDate ?? '')" -->
+      <!-- :project-end-date="new Date(projectInfo?.endDate ?? '')" -->
       <!-- :collapse-all-parent-tasks="true" -->
     </div>
   </div>
@@ -104,10 +104,6 @@ function queryTaskbarInfo(args: any) {
 
   // if (args.data.Progress <= 30) {
   //   args.progressBarBgColor = 'rgb(21, 245, 186)'
-  // } else if (args.data.Progress >= 50) {
-  //   args.progressBarBgColor = 'yellow'
-  // } else if (args.data.Progress >= 80) {
-  //   args.progressBarBgColor = 'lightgreen'
   // }
 }
 
@@ -138,7 +134,7 @@ function mapTasks() {
       TaskName: task.taskName,
       StartDate: new Date(task.startDate),
       Duration: getDuration(task.endDate, task.startDate),
-      Progress: getRandomNumber(),
+      Progress: task.progress,
       isParent: false,
     }
 
@@ -160,10 +156,6 @@ function mapTasks() {
   })
 
   return Object.values(groupedTasks)
-}
-
-function getRandomNumber(min = 0, max = 100): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
 function getDuration(end: string, start: string) {

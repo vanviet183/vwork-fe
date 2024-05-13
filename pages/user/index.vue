@@ -16,7 +16,6 @@
           <p>heheh</p>
         </div>
       </div>
-      <CommonTab :items="tabUser"></CommonTab>
     </div>
     <div class="box2">
       <CommonBoxInfo icon="mdi-account" title="Thông tin cá nhân">

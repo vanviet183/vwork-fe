@@ -6,6 +6,7 @@ export class CreateUserRequest {
   password: string
   sector: string
   role: string
+  organizationId?: number
 
   constructor(
     firstName: string,
@@ -14,7 +15,8 @@ export class CreateUserRequest {
     email: string,
     password: string,
     sector: string,
-    role: string
+    role: string,
+    organizationId?: number
   ) {
     this.firstName = firstName
     this.lastName = lastName
@@ -23,5 +25,6 @@ export class CreateUserRequest {
     this.password = password
     this.sector = sector
     this.role = role
+    this.organizationId = organizationId
   }
 }

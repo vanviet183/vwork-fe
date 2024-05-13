@@ -1,14 +1,18 @@
 import { AlertType } from '~/constants'
 import type { Document } from '~/models/class/common/document'
-import { Task } from '~/models/class/common/task'
 import type { TaskRequire } from '~/models/class/common/task-require'
 import { CreateTaskRequest } from '~/models/class/tasks/create-task/create-task-request'
+import { DeleteTaskRequest } from '~/models/class/tasks/delete-task/delete-task-request'
+import { EditTaskRequest } from '~/models/class/tasks/edit-task/edit-task-request'
 import { GetAllDocumentInTaskRequest } from '~/models/class/tasks/get-all-document-in-task/get-all-document-in-task-request'
 import { GetAllTaskRequireInTaskRequest } from '~/models/class/tasks/get-all-task-require-in-task/get-all-task-require-in-task-request'
 import { GetTaskInfoRequest } from '~/models/class/tasks/get-task-info/get-task-info-request'
+import type { GetTaskInfoResponse } from '~/models/class/tasks/get-task-info/get-task-info-response'
 import { UpdateTaskRequest } from '~/models/class/tasks/update-task/update-task-request'
 import {
   createTaskApi,
+  deleteTaskApi,
+  editTaskApi,
   getAllDocumentInTaskApi,
   getAllTaskRequireInTaskApi,
   getTaskInfoApi,
@@ -22,7 +26,7 @@ export const useTaskStore = defineStore('task', () => {
   const isError = ref(false)
   const error = ref('')
 
-  const taskInfo = ref<Task>()
+  const taskInfo = ref<GetTaskInfoResponse>()
   const listTaskRequire = ref<TaskRequire[]>()
   const listDocumentInTask = ref<Document[]>()
 
@@ -85,6 +89,48 @@ export const useTaskStore = defineStore('task', () => {
     }
   }
 
+  async function editTask(
+    taskId: number,
+    taskName: string,
+    phase: string,
+    userResponsible: string,
+    listUserImplement: number[],
+    prioritize: string,
+    startDate: string,
+    endDate: string
+  ) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new EditTaskRequest(
+        taskId,
+        taskName,
+        phase,
+        userResponsible,
+        listUserImplement,
+        prioritize,
+        startDate,
+        endDate
+      )
+      const response = await editTaskApi(request)
+      if (response.message) {
+        alertStore.setAlertMessage({
+          message: response.message,
+          type: AlertType.success,
+        })
+      }
+      return true
+    } catch (error) {
+      isError.value = true
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   async function updateStatusTask(taskId: number, status: string) {
     if (isLoading.value) {
       return
@@ -93,7 +139,13 @@ export const useTaskStore = defineStore('task', () => {
     isError.value = false
     try {
       const request = new UpdateTaskRequest(taskId, status)
-      await updateStatusTaskApi(request)
+      const response = await updateStatusTaskApi(request)
+      if (response.message) {
+        alertStore.setAlertMessage({
+          message: response.message,
+          type: AlertType.success,
+        })
+      }
       return true
     } catch (error) {
       isError.value = true
@@ -112,7 +164,7 @@ export const useTaskStore = defineStore('task', () => {
     try {
       const request = new GetAllTaskRequireInTaskRequest(taskId)
       const response = await getAllTaskRequireInTaskApi(request)
-      listTaskRequire.value = response.contents.listTaskRequire ?? []
+      listTaskRequire.value = response.contents?.listTaskRequire ?? []
     } catch (error) {
       isError.value = true
     } finally {
@@ -137,6 +189,28 @@ export const useTaskStore = defineStore('task', () => {
     }
   }
 
+  async function deleteTask(taskId: number) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new DeleteTaskRequest(taskId)
+      const response = await deleteTaskApi(request)
+      if (response.message) {
+        alertStore.setAlertMessage({
+          message: response.message,
+          type: AlertType.success,
+        })
+      }
+    } catch (error) {
+      isError.value = true
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   return {
     isLoading,
     isError,
@@ -145,9 +219,11 @@ export const useTaskStore = defineStore('task', () => {
     listTaskRequire,
     listDocumentInTask,
     createTask,
+    editTask,
     getTaskInfo,
     getAllTaskRequireInTask,
     getAllDocumentInTask,
     updateStatusTask,
+    deleteTask,
   }
 })

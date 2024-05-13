@@ -9,32 +9,70 @@
   >
     <div>
       <form class="form-container">
-        <p class="mb-2">Tên dự án</p>
-        <CommonTextField name="projectName" autofocus />
+        <div v-if="props.mode === SCREEN_MODE.NEW">
+          <p class="mb-2">Tên dự án</p>
+          <CommonTextField name="projectName" autofocus />
 
-        <p class="mt-4 mb-2">Mô tả dự án</p>
-        <CommonTextarea name="description" class="custom-textarea-padding" />
+          <p class="mt-4 mb-2">Mô tả dự án</p>
+          <CommonTextarea name="description" class="custom-textarea-padding" />
 
-        <p class="mt-4 mb-2">Ngày bắt đầu</p>
+          <p class="mt-4 mb-2">Ngày bắt đầu</p>
 
-        <CommonDatePicker
-          class="target-day"
-          name="startDate"
-          placeholder="YYYY/MM/DD"
-          :disabled-date="disableDate"
-          :default-value="startDate"
-          @change="handleChangeStartDate"
-        ></CommonDatePicker>
+          <CommonDatePicker
+            class="target-day"
+            name="startDate"
+            placeholder="YYYY/MM/DD"
+            :disabled-date="disableDate"
+            :default-value="startDate"
+            @change="handleChangeStartDate"
+          ></CommonDatePicker>
 
-        <p class="mt-4 mb-2">Ngày kết thúc</p>
-        <CommonDatePicker
-          class="target-day"
-          name="endDate"
-          placeholder="YYYY/MM/DD"
-          :disabled-date="disableDate"
-          :default-value="endDate"
-          @change="handleChangeEndDate"
-        ></CommonDatePicker>
+          <p class="mt-4 mb-2">Ngày kết thúc</p>
+          <CommonDatePicker
+            class="target-day"
+            name="endDate"
+            placeholder="YYYY/MM/DD"
+            :disabled-date="disableDate"
+            :default-value="endDate"
+            @change="handleChangeEndDate"
+          ></CommonDatePicker>
+        </div>
+        <div v-if="props.mode === SCREEN_MODE.EDIT">
+          <p class="mb-2">Tên dự án</p>
+          <CommonTextField
+            name="projectName"
+            :default-value="projectInfo?.projectName"
+            autofocus
+          />
+
+          <p class="mt-4 mb-2">Mô tả dự án</p>
+          <CommonTextarea
+            name="description"
+            :default-value="projectInfo?.description"
+            class="custom-textarea-padding"
+          />
+
+          <p class="mt-4 mb-2">Ngày bắt đầu</p>
+
+          <CommonDatePicker
+            class="target-day"
+            name="startDate"
+            placeholder="YYYY/MM/DD"
+            :disabled-date="disableDate"
+            :default-value="new Date(projectInfo?.startDate ?? '')"
+            @change="handleChangeStartDate"
+          ></CommonDatePicker>
+
+          <p class="mt-4 mb-2">Ngày kết thúc</p>
+          <CommonDatePicker
+            class="target-day"
+            name="endDate"
+            placeholder="YYYY/MM/DD"
+            :disabled-date="disableDate"
+            :default-value="new Date(projectInfo?.endDate ?? '')"
+            @change="handleChangeEndDate"
+          ></CommonDatePicker>
+        </div>
       </form>
     </div>
   </CommonConfirmPopup>
@@ -57,8 +95,8 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  tipId: {
-    type: String,
+  projectId: {
+    type: Number,
     default: undefined,
   },
 })
@@ -67,11 +105,20 @@ const startDate = ref(new Date())
 const endDate = ref(new Date(dayjs().add(1, 'm').format('YYYY/MM/DD')))
 
 const projectStore = useProjectStore()
+const { projectInfo } = storeToRefs(projectStore)
 
 const organizationStore = useOrganizationStore()
 
 const authenticationStore = useAuthorizationStore()
 const { userId, organizationId } = storeToRefs(authenticationStore)
+
+onMounted(async () => {
+  if (props.mode === SCREEN_MODE.EDIT) {
+    if (props.projectId) {
+      await projectStore.getProjectInfo(props.projectId)
+    }
+  }
+})
 
 function onCancel() {
   emit('close-form')
@@ -89,20 +136,58 @@ const schemaValidate = () => {
 
 const schema = ref(schemaValidate())
 
+interface ProjectFromData {
+  projectName: string
+  description: string
+  startDate: string
+  endDate: string
+}
+
+function initialValueForm(): ProjectFromData {
+  const initialValue: ProjectFromData = {
+    projectName: '',
+    description: '',
+    startDate: '',
+    endDate: '',
+  }
+
+  if (props.mode === SCREEN_MODE.EDIT) {
+    initialValue.projectName = projectInfo.value?.projectName ?? ''
+    initialValue.description = projectInfo.value?.description ?? ''
+    initialValue.startDate = projectInfo.value?.startDate ?? ''
+    initialValue.endDate = projectInfo.value?.endDate ?? ''
+  }
+  return initialValue
+}
+
 const { handleSubmit } = useForm({
   validationSchema: schema,
+  initialValues: initialValueForm(),
 })
 
 const onSubmit = handleSubmit(
   async (values) => {
-    const result = await projectStore.createProject(
-      organizationId.value,
-      userId.value,
-      values.projectName,
-      values.description,
-      dayjs(values.startDate).format('YYYY/MM/DD'),
-      dayjs(values.endDate).format('YYYY/MM/DD')
-    )
+    let result
+    if (props.mode === SCREEN_MODE.NEW) {
+      result = await projectStore.createProject(
+        organizationId.value,
+        userId.value,
+        values.projectName,
+        values.description,
+        dayjs(values.startDate).format('YYYY/MM/DD'),
+        dayjs(values.endDate).format('YYYY/MM/DD')
+      )
+    } else if (props.mode === SCREEN_MODE.EDIT) {
+      if (props.projectId) {
+        result = await projectStore.editProject(
+          props.projectId,
+          values.projectName,
+          values.description,
+          dayjs(values.startDate).format('YYYY/MM/DD'),
+          dayjs(values.endDate).format('YYYY/MM/DD')
+        )
+      }
+    }
 
     if (result) {
       await organizationStore.getAllProjectsInOrganization(organizationId.value)

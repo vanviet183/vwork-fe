@@ -25,26 +25,11 @@
         :mode="SCREEN_MODE.NEW"
         @close-form="handleToggleFormCreate"
       />
-      <div
-        v-if="
-          !listProjectInOrganization?.length &&
-          authenticationStore.role === ROLE.PROJECT_MANAGER
-        "
-        class="h-[500px]"
-      >
-        <CommonEmpty />
-      </div>
-      <div
-        v-if="
-          !listProjectOfUser?.length &&
-          authenticationStore.role !== ROLE.PROJECT_MANAGER
-        "
-        class="h-[500px]"
-      >
+      <div v-if="!listProjectInOrganization?.length" class="h-[500px]">
         <CommonEmpty />
       </div>
 
-      <div v-if="listProjectCurrent?.length" class="">
+      <div v-if="listProjectCurrent?.length && isOpenProjectCurrent">
         <div class="d-flex align-center justify-between mt-8">
           <p class="projects-title">Dự án đang thực hiện</p>
           <p
@@ -75,7 +60,7 @@
         </div>
       </div>
 
-      <div v-if="listProjectCompleted?.length">
+      <div v-if="listProjectCompleted?.length && isOpenProjectCompleted">
         <div class="d-flex align-center justify-between mt-4">
           <p class="projects-title mt-4">Dự án đã hoàn thành</p>
           <p
@@ -93,9 +78,12 @@
             :project-id="item.id"
             :title="item.projectName"
             :author="item.author"
+            :avatar="userInfo?.avatar"
             :percent="item.percent"
             :amount-task="item.tasks?.length"
-            :duration="`${item.startDate} ~ ${item.endDate}`"
+            :start-date="item.startDate"
+            :end-date="item.endDate"
+            :description="item.description"
             class="card-complete"
             background-color="#74E291"
             color="#211C6A"
@@ -125,7 +113,7 @@ const organizationStore = useOrganizationStore()
 const { listProjectInOrganization } = storeToRefs(organizationStore)
 
 const userStore = useUserStore()
-const { userInfo, listProjectOfUser } = storeToRefs(userStore)
+const { userInfo } = storeToRefs(userStore)
 
 const tabActive = ref(1)
 function handleSelectTab(value: any) {
@@ -147,6 +135,9 @@ const listTab = [
   },
 ]
 
+const isOpenProjectCurrent = ref(true)
+const isOpenProjectCompleted = ref(true)
+
 const listProjectCurrent = ref<Project[]>()
 const listProjectCompleted = ref<Project[]>()
 
@@ -154,10 +145,10 @@ onMounted(async () => {
   if (!userInfo.value) {
     await userStore.getUserInfo(authenticationStore.userId)
   }
-  if (authenticationStore.role === ROLE.PROJECT_MANAGER) {
-    await organizationStore.getAllProjectsInOrganization(organizationId.value)
-  } else {
-    await userStore.getAllProjectsUserJoin(userId.value)
+
+  await organizationStore.getAllProjectsInOrganization(organizationId.value)
+  if (authenticationStore.role !== ROLE.PROJECT_MANAGER) {
+    filterProjectTasksForUser()
   }
 })
 
@@ -167,16 +158,6 @@ watch(listProjectInOrganization, () => {
   )
 
   listProjectCompleted.value = listProjectInOrganization.value?.filter(
-    (item) => item.status === 'Completed'
-  )
-})
-
-watch(listProjectOfUser, () => {
-  listProjectCurrent.value = listProjectOfUser.value?.filter(
-    (item) => item.status === 'Doing'
-  )
-
-  listProjectCompleted.value = listProjectOfUser.value?.filter(
     (item) => item.status === 'Completed'
   )
 })
@@ -197,8 +178,36 @@ const handleShowAll = () => {
 }
 
 watch(tabActive, () => {
-  // handle selected tab
+  if (tabActive.value === 1) {
+    isOpenProjectCurrent.value = true
+    isOpenProjectCompleted.value = true
+  } else if (tabActive.value === 2) {
+    isOpenProjectCurrent.value = true
+    isOpenProjectCompleted.value = false
+  } else {
+    isOpenProjectCurrent.value = false
+    isOpenProjectCompleted.value = true
+  }
 })
+
+function filterProjectTasksForUser() {
+  const listProjectOfUser = []
+  if (listProjectInOrganization.value) {
+    for (const project of listProjectInOrganization.value) {
+      // Check if any task has the user involved
+
+      const listTask = project.tasks
+      const hasUser = listTask?.some((task) =>
+        task.users?.some((user) => user.id === userId.value)
+      )
+      if (hasUser) {
+        listProjectOfUser.push(project)
+      }
+    }
+  }
+
+  listProjectInOrganization.value = listProjectOfUser
+}
 </script>
 <style scoped lang="scss">
 @use 'sass:map';

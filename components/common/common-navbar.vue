@@ -1,7 +1,7 @@
 <template>
   <div class="wrapper">
     <div class="custom-navbar d-flex justify-space-between align-center">
-      <a href="/" class="flex items-center mr-24 cursor-pointer">
+      <a href="/" class="flex items-center cursor-pointer">
         <img
           src="~/assets/img/logo-vwork.svg"
           class="h-[48px]"
@@ -24,7 +24,6 @@
       </div>
 
       <div class="d-flex align-center">
-        <CommonTextSearch />
         <CommonBoxOptions :is-avatar="true">
           <div class="w-[372px] p-5">
             <div class="text-center box1 py-2 pointer-events-none">
@@ -62,15 +61,7 @@
 </template>
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import {
-  HOME,
-  LOGIN,
-  MEETINGS,
-  MEMBERS,
-  PASSWORD,
-  TASKS,
-  USER,
-} from '~/constants'
+import { HOME, LOGIN, MEETINGS, PASSWORD, TASKS, USER } from '~/constants'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useNavigationStore } from '~/stores/navigation/navigation-store'
 import { useUserStore } from '~/stores/user/user-store'
@@ -81,18 +72,15 @@ const navigationStore = useNavigationStore()
 const userStore = useUserStore()
 const { userInfo } = storeToRefs(userStore)
 
-const route = useRoute()
-const organizationId = computed(() => Number(route.query.organizationId))
-
 const menu = ref([
   {
     icon: 'mdi-home',
     path: HOME,
   },
-  {
-    icon: 'mdi-account-group',
-    path: MEMBERS,
-  },
+  // {
+  //   icon: 'mdi-account-group',
+  //   path: MEMBERS,
+  // },
   {
     icon: 'mdi-calendar-month-outline',
     path: MEETINGS,

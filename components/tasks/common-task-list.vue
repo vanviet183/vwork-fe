@@ -1,58 +1,108 @@
 <template>
-  <v-data-table
-    :headers="headers"
-    :items="props.items"
-    item-value="id"
-    :hover="props.items.length > 0"
-    @click:row="handleClickRow"
-  >
-    <template #item.users="{ item }">
-      <span>{{ getUsersImplement(item.raw.users) }}</span>
-    </template>
+  <div>
+    <v-data-table
+      :headers="headers"
+      :items="props.items"
+      item-value="id"
+      :hover="props.items.length > 0"
+      @click:row="handleClickRow"
+    >
+      <template #item.users="{ item }">
+        <span>{{ getUsersImplement(item.raw.users) }}</span>
+      </template>
 
-    <template #item.taskName="{ item }">
-      <p class="custom-task-name">{{ item.raw.taskName }}</p>
-    </template>
-    <template #item.prioritize="{ item }">
-      <v-icon
-        v-if="item.raw.prioritize !== TASK_PRIORITIZE.NONE"
-        icon="mdi-flag-variant"
-        :color="getColorFlag(item.raw.prioritize)"
-        class="icon-prioritize"
-      ></v-icon>
-    </template>
-    <template #item.status="{ item }">
-      <span>{{ getStatusTask(item.raw.status) }}</span>
-    </template>
-    <template #item.options="{ item }">
-      <CommonBoxOptions>
-        <div
-          v-if="authenticationStore.role === ROLE.PROJECT_MANAGER"
-          class="px-4 py-[6px] cursor-pointer"
-          @click="handleComplete(item.raw.id)"
-        >
-          Đánh dấu hoàn thành
-        </div>
-        <div
-          v-else
-          class="px-4 py-[6px] cursor-pointer"
-          @click="handleChangeStatusWaitTask(item.raw.id)"
-        >
-          Đánh dấu chờ xét duyệt
-        </div>
-        <div class="px-4 py-[6px] cursor-pointer" @click="() => {}">
-          Sửa công việc
-        </div>
-        <div class="px-4 py-[6px] cursor-pointer" @click="() => {}">
-          Xoá công việc
-        </div>
-      </CommonBoxOptions>
-    </template>
-    <template #item.bottom=""> </template>
-  </v-data-table>
+      <template #item.taskName="{ item }">
+        <p class="custom-task-name">{{ item.raw.taskName }}</p>
+      </template>
+      <template #item.startDate="{ item }">
+        <p>{{ dayjs(item.raw.startDate).format('DD/MM/YYYY') }}</p>
+      </template>
+      <template #item.endDate="{ item }">
+        <p>{{ dayjs(item.raw.endDate).format('DD/MM/YYYY') }}</p>
+      </template>
+      <template #item.prioritize="{ item }">
+        <v-icon
+          v-if="item.raw.prioritize !== TASK_PRIORITIZE.NONE"
+          icon="mdi-flag-variant"
+          :color="getColorFlag(item.raw.prioritize)"
+          class="icon-prioritize"
+        ></v-icon>
+      </template>
+      <template #item.status="{ item }">
+        <span>{{ getStatusTask(item.raw.status) }}</span>
+      </template>
+      <template #item.options="{ item }">
+        <CommonBoxOptions>
+          <div
+            v-if="authenticationStore.role === ROLE.PROJECT_MANAGER"
+            class="px-4 py-[6px] cursor-pointer"
+            @click="handleComplete(item.raw.id)"
+          >
+            Đánh dấu hoàn thành
+          </div>
+          <div
+            v-else
+            class="px-4 py-[6px] cursor-pointer"
+            @click="handleChangeStatusWaitTask(item.raw.id)"
+          >
+            Đánh dấu chờ đánh giá
+          </div>
+          <div
+            v-if="authenticationStore.role === ROLE.EMPLOYEE"
+            class="px-4 py-[6px] cursor-pointer"
+            @click="handleChangeStatusDoingTask(item.raw.id)"
+          >
+            Đánh dấu đang thực hiện
+          </div>
+          <div
+            v-if="
+              authenticationStore.role === ROLE.PROJECT_MANAGER ||
+              authenticationStore.role === ROLE.TEAMLEAD
+            "
+          >
+            <div
+              class="px-4 py-[6px] cursor-pointer"
+              @click="handleEditTask(item.raw.id)"
+            >
+              Sửa công việc
+            </div>
+            <div
+              class="px-4 py-[6px] cursor-pointer"
+              @click="handleDeleteTask(item.raw.id)"
+            >
+              Xoá công việc
+            </div>
+          </div>
+        </CommonBoxOptions>
+      </template>
+      <template #item.bottom=""> </template>
+    </v-data-table>
+    <CommonConfirmPopup
+      :is-show-popup="isOpenConfirmDelete"
+      title="Bạn có chắc chắn muốn xóa dự án này không?"
+      positive-title="Đồng ý"
+      negative-title="Huỷ"
+      :positive-action="handleDelete"
+      :negative-action="handleCancelDelete"
+    >
+    </CommonConfirmPopup>
+    <TaskForm
+      v-if="isOpenFormEdit"
+      :mode="SCREEN_MODE.EDIT"
+      :task-id="taskId"
+      @close-form="handleEditTask"
+    />
+  </div>
 </template>
 <script setup lang="ts">
-import { ROLE, TASKS_DETAIL, TASK_PRIORITIZE, TASK_STATUS } from '~/constants'
+import dayjs from 'dayjs'
+import {
+  ROLE,
+  SCREEN_MODE,
+  TASKS_DETAIL,
+  TASK_PRIORITIZE,
+  TASK_STATUS,
+} from '~/constants'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useProjectStore } from '~/stores/project/project-store'
 import { useTaskStore } from '~/stores/task/task-store'
@@ -119,6 +169,10 @@ const headers = ref([
   },
 ] as any[])
 
+const isOpenConfirmDelete = ref(false)
+const isOpenFormEdit = ref(false)
+const taskId = ref()
+
 function handleClickRow(_item: any, row: any) {
   navigateTo({ path: TASKS_DETAIL, query: { taskId: row.item.raw.id } })
 }
@@ -131,7 +185,17 @@ const handleComplete = async (id: number) => {
 }
 
 async function handleChangeStatusWaitTask(id: number) {
-  await taskStore.updateStatusTask(id, TASK_STATUS.WAIT_ACCEPT)
+  const result = await taskStore.updateStatusTask(id, TASK_STATUS.WAIT_ACCEPT)
+  if (result) {
+    await projectStore.getAllTaskInProject(projectId.value)
+  }
+}
+
+async function handleChangeStatusDoingTask(id: number) {
+  const result = await taskStore.updateStatusTask(id, TASK_STATUS.DOING)
+  if (result) {
+    await projectStore.getAllTaskInProject(projectId.value)
+  }
 }
 
 function getUsersImplement(listUser: any[]) {
@@ -148,21 +212,41 @@ function getStatusTask(status: string) {
     case TASK_STATUS.WAIT_ACCEPT:
       return 'Đang chờ duyệt'
     default:
-      return 'Đang thực hiện'
+      return 'Chưa thực hiện'
   }
 }
 
 function getColorFlag(prioritize: string) {
   switch (prioritize) {
     case TASK_PRIORITIZE.HIGH:
-      return '#a8071a'
+      return '#FC4100'
     case TASK_PRIORITIZE.MIDDLE:
-      return '#d46b08'
+      return '#FFC55A'
     case TASK_PRIORITIZE.LOW:
-      return '#0050b3'
+      return '#6895D2'
     default:
       return ''
   }
+}
+
+const handleEditTask = (id: number) => {
+  isOpenFormEdit.value = !isOpenFormEdit.value
+  taskId.value = id
+}
+
+async function handleDelete() {
+  await taskStore.deleteTask(taskId.value)
+  await projectStore.getAllTaskInProject(projectId.value)
+  isOpenConfirmDelete.value = false
+  taskId.value = undefined
+}
+function handleCancelDelete() {
+  isOpenConfirmDelete.value = false
+}
+
+const handleDeleteTask = (id: number) => {
+  taskId.value = id
+  isOpenConfirmDelete.value = !isOpenConfirmDelete.value
 }
 </script>
 <style scoped lang="scss">

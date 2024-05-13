@@ -8,7 +8,13 @@
       <p>Danh sách công việc</p>
     </div>
     <div class="content-task-detail mt-4">
-      <div class="text-end">
+      <div
+        v-if="
+          authenticationStore.role === ROLE.PROJECT_MANAGER ||
+          authenticationStore.role === ROLE.TEAMLEAD
+        "
+        class="text-end"
+      >
         <v-icon
           icon="mdi-pencil"
           class="mr-2 cursor-pointer"
@@ -75,9 +81,9 @@
                   class="icon-prioritize"
                 ></v-icon>
               </p>
-              <p>{{ taskInfo?.startDate }}</p>
-              <p>{{ taskInfo?.endDate }}</p>
-              <p>{{ taskInfo?.finishDay }}</p>
+              <p>{{ dayjs(taskInfo?.startDate).format('DD/MM/YYYY') }}</p>
+              <p>{{ dayjs(taskInfo?.endDate).format('DD/MM/YYYY') }}</p>
+              <p>{{ dayjs(taskInfo?.finishDay).format('DD/MM/YYYY') }}</p>
             </div>
           </div>
 
@@ -91,15 +97,93 @@
               <p>Thêm</p>
             </div>
           </div>
-          <div
-            v-for="(item, index) in listDocumentInTask"
-            :key="index"
-            class="d-flex align-center custom-task-document"
-            @click="handleDownloadFile(item.filePath)"
-          >
-            <p>
-              {{ item.fileName }}
+          <div v-if="listDocumentDesign?.length">
+            <p class="font-semibold my-3">
+              Tài liệu thiết kế {{ `(${listDocumentDesign.length})` }}
             </p>
+            <div
+              v-for="(item, index) in listDocumentDesign"
+              :key="index"
+              class="d-flex align-center justify-between custom-task-document"
+            >
+              <p @click="handleDownloadFile(item.filePath)">
+                {{ item.fileName }}
+              </p>
+              <div>
+                <!-- <v-icon icon="mdi-pencil-outline" class="mr-2"></v-icon> -->
+                <v-icon
+                  icon="mdi-delete-outline"
+                  class="mr-1 custom-icon-delete"
+                  @click="handleDeleteDocument(item.id)"
+                ></v-icon>
+              </div>
+            </div>
+          </div>
+          <div v-if="listDocumentRequire?.length">
+            <p class="font-semibold my-3">
+              Tài liệu yêu cầu {{ `(${listDocumentRequire.length})` }}
+            </p>
+            <div
+              v-for="(item, index) in listDocumentRequire"
+              :key="index"
+              class="d-flex align-center justify-between custom-task-document"
+            >
+              <p @click="handleDownloadFile(item.filePath)">
+                {{ item.fileName }}
+              </p>
+              <div>
+                <!-- <v-icon icon="mdi-pencil-outline" class="mr-2"></v-icon> -->
+                <v-icon
+                  icon="mdi-delete-outline"
+                  class="mr-1 custom-icon-delete"
+                  @click="handleDeleteDocument(item.id)"
+                ></v-icon>
+              </div>
+            </div>
+          </div>
+          <div v-if="listDocumentReport?.length">
+            <p class="font-semibold my-3">
+              Tài liệu báo cáo {{ `(${listDocumentReport.length})` }}
+            </p>
+            <div
+              v-for="(item, index) in listDocumentReport"
+              :key="index"
+              class="d-flex align-center justify-between custom-task-document"
+            >
+              <p @click="handleDownloadFile(item.filePath)">
+                {{ item.fileName }}
+              </p>
+              <div>
+                <!-- <v-icon icon="mdi-pencil-outline" class="mr-2"></v-icon> -->
+                <v-icon
+                  icon="mdi-delete-outline"
+                  class="mr-1 custom-icon-delete"
+                  @click="handleDeleteDocument(item.id)"
+                ></v-icon>
+              </div>
+            </div>
+          </div>
+          <div v-if="listDocumentManual?.length">
+            <p class="font-semibold my-3">
+              Tài liệu hướng dẫn {{ `(${listDocumentManual.length})` }}
+            </p>
+            <div
+              v-for="(item, index) in listDocumentManual"
+              :key="index"
+              class="d-flex align-center justify-between custom-task-document"
+            >
+              <p @click="handleDownloadFile(item.filePath)">
+                {{ item.fileName }}
+              </p>
+              <div>
+                <!-- <v-icon icon="mdi-pencil-outline" class="mr-2"></v-icon> -->
+                <v-icon
+                  icon="mdi-delete-outline"
+                  class="mr-1 custom-icon-delete"
+                  @click="handleDeleteDocument(item.id)"
+                ></v-icon>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -118,11 +202,30 @@
       v-if="isOpenDocumentForm"
       @close-form="handleToggleDocumentForm"
     />
+    <CommonConfirmPopup
+      :is-show-popup="isOpenConfirmDelete"
+      title="Bạn có chắc chắn muốn xóa tài liệu này không?"
+      positive-title="Đồng ý"
+      negative-title="Huỷ"
+      :positive-action="handleDelete"
+      :negative-action="handleCancelDelete"
+    >
+    </CommonConfirmPopup>
   </div>
 </template>
 <script setup lang="ts">
+import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
-import { SCREEN_MODE, SECTOR, TASK_PRIORITIZE } from '~/constants'
+
+import {
+  ROLE,
+  SCREEN_MODE,
+  SECTOR,
+  TASK_PRIORITIZE,
+  TYPE_DOCUMENT,
+} from '~/constants'
+import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
+import { useDocumentStore } from '~/stores/document/document-store'
 import { useTaskStore } from '~/stores/task/task-store'
 
 const route = useRoute()
@@ -132,14 +235,43 @@ const taskId = computed(() => Number(route.query.taskId))
 const taskStore = useTaskStore()
 const { taskInfo, listTaskRequire, listDocumentInTask } = storeToRefs(taskStore)
 
+const authenticationStore = useAuthorizationStore()
+
+const documentStore = useDocumentStore()
+
 const isOpenTaskRequireForm = ref(false)
 const isOpenTaskForm = ref(false)
 const isOpenDocumentForm = ref(false)
+const isOpenConfirmDelete = ref(false)
+
+const listDocumentDesign = ref()
+const listDocumentReport = ref()
+const listDocumentRequire = ref()
+const listDocumentManual = ref()
 
 onMounted(async () => {
   await taskStore.getTaskInfo(taskId.value)
   await taskStore.getAllTaskRequireInTask(taskId.value)
   await taskStore.getAllDocumentInTask(taskId.value)
+})
+
+watch(listDocumentInTask, () => {
+  listDocumentDesign.value =
+    listDocumentInTask.value?.filter(
+      (item) => item.type === TYPE_DOCUMENT.DESIGN
+    ) ?? []
+  listDocumentReport.value =
+    listDocumentInTask.value?.filter(
+      (item) => item.type === TYPE_DOCUMENT.REPORT
+    ) ?? []
+  listDocumentRequire.value =
+    listDocumentInTask.value?.filter(
+      (item) => item.type === TYPE_DOCUMENT.REQUIRE
+    ) ?? []
+  listDocumentManual.value =
+    listDocumentInTask.value?.filter(
+      (item) => item.type === TYPE_DOCUMENT.MANUAL
+    ) ?? []
 })
 
 function handleGoToTasks() {
@@ -187,14 +319,32 @@ function handleToggleEditTaskForm() {
 function getColorFlag(prioritize: string) {
   switch (prioritize) {
     case TASK_PRIORITIZE.HIGH:
-      return '#a8071a'
+      return '#FC4100'
     case TASK_PRIORITIZE.MIDDLE:
-      return '#d46b08'
+      return '#FFC55A'
     case TASK_PRIORITIZE.LOW:
-      return '#0050b3'
+      return '#6895D2'
     default:
       return ''
   }
+}
+
+const idDocument = ref()
+
+function handleDeleteDocument(id: number) {
+  isOpenConfirmDelete.value = true
+  idDocument.value = id
+}
+
+async function handleDelete() {
+  await documentStore.deleteDocument(idDocument.value)
+  await taskStore.getAllDocumentInTask(taskId.value)
+
+  isOpenConfirmDelete.value = false
+}
+
+function handleCancelDelete() {
+  isOpenConfirmDelete.value = false
 }
 </script>
 <style scoped lang="scss">
@@ -241,5 +391,8 @@ function getColorFlag(prioritize: string) {
   border-radius: 8px;
   margin-top: 8px;
   cursor: pointer;
+}
+.custom-icon-delete {
+  z-index: 99;
 }
 </style>

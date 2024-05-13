@@ -68,6 +68,9 @@
         </div>
       </CommonSidebar>
 
+      <!-- <div v-if="taskStore.isLoading">
+        <CommonProgressCircular />
+      </div> -->
       <div class="ml-[360px]">
         <div v-if="isOpenSaved" class="box-content flex-1">
           <CommonSaved class="p-5" @close="handleOpenSaved" />
@@ -86,7 +89,7 @@
               @change="handleSelectTab"
             />
           </div>
-          <p v-else class="pt-5 pl-5">Công việc của tôi</p>
+          <p v-else class="pt-5 pl-5 font-semibold">Công việc của tôi</p>
           <div v-if="!isStatistical">
             <div class="box-options d-flex justify-between">
               <div class="d-flex alignt-center gap-3">
@@ -167,7 +170,17 @@
                 </CommonBoxOptions>
               </div>
               <div class="d-flex align-center">
-                <CommonTextSearch />
+                <CommonTextField
+                  name="search"
+                  :default-value="searchText"
+                  :has-unit="true"
+                  class="custom-search"
+                  placeholder="Tìm kiếm"
+                  @change="handleSearchText"
+                  @keyup.enter="handleSearch"
+                >
+                  <v-icon icon="mdi-magnify" @click="handleSearch" />
+                </CommonTextField>
                 <CommonFlatButton
                   v-if="
                     authenticationStore.role === ROLE.PROJECT_MANAGER ||
@@ -217,6 +230,7 @@ import type { Project } from '~/models/class/common/project'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useOrganizationStore } from '~/stores/organization/organization-store'
 import { useProjectStore } from '~/stores/project/project-store'
+import { useTaskStore } from '~/stores/task/task-store'
 import { useUserStore } from '~/stores/user/user-store'
 
 const projectStore = useProjectStore()
@@ -226,10 +240,12 @@ const organizationStore = useOrganizationStore()
 const { listProjectInOrganization } = storeToRefs(organizationStore)
 
 const authenticationStore = useAuthorizationStore()
-const { organizationId } = storeToRefs(authenticationStore)
+const { organizationId, userId } = storeToRefs(authenticationStore)
 
 const userStore = useUserStore()
-const { userInfo, listProjectOfUser } = storeToRefs(userStore)
+const { userInfo } = storeToRefs(userStore)
+
+const taskStore = useTaskStore()
 
 const route = useRoute()
 const projectId = computed(() => Number(route.query.projectId))
@@ -245,6 +261,8 @@ const isOpenTaskForm = ref(false)
 const isStatistical = ref(false)
 const isOpenSaved = ref(false)
 
+const searchText = ref('')
+
 const tabActive = ref(1)
 
 const listTab = ref([
@@ -258,28 +276,28 @@ const listProjectCurrent = ref<Project[]>()
 const listProjectCompleted = ref<Project[]>()
 
 onMounted(async () => {
+  await organizationStore.getAllProjectsInOrganization(organizationId.value)
+  if (authenticationStore.role !== ROLE.PROJECT_MANAGER) {
+    filterProjectTasksForUser()
+  }
+
   if (!projectId.value) {
-    const idProject =
-      authenticationStore.role === ROLE.PROJECT_MANAGER
-        ? listProjectInOrganization.value?.at(0)?.id
-        : listProjectOfUser.value.at(0)?.id
+    const idProject = listProjectInOrganization.value?.at(0)?.id
     navigateTo({ path: TASKS, query: { projectId: idProject } })
   }
-  if (!listProjectInOrganization.value?.length) {
-    await organizationStore.getAllProjectsInOrganization(organizationId.value)
-  }
-  if (!userInfo.value) {
-    await userStore.getUserInfo(authenticationStore.userId)
-  }
+
+  await userStore.getUserInfo(authenticationStore.userId)
   if (projectId.value) {
     await projectStore.getAllTaskInProject(projectId.value)
   }
-  if (
-    authenticationStore.role === ROLE.PROJECT_MANAGER ||
-    authenticationStore.role === ROLE.TEAMLEAD
-  ) {
+  if (authenticationStore.role === ROLE.PROJECT_MANAGER) {
     listTab.value.push({
       title: 'Tiến độ dự án',
+      value: 2,
+    })
+  } else if (authenticationStore.role === ROLE.TEAMLEAD) {
+    listTab.value.push({
+      title: 'Tiến độ công việc nhóm',
       value: 2,
     })
   }
@@ -295,16 +313,6 @@ watch(listProjectInOrganization, () => {
   )
 })
 
-watch(listProjectOfUser, () => {
-  listProjectCurrent.value = listProjectOfUser.value?.filter(
-    (item) => item.status === 'Doing'
-  )
-
-  listProjectCompleted.value = listProjectOfUser.value?.filter(
-    (item) => item.status === 'Completed'
-  )
-})
-
 watch(projectId, async () => {
   await projectStore.getAllTaskInProject(projectId.value)
   await projectStore.getAllDocumentInProject(projectId.value)
@@ -315,6 +323,12 @@ watch(tabActive, () => {
     isStatistical.value = true
   } else {
     isStatistical.value = false
+  }
+})
+
+watch(searchText, async () => {
+  if (!searchText.value || searchText.value === '') {
+    await projectStore.getAllTaskInProject(projectId.value)
   }
 })
 
@@ -359,15 +373,43 @@ function getListTask() {
   } else if (authenticationStore.role === ROLE.TEAMLEAD) {
     return listTaskInProject.value?.filter((item) => {
       const users = item.users
-
-      return users.find((item) => item.sector === userInfo.value?.sector)
+      return users?.find((item) => item.sector === userInfo.value?.sector)
     })
   } else {
     return listTaskInProject.value?.filter((item) => {
       const users = item.users
-      return users.find((item) => item.id === userInfo.value?.id)
+      return users?.find((item) => item.id === userInfo.value?.id)
     })
   }
+}
+
+function filterProjectTasksForUser() {
+  const listProjectOfUser = []
+  if (listProjectInOrganization.value) {
+    for (const project of listProjectInOrganization.value) {
+      // Check if any task has the user involved
+
+      const listTask = project.tasks
+      const hasUser = listTask?.some((task) =>
+        task.users?.some((user) => user.id === userId.value)
+      )
+      if (hasUser) {
+        listProjectOfUser.push(project)
+      }
+    }
+  }
+
+  listProjectInOrganization.value = listProjectOfUser
+}
+
+function handleSearchText(value: string) {
+  searchText.value = value
+}
+
+function handleSearch() {
+  listTaskInProject.value = listTaskInProject.value?.filter((item) =>
+    item.taskName.toLocaleLowerCase().includes(searchText.value)
+  )
 }
 </script>
 <style scoped lang="scss">
@@ -421,5 +463,28 @@ function getListTask() {
 }
 .custom-content {
   min-height: calc(100vh - 60px);
+}
+.custom-search {
+  :deep(.v-input__control) {
+    width: 200px;
+    height: 40px;
+  }
+  :deep(.v-field) {
+    box-shadow: none;
+  }
+  :deep(.v-field__field) {
+    height: 40px;
+  }
+  :deep(.v-field__input) {
+    height: 40px;
+    padding: 0 12px;
+    input {
+      height: 40px;
+      margin: 0;
+    }
+  }
+  :deep(.v-input__details) {
+    display: none;
+  }
 }
 </style>

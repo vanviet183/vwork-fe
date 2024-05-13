@@ -69,43 +69,36 @@ const headers = ref([
     align: 'start',
     key: 'organizationName',
     width: '200px',
-    sortable: false,
   },
   {
     title: 'Tổng giám đốc',
     align: 'start',
     key: 'author',
-    sortable: false,
   },
   {
     title: 'Email',
     align: 'start',
     key: 'email',
-    sortable: false,
   },
   {
     title: 'Số điện thoại',
     align: 'start',
     key: 'phone',
-    sortable: false,
   },
   {
     title: 'Ngày thành lập',
     align: 'start',
     key: 'createdAt',
-    sortable: false,
   },
   {
     title: 'Trạng thái',
     align: 'start',
     key: 'status',
-    sortable: false,
   },
   {
     title: '',
     align: 'end',
     key: 'options',
-    sortable: false,
   },
 ] as any[])
 

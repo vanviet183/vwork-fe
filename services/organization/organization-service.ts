@@ -121,6 +121,5 @@ export const getOrganizationInfoApi = async (
     `${ApiPath.GET_ORGANIZATION_INFO}/${getOrganizationInfoRequest.organizationId}`
   )
 
-  const { contents, message } = response.data
-  return new BaseResponse(contents, message)
+  return new BaseResponse<GetOrganizationInfoResponse>(response.data)
 }

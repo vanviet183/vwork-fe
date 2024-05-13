@@ -10,20 +10,23 @@
       </div>
       <div class="template-content">
         <p class="my-3 font-semibold text-2xl">Đăng nhập</p>
-        <CommonTextField
-          name="email"
-          placeholder="Email của bạn"
-          prepend-inner-icon="mdi-email-outline"
-        ></CommonTextField>
-        <CommonTextField
-          name="password"
-          placeholder="Mật khẩu"
-          class="mt-4"
-          :type="visible ? 'text' : 'password'"
-          prepend-inner-icon="mdi-lock-outline"
-          :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye-outline'"
-          @click:append-inner="visible = !visible"
-        ></CommonTextField>
+        <form>
+          <CommonTextField
+            name="email"
+            placeholder="Email của bạn"
+            prepend-inner-icon="mdi-email-outline"
+          ></CommonTextField>
+          <CommonTextField
+            name="password"
+            placeholder="Mật khẩu"
+            class="mt-4"
+            :type="visible ? 'text' : 'password'"
+            prepend-inner-icon="mdi-lock-outline"
+            :append-inner-icon="visible ? 'mdi-eye-off' : 'mdi-eye-outline'"
+            @click:append-inner="visible = !visible"
+          ></CommonTextField>
+        </form>
+
         <p
           class="font-semibold text-end forget-password cursor-pointer mt-4"
           @click="handleForgetPassword"

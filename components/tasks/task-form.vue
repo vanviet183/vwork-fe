@@ -10,68 +10,140 @@
     :negative-action="onCancel"
   >
     <form class="form-container">
-      <p class="mb-2">Nội dung công việc</p>
-      <CommonTextField
-        name="taskName"
-        placeholder="Nội dung công việc"
-        autofocus
-      />
+      <div v-if="props.mode === SCREEN_MODE.EDIT">
+        <p class="mb-2">Nội dung công việc</p>
+        <CommonTextField
+          name="taskName"
+          :default-value="taskInfo?.taskName"
+          placeholder="Nội dung công việc"
+          autofocus
+        />
 
-      <p class="mt-3 mb-2">Giai đoạn</p>
-      <CommonDropdown
-        name="phase"
-        item-label="title"
-        placeholder="Giai đoạn"
-        :items="listTaskPhase ?? []"
-      ></CommonDropdown>
-
-      <div v-if="authenticationStore.role === ROLE.PROJECT_MANAGER">
-        <p class="mt-3 mb-2">Nhóm phụ trách</p>
+        <p class="mt-3 mb-2">Giai đoạn</p>
         <CommonDropdown
-          name="userResponsible"
+          name="phase"
           item-label="title"
-          placeholder="Nhóm phụ trách"
-          :items="listGroupSector ?? []"
-          @change="handleSelectGroup"
+          :default-value="getPhaseOfTask(taskInfo?.phase)"
+          placeholder="Giai đoạn"
+          :items="listTaskPhase ?? []"
         ></CommonDropdown>
+
+        <div v-if="authenticationStore.role === ROLE.PROJECT_MANAGER">
+          <p class="mt-3 mb-2">Nhóm phụ trách</p>
+          <CommonDropdown
+            name="userResponsible"
+            item-label="title"
+            :default-value="getUserReponsibleGroup(taskInfo?.userResponsible)"
+            placeholder="Nhóm phụ trách"
+            :items="listGroupSector ?? []"
+            @change="handleSelectGroup"
+          ></CommonDropdown>
+        </div>
+
+        <p class="mt-3 mb-2">Người thực hiện</p>
+        <CommonDropdownMultiple
+          name="listUserImplement"
+          placeholder="Người thực hiện"
+          :default-value="getUsersOfTask(taskInfo?.users)"
+          :list-value="listUserItems ?? []"
+          item-label="title"
+          @change="handleListUserImplement"
+        />
+
+        <p class="mt-3 mb-2">Độ ưu tiên</p>
+        <CommonDropdown
+          name="prioritize"
+          item-label="title"
+          placeholder="Ưu tiên"
+          :default-value="getPrioritize(taskInfo?.prioritize)"
+          :items="listPrioritize"
+        ></CommonDropdown>
+
+        <p class="mt-3 mb-2">Ngày bắt đầu</p>
+        <CommonDatePicker
+          class="target-day"
+          name="startDate"
+          placeholder="YYYY/MM/DD"
+          :disabled-date="disableDate"
+          :default-value="new Date(taskInfo?.startDate ?? '')"
+          @change="handleChangeStartDate"
+        ></CommonDatePicker>
+
+        <p class="mt-3 mb-2">Ngày kết thúc</p>
+        <CommonDatePicker
+          class="target-day"
+          name="endDate"
+          placeholder="YYYY/MM/DD"
+          :disabled-date="disableDate"
+          :default-value="new Date(taskInfo?.endDate ?? '')"
+          @change="handleChangeEndDate"
+        ></CommonDatePicker>
       </div>
 
-      <p class="mt-3 mb-2">Người thực hiện</p>
-      <CommonDropdownMultiple
-        name="listUserImplement"
-        placeholder="Người thực hiện"
-        :list-value="listUserItems ?? []"
-        item-label="title"
-        @change="handleListUserImplement"
-      />
+      <div v-else-if="props.mode === SCREEN_MODE.NEW">
+        <p class="mb-2">Nội dung công việc</p>
+        <CommonTextField
+          name="taskName"
+          placeholder="Nội dung công việc"
+          autofocus
+        />
 
-      <p class="mt-3 mb-2">Độ ưu tiên</p>
-      <CommonDropdown
-        name="prioritize"
-        item-label="title"
-        placeholder="Ưu tiên"
-        :items="listPrioritize"
-      ></CommonDropdown>
+        <p class="mt-3 mb-2">Giai đoạn</p>
+        <CommonDropdown
+          name="phase"
+          item-label="title"
+          placeholder="Giai đoạn"
+          :items="listTaskPhase ?? []"
+        ></CommonDropdown>
 
-      <p class="mt-3 mb-2">Ngày bắt đầu</p>
-      <CommonDatePicker
-        class="target-day"
-        name="startDate"
-        placeholder="YYYY/MM/DD"
-        :disabled-date="disableDate"
-        :default-value="startDate ?? new Date()"
-        @change="handleChangeStartDate"
-      ></CommonDatePicker>
+        <div v-if="authenticationStore.role === ROLE.PROJECT_MANAGER">
+          <p class="mt-3 mb-2">Nhóm phụ trách</p>
+          <CommonDropdown
+            name="userResponsible"
+            item-label="title"
+            placeholder="Nhóm phụ trách"
+            :items="listGroupSector ?? []"
+            @change="handleSelectGroup"
+          ></CommonDropdown>
+        </div>
 
-      <p class="mt-3 mb-2">Ngày kết thúc</p>
-      <CommonDatePicker
-        class="target-day"
-        name="endDate"
-        placeholder="YYYY/MM/DD"
-        :disabled-date="disableDate"
-        :default-value="endDate ?? new Date()"
-        @change="handleChangeEndDate"
-      ></CommonDatePicker>
+        <p class="mt-3 mb-2">Người thực hiện</p>
+        <CommonDropdownMultiple
+          name="listUserImplement"
+          placeholder="Người thực hiện"
+          :list-value="listUserItems ?? []"
+          item-label="title"
+          @change="handleListUserImplement"
+        />
+
+        <p class="mt-3 mb-2">Độ ưu tiên</p>
+        <CommonDropdown
+          name="prioritize"
+          item-label="title"
+          placeholder="Ưu tiên"
+          :items="listPrioritize"
+        ></CommonDropdown>
+
+        <p class="mt-3 mb-2">Ngày bắt đầu</p>
+        <CommonDatePicker
+          class="target-day"
+          name="startDate"
+          placeholder="YYYY/MM/DD"
+          :disabled-date="disableDate"
+          :default-value="startDate ?? new Date()"
+          @change="handleChangeStartDate"
+        ></CommonDatePicker>
+
+        <p class="mt-3 mb-2">Ngày kết thúc</p>
+        <CommonDatePicker
+          class="target-day"
+          name="endDate"
+          placeholder="YYYY/MM/DD"
+          :disabled-date="disableDate"
+          :default-value="endDate ?? new Date()"
+          @change="handleChangeEndDate"
+        ></CommonDatePicker>
+      </div>
     </form>
   </CommonConfirmPopup>
 </template>
@@ -90,6 +162,7 @@ import {
   TASK_PHASE,
   TASK_PRIORITIZE,
 } from '~/constants'
+import type { User } from '~/models/class/common/user'
 import type { DataType } from '~/models/interface/common/data-type'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useOrganizationStore } from '~/stores/organization/organization-store'
@@ -105,10 +178,17 @@ const props = defineProps({
     required: false,
     default: SCREEN_MODE.NEW,
   },
+  taskId: {
+    type: Number,
+    default: undefined,
+  },
 })
 
 const taskStore = useTaskStore()
+const { taskInfo } = storeToRefs(taskStore)
+
 const projectStore = useProjectStore()
+const { projectInfo } = storeToRefs(projectStore)
 
 const authenticationStore = useAuthorizationStore()
 const { organizationId } = storeToRefs(authenticationStore)
@@ -186,15 +266,28 @@ const listPrioritize = [
   },
 ]
 
-const listUserItems = ref()
+interface UserItem {
+  title: string
+  value: number
+}
+
+const listUserItems = ref<UserItem[]>()
 const listUserChoose = ref()
 
 onMounted(async () => {
+  if (props.mode === SCREEN_MODE.EDIT) {
+    if (props.taskId) {
+      await taskStore.getTaskInfo(props.taskId)
+    }
+  }
   await organizationStore.getAllUserInOrganization(organizationId.value)
   if (authenticationStore.role === ROLE.PROJECT_MANAGER) {
     listUserItems.value = filterUserByGroup('')
   } else if (authenticationStore.role === ROLE.TEAMLEAD) {
     listUserItems.value = filterUserByGroup(userInfo.value?.sector ?? '')
+  }
+  if (projectId.value) {
+    await projectStore.getProjectInfo(projectId.value)
   }
 })
 
@@ -211,8 +304,6 @@ const schemaValidate = () => {
   }
   if (authenticationStore.role === ROLE.PROJECT_MANAGER) {
     validate.userResponsible = object().required()
-  } else if (authenticationStore.role === ROLE.TEAMLEAD) {
-    validate.userResponsible = string().trim()
   }
   return object().shape(validate)
 }
@@ -234,20 +325,41 @@ const onSubmit = handleSubmit(
       authenticationStore.role === ROLE.PROJECT_MANAGER
         ? values.userResponsible.value
         : `${userInfo.value?.firstName} ${userInfo.value?.lastName}`
-    const result = await taskStore.createTask(
-      projectId.value,
-      values.taskName,
-      values.phase.value,
-      userResponsible,
-      listUserImplement,
-      values.prioritize.value,
-      dayjs(values.startDate).format('YYYY/MM/DD'),
-      dayjs(values.endDate).format('YYYY/MM/DD')
-    )
-    if (result) {
-      await projectStore.getAllTaskInProject(projectId.value)
+
+    let result
+    if (props.mode === SCREEN_MODE.NEW) {
+      result = await taskStore.createTask(
+        projectId.value,
+        values.taskName,
+        values.phase.value,
+        userResponsible,
+        listUserImplement,
+        values.prioritize.value,
+        dayjs(values.startDate).format('YYYY/MM/DD'),
+        dayjs(values.endDate).format('YYYY/MM/DD')
+      )
+    } else if (props.mode === SCREEN_MODE.EDIT) {
+      if (props.taskId) {
+        result = await taskStore.editTask(
+          props.taskId,
+          values.taskName,
+          values.phase.value,
+          userResponsible,
+          listUserImplement,
+          values.prioritize.value,
+          dayjs(values.startDate).format('YYYY/MM/DD'),
+          dayjs(values.endDate).format('YYYY/MM/DD')
+        )
+      }
     }
-    emit('close-form')
+    if (result) {
+      if (projectId.value) {
+        await projectStore.getAllTaskInProject(projectId.value)
+      } else if (props.taskId) {
+        await taskStore.getTaskInfo(props.taskId)
+      }
+      emit('close-form')
+    }
   },
   (err) => {
     console.log(err)
@@ -255,9 +367,11 @@ const onSubmit = handleSubmit(
 )
 
 function disableDate(time: Date): boolean {
-  const fromDate = dayjs().format('YYYY/MM/DD')
+  const fromDate = dayjs(projectInfo.value?.startDate).format('YYYY/MM/DD')
+  const endDate = dayjs(projectInfo.value?.endDate).format('YYYY/MM/DD')
+
   const targetDate = dayjs(time).format('YYYY/MM/DD')
-  return targetDate < fromDate
+  return targetDate < fromDate || targetDate > endDate
 }
 
 function handleChangeStartDate(value: Date) {
@@ -298,6 +412,7 @@ function handleSelectGroup(value: any) {
 function filterUserByGroup(sector: string) {
   const listUserFilter =
     listUserInOrganization.value?.filter((item) => item.sector === sector) ?? []
+
   if (!listUserFilter.length) {
     return (
       listUserInOrganization.value?.map((item) => ({
@@ -312,6 +427,38 @@ function filterUserByGroup(sector: string) {
       value: item.id,
     })) ?? []
   )
+}
+
+function getPhaseOfTask(phase?: string) {
+  if (!phase) {
+    return null
+  }
+  return listTaskPhase.find((item) => item.value === phase)
+}
+
+function getUserReponsibleGroup(group?: string) {
+  if (!group) {
+    return null
+  }
+  return listGroupSector.find((item) => item.value === group)
+}
+
+function getUsersOfTask(listUser?: User[]) {
+  if (!listUser?.length) {
+    return []
+  }
+
+  const userMap = new Map<number, User>() // Create a Map for efficient user lookup by ID
+  listUser.forEach((user) => userMap.set(user.id, user))
+
+  return listUserItems.value?.filter((item) => userMap.has(item.value))
+}
+
+function getPrioritize(prioritize?: string) {
+  if (!prioritize) {
+    return null
+  }
+  return listPrioritize.find((item) => item.value === prioritize)
 }
 </script>
 <style lang="scss" scoped>

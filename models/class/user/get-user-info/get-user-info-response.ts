@@ -6,8 +6,9 @@ export class GetUserInfoResponse {
   lastName: string
   email: string
   avatar: string
-  role: string
+  phone: string
   sector: string
+  role: string
   organization?: Organization
 
   constructor(
@@ -16,8 +17,9 @@ export class GetUserInfoResponse {
     lastName: string,
     email: string,
     avatar: string,
-    role: string,
+    phone: string,
     sector: string,
+    role: string,
     organization?: Organization
   ) {
     this.id = id
@@ -25,8 +27,9 @@ export class GetUserInfoResponse {
     this.lastName = lastName
     this.email = email
     this.avatar = avatar
-    this.role = role
+    this.phone = phone
     this.sector = sector
+    this.role = role
     this.organization = organization
   }
 }

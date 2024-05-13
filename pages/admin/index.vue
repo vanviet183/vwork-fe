@@ -56,7 +56,7 @@
 </template>
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { ADMIN, ADMIN_ORGANIZATIONS, ADMIN_USERS, LOGIN } from '~/constants'
+import { ADMIN_ORGANIZATIONS, ADMIN_USERS, LOGIN } from '~/constants'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useNavigationStore } from '~/stores/navigation/navigation-store'
 import { useUserStore } from '~/stores/user/user-store'
@@ -81,7 +81,7 @@ const listMenu = [
 ]
 
 onMounted(async () => {
-  navigationStore.setCurrentRoute(ADMIN)
+  navigationStore.setCurrentRoute(ADMIN_ORGANIZATIONS)
   await userStore.getUserInfo(userId.value)
 })
 

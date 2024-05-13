@@ -1,18 +1,18 @@
 <template>
-  <div class="wrapper d-flex">
+  <div class="wrapper">
     <CommonSidebar>
       <div class="px-4 text-center">
         <p class="text-lg p-2 font-semibold">Quản trị viên</p>
         <img
-          :src="adminInfo?.avatar"
+          :src="userInfo?.avatar"
           alt="Avatar"
           class="max-w-[120px] m-auto"
         />
         <p class="font-semibold">
           <span>
-            {{ adminInfo?.firstName }}
+            {{ userInfo?.firstName }}
           </span>
-          <span>{{ adminInfo?.lastName ?? '' }}</span>
+          <span>{{ userInfo?.lastName ?? '' }}</span>
         </p>
       </div>
       <div class="mt-4 px-4">
@@ -32,22 +32,24 @@
         </div>
       </div>
     </CommonSidebar>
-    <div class="flex-1 slideshow p-4">
-      <div class="text-end mb-4">
-        <CommonFlatButton
-          background-color="#28526e"
-          color="white"
-          class="btn-login mt-4"
-          @click="handleOpenFormInitOrganization"
-          >Thêm tổ chức
-        </CommonFlatButton>
+    <div class="ml-[360px]">
+      <div class="flex-1 slideshow p-4 custom-content">
+        <div class="text-end mb-4">
+          <CommonFlatButton
+            background-color="#28526e"
+            color="white"
+            class="btn-login mt-4"
+            @click="handleOpenFormInitOrganization"
+            >Thêm tổ chức
+          </CommonFlatButton>
+        </div>
+        <InitOrganizationForm
+          v-if="isOpenFormInitOrganization"
+          :mode="SCREEN_MODE.NEW"
+          @close-form="handleOpenFormInitOrganization"
+        />
+        <ListOrganizationTable :items="listAllOrganization ?? []" />
       </div>
-      <InitOrganizationForm
-        v-if="isOpenFormInitOrganization"
-        :mode="SCREEN_MODE.NEW"
-        @close-form="handleOpenFormInitOrganization"
-      />
-      <ListOrganizationTable :items="listAllOrganization ?? []" />
     </div>
   </div>
 </template>
@@ -71,7 +73,7 @@ const authenticationStore = useAuthorizationStore()
 const { userId } = storeToRefs(authenticationStore)
 
 const userStore = useUserStore()
-const { adminInfo } = storeToRefs(userStore)
+const { userInfo } = storeToRefs(userStore)
 
 definePageMeta({
   layout: false,
@@ -87,7 +89,7 @@ const listMenu = [
 ]
 
 onMounted(async () => {
-  if (!adminInfo.value) {
+  if (!userInfo.value) {
     await userStore.getUserInfo(userId.value)
   }
   await organizationStore.getAllOrganization()
@@ -138,5 +140,8 @@ function handleOpenFormInitOrganization() {
   bottom: 0;
   left: 0;
   right: 0;
+}
+.custom-content {
+  min-height: 100vh;
 }
 </style>

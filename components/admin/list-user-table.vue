@@ -11,7 +11,7 @@
         <CommonBoxOptions>
           <div
             class="px-4 py-2 cursor-pointer"
-            @click="handleEditUser(item.columns)"
+            @click="handleEditUser(item.raw.id)"
           >
             Sửa thông tin người dùng
           </div>
@@ -34,10 +34,17 @@
       :negative-action="handleCancelDelete"
     >
     </CommonConfirmPopup>
+    <CreateUserForm
+      v-if="isOpenFormEdit"
+      :mode="SCREEN_MODE.EDIT"
+      :user-id="userId"
+      @close-form="handleEditUser"
+    />
   </div>
 </template>
 <script setup lang="ts">
-import { USER } from '~/constants'
+import { SCREEN_MODE } from '~/constants'
+import { useUserStore } from '~/stores/user/user-store'
 
 const props = defineProps({
   items: {
@@ -52,13 +59,11 @@ const headers = ref([
     align: 'start',
     key: 'fullName',
     width: '200px',
-    sortable: false,
   },
   {
     title: 'Tổ chức',
     align: 'start',
     key: 'organizationName',
-    sortable: false,
   },
   {
     title: 'Email',
@@ -76,25 +81,28 @@ const headers = ref([
     title: 'Nhóm',
     align: 'start',
     key: 'sector',
-    sortable: false,
   },
   {
     title: 'Chức vụ',
     align: 'start',
     key: 'role',
-    sortable: false,
   },
   {
     title: '',
     align: 'end',
     key: 'options',
-    sortable: false,
   },
 ] as any[])
 
-const isOpenConfirmDelete = ref(false)
+const userStore = useUserStore()
 
-function handleDelete() {
+const isOpenConfirmDelete = ref(false)
+const isOpenFormEdit = ref(false)
+const userId = ref()
+
+async function handleDelete() {
+  await userStore.deleteUser(userId.value)
+  await userStore.getAllUser()
   isOpenConfirmDelete.value = false
 }
 
@@ -103,15 +111,17 @@ function handleCancelDelete() {
 }
 
 function handleClickRow(_item: any, row: any) {
-  navigateTo({ path: USER, query: { userId: row.item.raw.id } })
+  // navigateTo({ path: USER, query: { userId: row.item.raw.id } })
 }
 
-const handleEditUser = (el: any) => {
-  console.log('el', el)
+const handleEditUser = (id: number) => {
+  isOpenFormEdit.value = !isOpenFormEdit.value
+  userId.value = id
 }
 
 const handleDeleteUser = (id: number) => {
   isOpenConfirmDelete.value = !isOpenConfirmDelete.value
+  userId.value = id
 }
 </script>
 <style scoped lang="scss">

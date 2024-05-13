@@ -18,7 +18,7 @@
       </template>
       <template #item.progress="{ item }">
         <div>
-          <p>{{ item.raw.progress ? item.raw.progress : '--' }}</p>
+          <p>{{ item.raw.progress ? `${item.raw.progress}%` : '--' }}</p>
         </div>
       </template>
     </v-data-table>

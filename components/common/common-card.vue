@@ -24,6 +24,13 @@
             </CommonBoxOptions>
           </div>
         </div>
+        <!-- create project form -->
+        <ProjectForm
+          v-if="isOpenFormEdit"
+          :mode="SCREEN_MODE.EDIT"
+          :project-id="props.projectId"
+          @close-form="handleEditProject"
+        />
         <CommonConfirmPopup
           :is-show-popup="isOpenConfirmDelete"
           title="Bạn có chắc chắn muốn xóa dự án này không?"
@@ -54,11 +61,11 @@
           <div class="mt-2 ml-3">
             <p class="duration-start text-sm">
               <span class="font-semibold">Ngay bat dau: </span>
-              <span>{{ props.startDate }}</span>
+              <span>{{ dayjs(props.startDate).format('DD/MM/YYYY') }}</span>
             </p>
             <p class="duration-end text-sm mt-2">
               <span class="font-semibold">Ngay ket thuc: </span>
-              <span>{{ props.endDate }}</span>
+              <span>{{ dayjs(props.endDate).format('DD/MM/YYYY') }}</span>
             </p>
           </div>
         </div>
@@ -76,14 +83,15 @@
   </div>
 </template>
 <script setup lang="ts">
+import dayjs from 'dayjs'
+import { SCREEN_MODE } from '~/constants'
+import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useOrganizationStore } from '~/stores/organization/organization-store'
 import { useProjectStore } from '~/stores/project/project-store'
 
 const projectStore = useProjectStore()
 const organizationStore = useOrganizationStore()
-
-const route = useRoute()
-const organizationId = computed(() => Number(route.query.organizationId))
+const authenticationStore = useAuthorizationStore()
 
 const props = defineProps({
   projectId: {
@@ -140,9 +148,10 @@ const props = defineProps({
 })
 
 const isOpenConfirmDelete = ref(false)
+const isOpenFormEdit = ref(false)
 
 const handleEditProject = () => {
-  console.log('Edit project')
+  isOpenFormEdit.value = !isOpenFormEdit.value
 }
 
 const handleDeleteProject = () => {
@@ -151,7 +160,9 @@ const handleDeleteProject = () => {
 
 async function handleDelete() {
   await projectStore.deleteProject(props.projectId)
-  await organizationStore.getAllProjectsInOrganization(organizationId.value)
+  await organizationStore.getAllProjectsInOrganization(
+    authenticationStore.organizationId
+  )
   isOpenConfirmDelete.value = false
 }
 

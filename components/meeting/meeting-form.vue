@@ -8,43 +8,103 @@
     :negative-action="onCancel"
   >
     <form class="form-container">
-      <p class="mb-2">Tiêu đề cuộc họp</p>
-      <CommonTextField name="title" placeholder="Tiêu đề cuộc họp" autofocus />
+      <div v-if="props.mode === SCREEN_MODE.NEW">
+        <p class="mb-2">Tiêu đề cuộc họp</p>
+        <CommonTextField
+          name="title"
+          placeholder="Tiêu đề cuộc họp"
+          autofocus
+        />
 
-      <p class="mt-3 mb-2">Nội dung cuộc họp</p>
-      <CommonTextarea name="description" class="custom-textarea-padding" />
+        <p class="mt-3 mb-2">Nội dung cuộc họp</p>
+        <CommonTextarea name="description" class="custom-textarea-padding" />
 
-      <p class="mt-3 mb-2">Địa điểm</p>
-      <CommonTextField name="location" placeholder="Địa điểm" autofocus />
+        <p class="mt-3 mb-2">Địa điểm</p>
+        <CommonTextField name="location" placeholder="Địa điểm" autofocus />
 
-      <p class="mt-3 mb-2">Thời gian bắt đầu</p>
-      <CommonDatetimePicker
-        class="target-day"
-        name="startTime"
-        placeholder="YYYY/MM/DD"
-        :disabled-date="disableDate"
-        :default-value="startTime ?? new Date()"
-        @change="handleChangeStartDate"
-      ></CommonDatetimePicker>
+        <p class="mt-3 mb-2">Thời gian bắt đầu</p>
+        <CommonDatetimePicker
+          class="target-day"
+          name="startTime"
+          placeholder="YYYY/MM/DD"
+          :disabled-date="disableDate"
+          :default-value="startTime ?? new Date()"
+          @change="handleChangeStartDate"
+        ></CommonDatetimePicker>
 
-      <p class="mt-3 mb-2">Thời gian kết thúc</p>
-      <CommonDatetimePicker
-        class="target-day"
-        name="endTime"
-        placeholder="YYYY/MM/DD"
-        :disabled-date="disableDate"
-        :default-value="endTime ?? new Date()"
-        @change="handleChangeEndDate"
-      ></CommonDatetimePicker>
+        <p class="mt-3 mb-2">Thời gian kết thúc</p>
+        <CommonDatetimePicker
+          class="target-day"
+          name="endTime"
+          placeholder="YYYY/MM/DD"
+          :disabled-date="disableDate"
+          :default-value="endTime ?? new Date()"
+          @change="handleChangeEndDate"
+        ></CommonDatetimePicker>
 
-      <p class="mt-3 mb-2">Người tham gia</p>
-      <CommonDropdownMultiple
-        name="listUserJoin"
-        placeholder="Người tham gia"
-        :list-value="listUserItems ?? []"
-        item-label="title"
-        @change="handleListUserJoin"
-      />
+        <p class="mt-3 mb-2">Người tham gia</p>
+        <CommonDropdownMultiple
+          name="listUserJoin"
+          placeholder="Người tham gia"
+          :list-value="listUserItems ?? []"
+          item-label="title"
+          @change="handleListUserJoin"
+        />
+      </div>
+      <div v-if="props.mode === SCREEN_MODE.EDIT">
+        <p class="mb-2">Tiêu đề cuộc họp</p>
+        <CommonTextField
+          name="title"
+          :default-value="meetingInfo?.title"
+          placeholder="Tiêu đề cuộc họp"
+          autofocus
+        />
+
+        <p class="mt-3 mb-2">Nội dung cuộc họp</p>
+        <CommonTextarea
+          name="description"
+          :default-value="meetingInfo?.description"
+          class="custom-textarea-padding"
+        />
+
+        <p class="mt-3 mb-2">Địa điểm</p>
+        <CommonTextField
+          name="location"
+          :default-value="meetingInfo?.location"
+          placeholder="Địa điểm"
+          autofocus
+        />
+
+        <p class="mt-3 mb-2">Thời gian bắt đầu</p>
+        <CommonDatetimePicker
+          class="target-day"
+          name="startTime"
+          placeholder="YYYY/MM/DD"
+          :disabled-date="disableDate"
+          :default-value="new Date(meetingInfo?.startTime ?? '')"
+          @change="handleChangeStartDate"
+        ></CommonDatetimePicker>
+
+        <p class="mt-3 mb-2">Thời gian kết thúc</p>
+        <CommonDatetimePicker
+          class="target-day"
+          name="endTime"
+          placeholder="YYYY/MM/DD"
+          :disabled-date="disableDate"
+          :default-value="new Date(meetingInfo?.endTime ?? '')"
+          @change="handleChangeEndDate"
+        ></CommonDatetimePicker>
+
+        <p class="mt-3 mb-2">Người tham gia</p>
+        <CommonDropdownMultiple
+          name="listUserJoin"
+          placeholder="Người tham gia"
+          :default-value="getUsersOfMeeting(meetingInfo?.users)"
+          :list-value="listUserItems ?? []"
+          item-label="title"
+          @change="handleListUserJoin"
+        />
+      </div>
     </form>
   </CommonConfirmPopup>
 </template>
@@ -56,6 +116,7 @@ import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { array, object, string } from 'yup'
 import { MAX_LENGTH_INPUT, ROLE, SCREEN_MODE } from '~/constants'
+import type { User } from '~/models/class/common/user'
 import type { DataType } from '~/models/interface/common/data-type'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useMeetingStore } from '~/stores/meeting/meeting-store'
@@ -71,13 +132,19 @@ const props = defineProps({
     required: false,
     default: SCREEN_MODE.NEW,
   },
+  meetingId: {
+    type: Number,
+    default: undefined,
+  },
 })
 
 const meetingStore = useMeetingStore()
+const { meetingInfo } = storeToRefs(meetingStore)
+
 const projectStore = useProjectStore()
 
 const authenticationStore = useAuthorizationStore()
-const { organizationId } = storeToRefs(authenticationStore)
+const { organizationId, userId } = storeToRefs(authenticationStore)
 
 const organizationStore = useOrganizationStore()
 const { listUserInOrganization } = storeToRefs(organizationStore)
@@ -91,10 +158,20 @@ const projectId = computed(() => Number(route.query.projectId))
 const startTime = ref()
 const endTime = ref()
 
-const listUserItems = ref()
+interface UserItem {
+  title: string
+  value: number
+}
+
+const listUserItems = ref<UserItem[]>()
 const listUserChoose = ref()
 
 onMounted(async () => {
+  if (props.mode === SCREEN_MODE.EDIT) {
+    if (props.meetingId) {
+      await meetingStore.getMeetingInfo(props.meetingId)
+    }
+  }
   await organizationStore.getAllUserInOrganization(organizationId.value)
   if (authenticationStore.role === ROLE.PROJECT_MANAGER) {
     listUserItems.value = filterUserByGroup('')
@@ -110,9 +187,9 @@ const schemaValidate = () => {
     location: string().trim().required().max(MAX_LENGTH_INPUT),
     startTime: string().trim().required(),
     endTime: string().trim().required(),
-    listUserJoin: array().of(
-      object().shape({ title: string(), value: string() })
-    ),
+    listUserJoin: array()
+      .required()
+      .of(object().shape({ title: string(), value: string() })),
   }
   return object().shape(validate)
 }
@@ -130,20 +207,34 @@ function onCancel() {
 const onSubmit = handleSubmit(
   async (values) => {
     const listUserJoin = listUserChoose.value
-
-    const author = `${userInfo.value?.firstName} ${userInfo.value?.lastName}`
-    const result = await meetingStore.createMeeting(
-      projectId.value,
-      author,
-      values.title,
-      values.description,
-      values.location,
-      dayjs(values.startTime).format('YYYY/MM/DD'),
-      dayjs(values.endTime).format('YYYY/MM/DD'),
-      listUserJoin
-    )
+    let result
+    if (props.mode === SCREEN_MODE.NEW) {
+      result = await meetingStore.createMeeting(
+        projectId.value,
+        userId.value,
+        values.title,
+        values.description,
+        values.location,
+        dayjs(values.startTime).format('YYYY/MM/DD HH:mm'),
+        dayjs(values.endTime).format('YYYY/MM/DD HH:mm'),
+        listUserJoin
+      )
+    } else if (props.mode === SCREEN_MODE.EDIT) {
+      if (props.meetingId) {
+        result = await meetingStore.editMeeting(
+          props.meetingId,
+          userId.value,
+          values.title,
+          values.description,
+          values.location,
+          dayjs(values.startTime).format('YYYY/MM/DD HH:mm'),
+          dayjs(values.endTime).format('YYYY/MM/DD HH:mm'),
+          listUserJoin
+        )
+      }
+    }
     if (result) {
-      await projectStore.getAllTaskInProject(projectId.value)
+      await projectStore.getAllMeetingInProject(projectId.value)
     }
     emit('close-form')
   },
@@ -192,20 +283,40 @@ function handleListUserJoin(value: DataType[]) {
 function filterUserByGroup(sector: string) {
   const listUserFilter =
     listUserInOrganization.value?.filter((item) => item.sector === sector) ?? []
+
+  const listUserValid: UserItem[] = []
   if (!listUserFilter.length) {
-    return (
-      listUserInOrganization.value?.map((item) => ({
+    listUserInOrganization.value?.forEach((item) => {
+      if (item.id !== userInfo.value?.id) {
+        listUserValid.push({
+          title: `${item.firstName} ${item.lastName}`,
+          value: item.id,
+        })
+      }
+    })
+    return listUserValid
+  }
+  listUserFilter?.forEach((item) => {
+    if (item.id !== userInfo.value?.id) {
+      listUserValid.push({
         title: `${item.firstName} ${item.lastName}`,
         value: item.id,
-      })) ?? []
-    )
+      })
+    }
+  })
+
+  return listUserValid
+}
+
+function getUsersOfMeeting(listUser?: User[]) {
+  if (!listUser?.length) {
+    return []
   }
-  return (
-    listUserFilter?.map((item) => ({
-      title: `${item.firstName} ${item.lastName}`,
-      value: item.id,
-    })) ?? []
-  )
+
+  const userMap = new Map<number, User>() // Create a Map for efficient user lookup by ID
+  listUser.forEach((user) => userMap.set(user.id, user))
+
+  return listUserItems.value?.filter((item) => userMap.has(item.value))
 }
 </script>
 <style lang="scss" scoped>

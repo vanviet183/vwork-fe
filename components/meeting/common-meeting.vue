@@ -24,19 +24,15 @@
     </p>
     <p class="mt-3">
       <span class="font-semibold"> Chủ trì cuộc họp: </span>
-      <span> Nguyễn Văn Việt </span>
-    </p>
-    <p class="mt-3">
-      <span class="font-semibold"> Ngày diễn ra: </span>
-      <span> {{ props.startTime.slice(0, 10) }} </span>
+      <span> {{ props.author }}</span>
     </p>
     <p class="mt-3">
       <span class="font-semibold"> Thời gian bắt đầu: </span>
-      <span> {{ props.startTime }} </span>
+      <span> {{ dayjs(props.startTime).format('DD/MM/YYYY HH:mm') }} </span>
     </p>
     <p class="mt-3">
       <span class="font-semibold"> Thời gian kết thúc: </span>
-      <span> {{ props.endTime }} </span>
+      <span> {{ dayjs(props.endTime).format('DD/MM/YYYY HH:mm') }} </span>
     </p>
     <p class="mt-3">
       <span class="font-semibold"> Địa điểm: </span>
@@ -46,12 +42,35 @@
       <span class="font-semibold"> Thành viên tham gia: </span>
       <span> {{ getUserJoinMeeting() }} </span>
     </p>
+    <CommonConfirmPopup
+      :is-show-popup="isOpenConfirmDelete"
+      title="Bạn có chắc chắn muốn xóa cuộc họp này không?"
+      positive-title="Đồng ý"
+      negative-title="Huỷ"
+      :positive-action="handleDelete"
+      :negative-action="handleCancelDelete"
+    >
+    </CommonConfirmPopup>
+    <MeetingForm
+      v-if="isOpenFormEdit"
+      :mode="SCREEN_MODE.EDIT"
+      :meeting-id="props.meetingId"
+      @close-form="handleEditMeeting"
+    />
   </div>
 </template>
 <script setup lang="ts">
+import dayjs from 'dayjs'
+import { SCREEN_MODE } from '~/constants'
 import type { User } from '~/models/class/common/user'
+import { useMeetingStore } from '~/stores/meeting/meeting-store'
+import { useProjectStore } from '~/stores/project/project-store'
 
 const props = defineProps({
+  meetingId: {
+    type: Number,
+    required: true,
+  },
   title: {
     type: String,
     required: true,
@@ -82,8 +101,32 @@ const props = defineProps({
   },
 })
 
-function handleEditMeeting() {}
-function handleDeleteMeeting() {}
+const route = useRoute()
+const projectId = computed(() => Number(route.query.projectId))
+
+const meetingStore = useMeetingStore()
+const projectStore = useProjectStore()
+
+const isOpenFormEdit = ref(false)
+const isOpenConfirmDelete = ref(false)
+
+function handleEditMeeting() {
+  isOpenFormEdit.value = !isOpenFormEdit.value
+}
+
+function handleDeleteMeeting() {
+  isOpenConfirmDelete.value = !isOpenConfirmDelete.value
+}
+
+async function handleDelete() {
+  await meetingStore.deleteMeeting(props.meetingId)
+  await projectStore.getAllMeetingInProject(projectId.value)
+  isOpenConfirmDelete.value = false
+}
+
+function handleCancelDelete() {
+  isOpenConfirmDelete.value = false
+}
 
 function getUserJoinMeeting() {
   const listUser = props.listUserJoin.map(

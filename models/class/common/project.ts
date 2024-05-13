@@ -10,7 +10,7 @@ export class Project {
   endDate: string
   prioritize: boolean
   percent: number
-  tasks: Task[]
+  tasks?: Task[]
 
   constructor(
     id: number,
@@ -22,7 +22,7 @@ export class Project {
     endDate: string,
     percent: number,
     prioritize: boolean,
-    tasks: Task[]
+    tasks?: Task[]
   ) {
     this.id = id
     this.projectName = projectName

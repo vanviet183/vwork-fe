@@ -12,24 +12,25 @@ export class Task {
   startDate: string
   endDate: string
   finishDay: string
-  users: User[]
-  documents: Document[]
-  taskRequires: TaskRequire[]
+  progress: number
+  users?: User[]
+  documents?: Document[]
+  taskRequires?: TaskRequire[]
 
   constructor(
     id: number,
     taskName: string,
     phase: string,
-
     userResponsible: string,
     prioritize: string,
     status: string,
     startDate: string,
     endDate: string,
     finishDay: string,
-    users: User[],
-    documents: Document[],
-    taskRequires: TaskRequire[]
+    progress: number,
+    users?: User[],
+    documents?: Document[],
+    taskRequires?: TaskRequire[]
   ) {
     this.id = id
     this.userResponsible = userResponsible
@@ -40,6 +41,7 @@ export class Task {
     this.endDate = endDate
     this.finishDay = finishDay
     this.status = status
+    this.progress = progress
     this.users = users
     this.documents = documents
     this.taskRequires = taskRequires

@@ -62,14 +62,24 @@
     </CommonSidebar>
     <div class="ml-[360px]">
       <div class="box-content flex-1 custom-content">
-        <div class="d-flex align-center">
-          <CommonTextSearch />
+        <div class="d-flex align-center justify-end">
+          <CommonTextField
+            name="search"
+            :default-value="searchText"
+            :has-unit="true"
+            class="custom-search"
+            placeholder="Tìm kiếm"
+            @change="handleSearchText"
+            @keyup.enter="handleSearch"
+          >
+            <v-icon icon="mdi-magnify" @click="handleSearch" />
+          </CommonTextField>
           <CommonFlatButton
             v-if="
               authenticationStore.role === ROLE.PROJECT_MANAGER ||
               authenticationStore.role === ROLE.TEAMLEAD
             "
-            class="btn-add cursor-pointer"
+            class="btn-add cursor-pointer ml-4"
             @click="handleToggleMeetingForm"
           >
             <p class="font-semibold">Thêm</p>
@@ -80,10 +90,21 @@
             @close-form="handleToggleMeetingForm"
           />
         </div>
-        <div>
+        <div class="mt-4 w-max">
+          <CommonGroupTab
+            :items="listTab"
+            :default-value="tabActive"
+            @change="handleSelectTab"
+          />
+        </div>
+        <div v-if="!listMeetingItems?.length" class="h-[500px]">
+          <CommonEmpty />
+        </div>
+        <div v-else>
           <CommonMeeting
-            v-for="item in listMeetingInProject"
+            v-for="item in listMeetingItems"
             :key="item.id"
+            :meeting-id="item.id"
             :title="item.title"
             :description="item.description"
             :author="item.author"
@@ -111,6 +132,7 @@ const route = useRoute()
 const projectId = computed(() => Number(route.query.projectId))
 
 const authenticationStore = useAuthorizationStore()
+const { organizationId, userId } = storeToRefs(authenticationStore)
 
 const projectStore = useProjectStore()
 const { listMeetingInProject } = storeToRefs(projectStore)
@@ -119,10 +141,12 @@ const organizationStore = useOrganizationStore()
 const { listProjectInOrganization } = storeToRefs(organizationStore)
 
 const userStore = useUserStore()
-const { userInfo, listProjectOfUser } = storeToRefs(userStore)
+const { userInfo } = storeToRefs(userStore)
 
 const projectsCurrent = computed(() => getProjectsByStatus())
 const projectsCompleted = computed(() => getProjectsByStatus(true))
+
+const listMeetingItems = computed(() => getListMeeting() ?? [])
 
 const isOpenCurrent = ref(true)
 const isOpenComplete = ref(false)
@@ -131,23 +155,59 @@ const isOpenMeetingForm = ref(false)
 const listProjectCurrent = ref<Project[]>()
 const listProjectCompleted = ref<Project[]>()
 
+const searchText = ref('')
+
+const tabActive = ref(1)
+
+const listTab = ref([
+  {
+    title: 'Tất cả',
+    value: 1,
+  },
+  {
+    title: 'Hôm nay',
+    value: 2,
+  },
+])
+
 onMounted(async () => {
+  await organizationStore.getAllProjectsInOrganization(organizationId.value)
+  if (authenticationStore.role !== ROLE.PROJECT_MANAGER) {
+    filterProjectTasksForUser()
+  }
+
   if (!projectId.value) {
-    const idProject =
-      authenticationStore.role === ROLE.PROJECT_MANAGER
-        ? listProjectInOrganization.value?.at(0)?.id
-        : listProjectOfUser.value.at(0)?.id
+    const idProject = listProjectInOrganization.value?.at(0)?.id
     navigateTo({ path: MEETINGS, query: { projectId: idProject } })
   }
-  if (!listProjectInOrganization.value?.length) {
-    await organizationStore.getAllProjectsInOrganization(
-      authenticationStore.organizationId
-    )
-  }
-  await projectStore.getAllMeetingInProject(projectId.value)
 
-  if (!userInfo.value) {
-    await userStore.getUserInfo(authenticationStore.userId)
+  await userStore.getUserInfo(authenticationStore.userId)
+  if (projectId.value) {
+    await projectStore.getAllMeetingInProject(projectId.value)
+  }
+})
+
+watch(listProjectInOrganization, () => {
+  listProjectCurrent.value = listProjectInOrganization.value?.filter(
+    (item) => item.status === 'Doing'
+  )
+
+  listProjectCompleted.value = listProjectInOrganization.value?.filter(
+    (item) => item.status === 'Completed'
+  )
+})
+
+watch(projectId, async () => {
+  await projectStore.getAllMeetingInProject(projectId.value)
+})
+
+watch(tabActive, () => {
+  // todo
+})
+
+watch(searchText, async () => {
+  if (!searchText.value || searchText.value === '') {
+    await projectStore.getAllTaskInProject(projectId.value)
   }
 })
 
@@ -176,11 +236,115 @@ function handleChooseProject(projectId: number) {
 const handleToggleMeetingForm = () => {
   isOpenMeetingForm.value = !isOpenMeetingForm.value
 }
+
+function handleSearchText(value: string) {
+  searchText.value = value
+}
+
+function handleSearch() {
+  listMeetingInProject.value = listMeetingInProject.value?.filter((item) =>
+    item.title.toLocaleLowerCase().includes(searchText.value)
+  )
+}
+
+function filterProjectTasksForUser() {
+  const listProjectOfUser = []
+  if (listProjectInOrganization.value) {
+    for (const project of listProjectInOrganization.value) {
+      // Check if any task has the user involved
+
+      const listTask = project.tasks
+      const hasUser = listTask?.some((task) =>
+        task.users?.some((user) => user.id === userId.value)
+      )
+      if (hasUser) {
+        listProjectOfUser.push(project)
+      }
+    }
+  }
+
+  listProjectInOrganization.value = listProjectOfUser
+}
+
+function handleSelectTab(value: any) {
+  tabActive.value = value
+}
+
+function getListMeeting() {
+  if (authenticationStore.role === ROLE.PROJECT_MANAGER) {
+    return listMeetingInProject.value
+  } else if (authenticationStore.role === ROLE.TEAMLEAD) {
+    return listMeetingInProject.value?.filter((item) => {
+      const users = item.users
+
+      return users?.find((item) => item.sector === userInfo.value?.sector)
+    })
+  } else {
+    return listMeetingInProject.value?.filter((item) => {
+      const users = item.users
+      return users?.find((item) => item.id === userInfo.value?.id)
+    })
+  }
+}
 </script>
 <style scoped lang="scss">
 @use 'sass:map';
 
 .custom-content {
   padding: 20px;
+}
+// sidebar
+.sidebar-tab {
+  padding: 10px 8px;
+  display: flex;
+  align-items: center;
+}
+.icon-sidebar {
+  color: #28526e;
+}
+.tab-active {
+  background-color: #f2f2f2;
+  border-radius: 10px;
+}
+.header {
+  border-bottom: 1px solid #e1d5d5;
+}
+.icon-project {
+  background-color: #1ab675;
+  padding: 0 8px;
+  border-radius: 10px;
+  color: white;
+}
+.box-saved {
+  border-top: 1px solid #e1d5d5;
+  position: fixed;
+  padding: 8px 0;
+  width: 360px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.custom-search {
+  :deep(.v-input__control) {
+    width: 280px;
+    height: 40px;
+  }
+  :deep(.v-field) {
+    box-shadow: none;
+  }
+  :deep(.v-field__field) {
+    height: 40px;
+  }
+  :deep(.v-field__input) {
+    height: 40px;
+    padding: 0 12px;
+    input {
+      height: 40px;
+      margin: 0;
+    }
+  }
+  :deep(.v-input__details) {
+    display: none;
+  }
 }
 </style>

@@ -1,18 +1,18 @@
 <template>
-  <div class="wrapper d-flex">
+  <div class="wrapper">
     <CommonSidebar>
       <div class="px-4 text-center">
         <p class="text-lg p-2 font-semibold">Quản trị viên</p>
         <img
-          :src="adminInfo?.avatar"
+          :src="userInfo?.avatar"
           alt="Avatar"
           class="max-w-[120px] m-auto"
         />
         <p class="font-semibold">
           <span>
-            {{ adminInfo?.firstName }}
+            {{ userInfo?.firstName }}
           </span>
-          <span>{{ adminInfo?.lastName ?? '' }}</span>
+          <span>{{ userInfo?.lastName ?? '' }}</span>
         </p>
       </div>
       <div class="mt-4 px-4">
@@ -32,21 +32,23 @@
         </div>
       </div>
     </CommonSidebar>
-    <div class="flex-1 slideshow p-4">
-      <div class="text-end mb-4">
-        <CommonFlatButton
-          background-color="#28526e"
-          color="white"
-          class="btn-login mt-4"
-          @click="handleCreateUser"
-          >Thêm thành viên
-        </CommonFlatButton>
+    <div class="ml-[360px]">
+      <div class="flex-1 slideshow p-4 custom-content">
+        <div class="text-end mb-4">
+          <CommonFlatButton
+            background-color="#28526e"
+            color="white"
+            class="btn-login mt-4"
+            @click="handleCreateUser"
+            >Thêm thành viên
+          </CommonFlatButton>
+        </div>
+        <CreateUserForm
+          v-if="isOpenFormCreateUser"
+          @close-form="handleCreateUser"
+        />
+        <ListUserTable :items="users ?? []" />
       </div>
-      <CreateUserForm
-        v-if="isOpenFormCreateUser"
-        @close-form="handleCreateUser"
-      />
-      <ListUserTable :items="users ?? []" />
     </div>
   </div>
 </template>
@@ -58,7 +60,7 @@ import { useUserStore } from '~/stores/user/user-store'
 
 const route = useRoute()
 const userStore = useUserStore()
-const { listAllUser, adminInfo } = storeToRefs(userStore)
+const { listAllUser, userInfo } = storeToRefs(userStore)
 
 const authenticationStore = useAuthorizationStore()
 const { userId } = storeToRefs(authenticationStore)
@@ -78,7 +80,7 @@ const listMenu = [
 const users = computed(() => getUsers())
 
 onMounted(async () => {
-  if (!adminInfo.value) {
+  if (!userInfo.value) {
     await userStore.getUserInfo(userId.value)
   }
   await userStore.getAllUser()
@@ -121,6 +123,8 @@ function getPositionUser(role: string) {
 
 function getGroupForUser(role: string) {
   switch (role) {
+    case SECTOR.DEVOPS:
+      return 'DevOps'
     case SECTOR.BA:
       return 'BA'
     case SECTOR.BACKEND:
@@ -175,5 +179,8 @@ function handleCreateUser() {
   bottom: 0;
   left: 0;
   right: 0;
+}
+.custom-content {
+  min-height: 100vh;
 }
 </style>

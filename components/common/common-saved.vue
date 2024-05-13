@@ -19,7 +19,7 @@
         <p>Thêm</p>
       </div> -->
     </div>
-    <div v-if="listDocumentDesign.length">
+    <div v-if="listDocumentDesign?.length">
       <p class="font-semibold my-3">
         Tài liệu thiết kế {{ `(${listDocumentDesign.length})` }}
       </p>
@@ -38,7 +38,7 @@
         </div>
       </div>
     </div>
-    <div v-if="listDocumentRequire.length">
+    <div v-if="listDocumentRequire?.length">
       <p class="font-semibold my-3">
         Tài liệu yêu cầu {{ `(${listDocumentRequire.length})` }}
       </p>
@@ -57,7 +57,7 @@
         </div>
       </div>
     </div>
-    <div v-if="listDocumentReport.length">
+    <div v-if="listDocumentReport?.length">
       <p class="font-semibold my-3">
         Tài liệu báo cáo {{ `(${listDocumentReport.length})` }}
       </p>
@@ -76,7 +76,7 @@
         </div>
       </div>
     </div>
-    <div v-if="listDocumentManual.length">
+    <div v-if="listDocumentManual?.length">
       <p class="font-semibold my-3">
         Tài liệu hướng dẫn {{ `(${listDocumentManual.length})` }}
       </p>
@@ -103,7 +103,8 @@
 </template>
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { TYPE_DOCUMENT } from '~/constants'
+import { ROLE, TYPE_DOCUMENT } from '~/constants'
+import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useProjectStore } from '~/stores/project/project-store'
 
 const emit = defineEmits(['close'])
@@ -114,28 +115,43 @@ const projectId = computed(() => Number(route.query.projectId))
 const projectStore = useProjectStore()
 const { listDocumentInProject } = storeToRefs(projectStore)
 
+const authorizationStore = useAuthorizationStore()
+
 const isOpenDocumentForm = ref(false)
 
-const listDocumentDesign = computed(() =>
-  getDocumentByType(TYPE_DOCUMENT.DESIGN)
-)
-const listDocumentReport = computed(() =>
-  getDocumentByType(TYPE_DOCUMENT.REPORT)
-)
-const listDocumentRequire = computed(() =>
-  getDocumentByType(TYPE_DOCUMENT.REQUIRE)
-)
-const listDocumentManual = computed(() =>
-  getDocumentByType(TYPE_DOCUMENT.MANUAL)
-)
+const listDocumentDesign = ref()
+const listDocumentReport = ref()
+const listDocumentRequire = ref()
+const listDocumentManual = ref()
 
 onMounted(async () => {
   await projectStore.getAllDocumentInProject(projectId.value)
+
+  if (authorizationStore.role !== ROLE.PROJECT_MANAGER) {
+    listDocumentInProject.value = listDocumentInProject.value?.filter(
+      (item) => item.isSaved
+    )
+  }
 })
 
-function getDocumentByType(type: string) {
-  return listDocumentInProject.value?.filter((item) => item.type === type) ?? []
-}
+watch(listDocumentInProject, () => {
+  listDocumentDesign.value =
+    listDocumentInProject.value?.filter(
+      (item) => item.type === TYPE_DOCUMENT.DESIGN
+    ) ?? []
+  listDocumentReport.value =
+    listDocumentInProject.value?.filter(
+      (item) => item.type === TYPE_DOCUMENT.REPORT
+    ) ?? []
+  listDocumentRequire.value =
+    listDocumentInProject.value?.filter(
+      (item) => item.type === TYPE_DOCUMENT.REQUIRE
+    ) ?? []
+  listDocumentManual.value =
+    listDocumentInProject.value?.filter(
+      (item) => item.type === TYPE_DOCUMENT.MANUAL
+    ) ?? []
+})
 
 const handleToggleDocumentForm = () => {
   isOpenDocumentForm.value = !isOpenDocumentForm.value

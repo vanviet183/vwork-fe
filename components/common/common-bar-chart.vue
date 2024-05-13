@@ -33,9 +33,24 @@ const props = defineProps({
   },
 })
 
+const datasetItems = ref(props.datasets)
+
+onMounted(() => {
+  datasetItems.value = props.datasets
+  console.log('datasetItems', datasetItems.value)
+})
+
+watch(
+  () => props.datasets,
+  () => {
+    datasetItems.value = props.datasets
+    console.log('datasetItems', datasetItems.value)
+  }
+)
+
 const chartData = {
   labels: props.labels,
-  datasets: props.datasets,
+  datasets: datasetItems.value,
 }
 
 const options = {
@@ -48,7 +63,7 @@ const options = {
     y: {
       stacked: true,
       ticks: {
-        stepSize: 3,
+        stepSize: 5,
       },
     },
   },
