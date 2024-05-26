@@ -19,6 +19,12 @@ export enum TASK_STATUS {
   COMPLETED = 'Completed',
 }
 
+export enum USER_INFO {
+  SELF_INFO = 'SELF',
+  CONTACT_INFO = 'CONTACT',
+  COMPANY_INFO = 'COMPANY',
+}
+
 export enum TAB_LOGIN {
   EMAIL,
   PHONE,
@@ -72,9 +78,11 @@ export enum TASK_PRIORITIZE {
 }
 
 export enum TASK_PHASE {
+  PLAN = 'PLAN',
   DESIGN = 'DESIGN',
   CODE = 'CODE',
   TEST = 'TEST',
+  DEPLOYMENT = 'DEPLOYMENT',
   MAINTAIN = 'MAINTAIN',
 }
 
@@ -83,6 +91,11 @@ export enum TYPE_DOCUMENT {
   REQUIRE = 'REQUIRE',
   MANUAL = 'MANUAL',
   REPORT = 'REPORT',
+}
+
+export enum TYPE_MEETING {
+  PROJECT = 'PROJECT',
+  SELF = 'SELF',
 }
 
 export const yupValidationMeesage = {

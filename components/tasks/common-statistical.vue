@@ -51,7 +51,7 @@
       </div>
       <div
         v-if="authenticationStore.role === ROLE.PROJECT_MANAGER"
-        class="chart-gantt w-2/3 box-item"
+        class="chart-gantt w-full box-item"
       >
         Biểu đồ trạng thái công việc ở mỗi nhóm
         <CommonBarChart
@@ -68,46 +68,6 @@
         <CommonBarChart :datasets="datasets" :labels="labels" class="mt-5" />
       </div>
     </div>
-    <!-- <div
-      v-if="authenticationStore.role === ROLE.TEAMLEAD"
-      class="d-flex gap-4 mt-4"
-    >
-      <div class="efficiency w-1/3 box-item">
-        <p class="text-sm font-semibold">Hiệu suất công việc (%)</p>
-        <div v-if="userStatistics?.length > 0">
-          <CommonUserTask
-            v-for="item in userStatistics"
-            :key="item.id"
-            :avatar="item.avatar"
-            :total-task="item.totalTasks ?? 0"
-            :full-name="item.fullName"
-            :task-completed="item.completedTasks ?? 0"
-            class="custom-user-task"
-          />
-        </div>
-        <CommonEmpty v-else />
-      </div>
-      <div class="unfinished w-1/3 box-item">
-        <p class="text-sm font-semibold">Quá trình hoàn thành theo ngày</p>
-        <div v-if="userStatistics?.length > 0">
-          <CommonUserTask
-            v-for="item in userStatistics"
-            :key="item.id"
-            :avatar="item.avatar"
-            :total-task="item.totalTask ?? 0"
-            :full-name="item.fullName"
-            :task-completed="item.taskCompleted ?? 0"
-            class="custom-user-task"
-          />
-        </div>
-        <CommonEmpty v-else />
-      </div>
-      <div class="out-of-date w-1/3 box-item">
-        <p class="text-sm font-semibold">Quá hạn</p>
-
-        <CommonEmpty />
-      </div>
-    </div> -->
     <div class="mt-4 box-item">
       <ListUserTaskProgress :items="userStatistics ?? []" />
     </div>
@@ -127,6 +87,21 @@ dayjs.extend(isSameOrBefore)
 const route = useRoute()
 const projectId = computed(() => Number(route.query.projectId))
 
+const labelsGroup = [
+  SECTOR.DEVOPS,
+  SECTOR.BA,
+  SECTOR.BACKEND,
+  SECTOR.FRONTEND,
+  SECTOR.TESTER,
+]
+
+const labels = [
+  'Hoàn thành',
+  'Đang thực hiện',
+  'Chờ đánh giá',
+  'Chưa thực hiện',
+]
+
 const projectStore = useProjectStore()
 const { listTaskInProject } = storeToRefs(projectStore)
 
@@ -134,8 +109,6 @@ const userStore = useUserStore()
 const { userInfo } = storeToRefs(userStore)
 
 const authenticationStore = useAuthorizationStore()
-
-// const labels = computed(() => getDaysBetweenDates())
 
 const datasetsTaskStatus = computed(() => getDatasetsTaskStatus())
 const userStatistics = computed(() => getStatiscalUserTask())
@@ -166,11 +139,12 @@ const datasetsGroups = ref([
   },
 ])
 
+const colorPalette = ['#A5DD9B', '#3AB0FF', '#FFB562', '#F9F2ED']
 const datasets = ref([
   {
     label: `${userInfo.value?.sector}`,
     data: datasetsItems.value ?? [],
-    backgroundColor: '#F9F2ED',
+    backgroundColor: colorPalette,
   },
 ])
 
@@ -181,21 +155,6 @@ onMounted(async () => {
   }
 })
 
-const labelsGroup = [
-  SECTOR.DEVOPS,
-  SECTOR.BA,
-  SECTOR.BACKEND,
-  SECTOR.FRONTEND,
-  SECTOR.TESTER,
-]
-
-const labels = [
-  'Chưa thực hiện',
-  'Đang thực hiện',
-  'Chờ đánh giá',
-  'Hoàn thành',
-]
-
 interface GroupUserTask {
   [key: string]: any
 }
@@ -205,8 +164,11 @@ function getDatasetsTaskStatus() {
   let completedLated = 0
   let doingOnTime = 0
   let doingLated = 0
+  if (authenticationStore.role === ROLE.TEAMLEAD) {
+    filterTasksForUser()
+  }
   listTaskInProject.value?.forEach((item) => {
-    if (item.status === 'Completed') {
+    if (item.status === TASK_STATUS.COMPLETED) {
       if (
         item.finishDay &&
         dayjs(item.finishDay).format('YYYY/MM/DD') >=
@@ -216,7 +178,7 @@ function getDatasetsTaskStatus() {
       } else {
         completedLated++
       }
-    } else if (item.status === 'Doing') {
+    } else if (item.status !== TASK_STATUS.COMPLETED) {
       if (
         dayjs().format('YYYY/MM/DD') <= dayjs(item.endDate).format('YYYY/MM/DD')
       ) {
@@ -226,6 +188,7 @@ function getDatasetsTaskStatus() {
       }
     }
   })
+
   return [completedOnTime, completedLated, doingOnTime, doingLated]
 }
 
@@ -233,6 +196,7 @@ interface UserStatistics {
   [key: number]: any
 }
 
+// Statiscal user by task
 function getStatiscalUserTask() {
   const userStatistics: UserStatistics = {}
 
@@ -267,6 +231,7 @@ function getStatiscalUserTask() {
       } else {
         userStatistics[userId].completedTasks++
       }
+
       userStatistics[userId].progress = getProgress(
         userStatistics[userId].completedTasks ?? 0,
         userStatistics[userId].totalTasks ?? 0
@@ -283,6 +248,7 @@ function getStatiscalUserTask() {
   return listUserStatistics
 }
 
+// Get progress of user
 function getProgress(taskCompleted: number, totalTask: number) {
   if (!totalTask) {
     return 0
@@ -291,6 +257,7 @@ function getProgress(taskCompleted: number, totalTask: number) {
   return Number(progress)
 }
 
+// Filter task by user in sector
 function filterTasksForUser() {
   const listTaskOfGroup =
     listTaskInProject.value?.filter((task) => {
@@ -301,31 +268,48 @@ function filterTasksForUser() {
   listTaskInProject.value = listTaskOfGroup
 }
 
+// Statiscal task by group
 function getStatiscalStatusTaskByGroup() {
   const groupUserTask: GroupUserTask = {}
 
-  userStatistics.value.forEach((user) => {
-    const sector = user.sector
-    if (!groupUserTask[sector]) {
-      groupUserTask[sector] = {
-        completedTasks: 0,
-        doingTasks: 0,
-        waitTasks: 0,
-        noneTasks: 0,
-      }
-    }
+  labelsGroup.forEach((sector) => {
+    const listTaskSector =
+      listTaskInProject.value?.filter((task) => {
+        // Check if users exist and any user has a matching sector
+        return task.users?.some((user) => user.sector === sector)
+      }) ?? []
 
-    groupUserTask[sector].completedTasks += user.completedTasks
-    groupUserTask[sector].doingTasks += user.doingTasks
-    groupUserTask[sector].waitTasks += user.waitTasks
-    groupUserTask[sector].noneTasks += user.noneTasks
+    let cntCompletedTasks = 0
+    let cntDoingTasks = 0
+    let cntWaitTasks = 0
+    let cntNoneTasks = 0
+    listTaskSector.forEach((item) => {
+      if (item.status === TASK_STATUS.COMPLETED) {
+        cntCompletedTasks++
+      } else if (item.status === TASK_STATUS.WAIT_ACCEPT) {
+        cntWaitTasks++
+      } else if (item.status === TASK_STATUS.DOING) {
+        cntDoingTasks++
+      } else {
+        cntNoneTasks++
+      }
+    })
+
+    groupUserTask[sector] = {
+      completedTasks: cntCompletedTasks,
+      doingTasks: cntDoingTasks,
+      waitTasks: cntWaitTasks,
+      noneTasks: cntNoneTasks,
+    }
   })
+
   const datasetsNoneTask: number[] = []
   const datasetsDoingTask: number[] = []
   const datasetsWaitTask: number[] = []
   const datasetsCompeltedTask: number[] = []
 
   const listGroupUserTask = Object.values(groupUserTask)
+
   listGroupUserTask.forEach((item) => {
     datasetsNoneTask.push(item.noneTasks)
     datasetsDoingTask.push(item.doingTasks)
@@ -341,6 +325,7 @@ function getStatiscalStatusTaskByGroup() {
   ]
 }
 
+// Statiscal status task for teamlead
 function getStatiscalStatusTask() {
   const groupUserTask: GroupUserTask = {}
 

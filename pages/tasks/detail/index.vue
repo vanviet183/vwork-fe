@@ -13,15 +13,21 @@
           authenticationStore.role === ROLE.PROJECT_MANAGER ||
           authenticationStore.role === ROLE.TEAMLEAD
         "
-        class="text-end"
+        class="d-flex justify-end align-center"
       >
+        <p class="custom-progress mr-4">
+          <span class="font-semibold"> Trạng thái: </span>
+          <span>
+            {{ `${taskInfo?.progress}%` }}
+          </span>
+        </p>
         <v-icon
           icon="mdi-pencil"
           class="mr-2 cursor-pointer"
           @click="handleToggleEditTaskForm"
         ></v-icon>
       </div>
-      <div class="d-flex justify-between mt-4">
+      <div class="d-flex justify-between">
         <div class="w-[60%] pr-4">
           <!-- <p class="task-name">{{ taskInfo?.taskName }}</p> -->
           <p class="font-semibold">Nội dung công việc</p>
@@ -32,31 +38,29 @@
             class="pt-0"
           />
           <p class="my-4 font-semibold">Yêu cầu công việc</p>
+          <div
+            v-if="
+              authenticationStore.role === ROLE.PROJECT_MANAGER ||
+              authenticationStore.role === ROLE.TEAMLEAD
+            "
+            class="d-flex align-center cursor-pointer mb-4 custom-add"
+            @click="handleToggleTaskRequireForm"
+          >
+            <v-icon icon="mdi-plus" class="mr-2"></v-icon>
+            <p>Thêm yêu cầu công việc</p>
+          </div>
           <div v-if="!taskInfo?.taskRequires">
-            <div
-              v-for="(item, index) in listTaskRequire"
-              :key="index"
-              class="d-flex align-center custom-task-require"
-            >
-              <div class="w-[30px]">
-                <v-icon
-                  v-show="item.important"
-                  icon="mdi-flag-variant"
-                  class="icon-important mr-2"
-                ></v-icon>
-              </div>
-
-              <p :class="item.important ? 'text-important' : ''">
-                {{ item.requireContent }}
-              </p>
-            </div>
-            <div
-              class="d-flex align-center cursor-pointer mt-4 custom-add"
-              @click="handleToggleTaskRequireForm"
-            >
-              <v-icon icon="mdi-plus" class="mr-2"></v-icon>
-              <p>Thêm yêu cầu công việc</p>
-            </div>
+            <CommonTaskRequire
+              v-for="item in listTaskRequire"
+              :key="item.id"
+              :task-require-id="Number(item.id)"
+              :important="item.important"
+              :list-user-implement="item.listUserImplement"
+              :start-date="item.startDate"
+              :end-date="item.endDate"
+              :status="item.status"
+              :require-content="item.requireContent"
+            ></CommonTaskRequire>
           </div>
         </div>
         <div class="w-[40%] custom-info-task pl-4">
@@ -65,6 +69,7 @@
             <div class="label-info">
               <p>Người chịu trách nhiệm:</p>
               <p>Người thực hiện:</p>
+              <p>Giai đoạn:</p>
               <p>Ưu tiên:</p>
               <p>Ngày bắt đầu:</p>
               <p>Ngày kết thúc:</p>
@@ -73,6 +78,7 @@
             <div class="content-info ml-4">
               <p>{{ getUserResponsible(taskInfo?.userResponsible ?? '') }}</p>
               <p>{{ getUsersImplement(taskInfo?.users ?? []) }}</p>
+              <p>{{ taskInfo?.phase ?? '' }}</p>
               <p>
                 <v-icon
                   v-if="taskInfo?.prioritize !== TASK_PRIORITIZE.NONE"
@@ -83,7 +89,12 @@
               </p>
               <p>{{ dayjs(taskInfo?.startDate).format('DD/MM/YYYY') }}</p>
               <p>{{ dayjs(taskInfo?.endDate).format('DD/MM/YYYY') }}</p>
-              <p>{{ dayjs(taskInfo?.finishDay).format('DD/MM/YYYY') }}</p>
+              <p>
+                {{
+                  taskInfo?.finishDay &&
+                  dayjs(taskInfo?.finishDay).format('DD/MM/YYYY')
+                }}
+              </p>
             </div>
           </div>
 
@@ -196,19 +207,34 @@
     />
     <TaskRequireForm
       v-if="isOpenTaskRequireForm"
+      :mode="SCREEN_MODE.NEW"
       @close-form="handleToggleTaskRequireForm"
+    />
+    <TaskRequireForm
+      v-if="isOpenTaskRequireEditForm"
+      :mode="SCREEN_MODE.EDIT"
+      @close-form="handleToggleTaskRequireEditForm"
     />
     <DocumentForm
       v-if="isOpenDocumentForm"
       @close-form="handleToggleDocumentForm"
     />
     <CommonConfirmPopup
-      :is-show-popup="isOpenConfirmDelete"
+      :is-show-popup="isOpenConfirmDeleteDocument"
       title="Bạn có chắc chắn muốn xóa tài liệu này không?"
       positive-title="Đồng ý"
       negative-title="Huỷ"
       :positive-action="handleDelete"
       :negative-action="handleCancelDelete"
+    >
+    </CommonConfirmPopup>
+    <CommonConfirmPopup
+      :is-show-popup="isOpenConfirmDeleteTaskRequire"
+      title="Bạn có chắc chắn muốn xóa yêu cầu công việc này không?"
+      positive-title="Đồng ý"
+      negative-title="Huỷ"
+      :positive-action="handleAcceptDeleteTaskRequire"
+      :negative-action="handleCancelDeleteTaskRequire"
     >
     </CommonConfirmPopup>
   </div>
@@ -226,6 +252,7 @@ import {
 } from '~/constants'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useDocumentStore } from '~/stores/document/document-store'
+import { useProjectStore } from '~/stores/project/project-store'
 import { useTaskStore } from '~/stores/task/task-store'
 
 const route = useRoute()
@@ -235,19 +262,40 @@ const taskId = computed(() => Number(route.query.taskId))
 const taskStore = useTaskStore()
 const { taskInfo, listTaskRequire, listDocumentInTask } = storeToRefs(taskStore)
 
+const projectStore = useProjectStore()
+const { listTaskInProject } = storeToRefs(projectStore)
+
 const authenticationStore = useAuthorizationStore()
 
 const documentStore = useDocumentStore()
 
 const isOpenTaskRequireForm = ref(false)
+const isOpenTaskRequireEditForm = ref(false)
 const isOpenTaskForm = ref(false)
 const isOpenDocumentForm = ref(false)
-const isOpenConfirmDelete = ref(false)
+const isOpenConfirmDeleteDocument = ref(false)
+const isOpenConfirmDeleteTaskRequire = ref(false)
 
 const listDocumentDesign = ref()
 const listDocumentReport = ref()
 const listDocumentRequire = ref()
 const listDocumentManual = ref()
+
+// const listTaskItems = computed(() => getListTask() ?? [])
+
+// function getListTask() {
+//   if (authenticationStore.role === ROLE.TEAMLEAD) {
+//     return listTaskInProject.value?.filter((item) => {
+//       const users = item.users
+//       return users?.find((item) => item.sector === userInfo.value?.sector)
+//     })
+//   } else {
+//     return listTaskInProject.value?.filter((item) => {
+//       const users = item.users
+//       return users?.find((item) => item.id === userInfo.value?.id)
+//     })
+//   }
+// }
 
 onMounted(async () => {
   await taskStore.getTaskInfo(taskId.value)
@@ -304,6 +352,10 @@ const handleToggleTaskRequireForm = () => {
   isOpenTaskRequireForm.value = !isOpenTaskRequireForm.value
 }
 
+const handleToggleTaskRequireEditForm = () => {
+  isOpenTaskRequireEditForm.value = !isOpenTaskRequireEditForm.value
+}
+
 const handleToggleDocumentForm = () => {
   isOpenDocumentForm.value = !isOpenDocumentForm.value
 }
@@ -332,7 +384,7 @@ function getColorFlag(prioritize: string) {
 const idDocument = ref()
 
 function handleDeleteDocument(id: number) {
-  isOpenConfirmDelete.value = true
+  isOpenConfirmDeleteDocument.value = true
   idDocument.value = id
 }
 
@@ -340,11 +392,22 @@ async function handleDelete() {
   await documentStore.deleteDocument(idDocument.value)
   await taskStore.getAllDocumentInTask(taskId.value)
 
-  isOpenConfirmDelete.value = false
+  isOpenConfirmDeleteDocument.value = false
 }
 
 function handleCancelDelete() {
-  isOpenConfirmDelete.value = false
+  isOpenConfirmDeleteDocument.value = false
+}
+
+async function handleAcceptDeleteTaskRequire() {
+  await documentStore.deleteDocument(idDocument.value)
+  await taskStore.getAllDocumentInTask(taskId.value)
+
+  isOpenConfirmDeleteTaskRequire.value = false
+}
+
+function handleCancelDeleteTaskRequire() {
+  isOpenConfirmDeleteTaskRequire.value = false
 }
 </script>
 <style scoped lang="scss">
@@ -378,9 +441,6 @@ function handleCancelDelete() {
     margin-top: 8px;
   }
 }
-.custom-task-require {
-  padding: 8px 0;
-}
 .icon-important,
 .text-important {
   color: red;
@@ -394,5 +454,10 @@ function handleCancelDelete() {
 }
 .custom-icon-delete {
   z-index: 99;
+}
+.custom-progress {
+  background-color: #f2f2f5;
+  padding: 8px;
+  border-radius: 8px;
 }
 </style>

@@ -4,14 +4,14 @@
     :title="
       props.mode === SCREEN_MODE.EDIT ? 'Sửa công việc' : 'Thêm công việc'
     "
-    :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Sửa' : 'Thêm'"
+    :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Cập nhật' : 'Tạo'"
     negative-title="Huỷ"
     :positive-action="onSubmit"
     :negative-action="onCancel"
   >
     <form class="form-container">
       <div v-if="props.mode === SCREEN_MODE.EDIT">
-        <p class="mb-2">Nội dung công việc</p>
+        <p class="mb-2">Nội dung công việc <span class="required">*</span></p>
         <CommonTextField
           name="taskName"
           :default-value="taskInfo?.taskName"
@@ -19,7 +19,7 @@
           autofocus
         />
 
-        <p class="mt-3 mb-2">Giai đoạn</p>
+        <p class="mt-3 mb-2">Giai đoạn <span class="required">*</span></p>
         <CommonDropdown
           name="phase"
           item-label="title"
@@ -29,28 +29,34 @@
         ></CommonDropdown>
 
         <div v-if="authenticationStore.role === ROLE.PROJECT_MANAGER">
-          <p class="mt-3 mb-2">Nhóm phụ trách</p>
+          <p class="mt-3 mb-2">
+            Người phụ trách <span class="required">*</span>
+          </p>
           <CommonDropdown
             name="userResponsible"
             item-label="title"
             :default-value="getUserReponsibleGroup(taskInfo?.userResponsible)"
-            placeholder="Nhóm phụ trách"
+            placeholder="Người phụ trách"
             :items="listGroupSector ?? []"
             @change="handleSelectGroup"
           ></CommonDropdown>
         </div>
 
-        <p class="mt-3 mb-2">Người thực hiện</p>
-        <CommonDropdownMultiple
-          name="listUserImplement"
-          placeholder="Người thực hiện"
-          :default-value="getUsersOfTask(taskInfo?.users)"
-          :list-value="listUserItems ?? []"
-          item-label="title"
-          @change="handleListUserImplement"
-        />
+        <div v-if="authenticationStore.role === ROLE.TEAMLEAD">
+          <p class="mt-3 mb-2">
+            Người thực hiện <span class="required">*</span>
+          </p>
+          <CommonDropdownMultiple
+            name="listUserImplement"
+            placeholder="Người thực hiện"
+            :default-value="getUsersOfTask(taskInfo?.users)"
+            :list-value="listUserItems ?? []"
+            item-label="title"
+            @change="handleListUserImplement"
+          />
+        </div>
 
-        <p class="mt-3 mb-2">Độ ưu tiên</p>
+        <p class="mt-3 mb-2">Độ ưu tiên <span class="required">*</span></p>
         <CommonDropdown
           name="prioritize"
           item-label="title"
@@ -59,7 +65,7 @@
           :items="listPrioritize"
         ></CommonDropdown>
 
-        <p class="mt-3 mb-2">Ngày bắt đầu</p>
+        <p class="mt-3 mb-2">Ngày bắt đầu <span class="required">*</span></p>
         <CommonDatePicker
           class="target-day"
           name="startDate"
@@ -69,7 +75,7 @@
           @change="handleChangeStartDate"
         ></CommonDatePicker>
 
-        <p class="mt-3 mb-2">Ngày kết thúc</p>
+        <p class="mt-3 mb-2">Ngày kết thúc <span class="required">*</span></p>
         <CommonDatePicker
           class="target-day"
           name="endDate"
@@ -81,14 +87,14 @@
       </div>
 
       <div v-else-if="props.mode === SCREEN_MODE.NEW">
-        <p class="mb-2">Nội dung công việc</p>
+        <p class="mb-2">Nội dung công việc <span class="required">*</span></p>
         <CommonTextField
           name="taskName"
           placeholder="Nội dung công việc"
           autofocus
         />
 
-        <p class="mt-3 mb-2">Giai đoạn</p>
+        <p class="mt-3 mb-2">Giai đoạn <span class="required">*</span></p>
         <CommonDropdown
           name="phase"
           item-label="title"
@@ -97,26 +103,32 @@
         ></CommonDropdown>
 
         <div v-if="authenticationStore.role === ROLE.PROJECT_MANAGER">
-          <p class="mt-3 mb-2">Nhóm phụ trách</p>
+          <p class="mt-3 mb-2">
+            Người phụ trách <span class="required">*</span>
+          </p>
           <CommonDropdown
             name="userResponsible"
             item-label="title"
-            placeholder="Nhóm phụ trách"
-            :items="listGroupSector ?? []"
-            @change="handleSelectGroup"
+            placeholder="Người phụ trách"
+            :items="listUserItems ?? []"
+            @change="handleUserTeamleadResponsible"
           ></CommonDropdown>
         </div>
 
-        <p class="mt-3 mb-2">Người thực hiện</p>
-        <CommonDropdownMultiple
-          name="listUserImplement"
-          placeholder="Người thực hiện"
-          :list-value="listUserItems ?? []"
-          item-label="title"
-          @change="handleListUserImplement"
-        />
+        <div v-if="authenticationStore.role === ROLE.TEAMLEAD">
+          <p class="mt-3 mb-2">
+            Người thực hiện <span class="required">*</span>
+          </p>
+          <CommonDropdownMultiple
+            name="listUserImplement"
+            placeholder="Người thực hiện"
+            :list-value="listUserItems ?? []"
+            item-label="title"
+            @change="handleListUserImplement"
+          />
+        </div>
 
-        <p class="mt-3 mb-2">Độ ưu tiên</p>
+        <p class="mt-3 mb-2">Độ ưu tiên <span class="required">*</span></p>
         <CommonDropdown
           name="prioritize"
           item-label="title"
@@ -124,7 +136,7 @@
           :items="listPrioritize"
         ></CommonDropdown>
 
-        <p class="mt-3 mb-2">Ngày bắt đầu</p>
+        <p class="mt-3 mb-2">Ngày bắt đầu <span class="required">*</span></p>
         <CommonDatePicker
           class="target-day"
           name="startDate"
@@ -134,7 +146,7 @@
           @change="handleChangeStartDate"
         ></CommonDatePicker>
 
-        <p class="mt-3 mb-2">Ngày kết thúc</p>
+        <p class="mt-3 mb-2">Ngày kết thúc <span class="required">*</span></p>
         <CommonDatePicker
           class="target-day"
           name="endDate"
@@ -230,6 +242,10 @@ const listGroupSector = [
 
 const listTaskPhase = [
   {
+    title: 'Lên kế hoạch',
+    value: TASK_PHASE.PLAN,
+  },
+  {
     title: 'Thiết kế',
     value: TASK_PHASE.DESIGN,
   },
@@ -240,6 +256,10 @@ const listTaskPhase = [
   {
     title: 'Kiểm thử',
     value: TASK_PHASE.TEST,
+  },
+  {
+    title: 'Triển khai',
+    value: TASK_PHASE.DEPLOYMENT,
   },
   {
     title: 'Bảo trì',
@@ -282,7 +302,7 @@ onMounted(async () => {
   }
   await organizationStore.getAllUserInOrganization(organizationId.value)
   if (authenticationStore.role === ROLE.PROJECT_MANAGER) {
-    listUserItems.value = filterUserByGroup('')
+    listUserItems.value = filterTeamleadGroup()
   } else if (authenticationStore.role === ROLE.TEAMLEAD) {
     listUserItems.value = filterUserByGroup(userInfo.value?.sector ?? '')
   }
@@ -323,7 +343,7 @@ const onSubmit = handleSubmit(
     const listUserImplement = listUserChoose.value
     const userResponsible =
       authenticationStore.role === ROLE.PROJECT_MANAGER
-        ? values.userResponsible.value
+        ? values.userResponsible.title
         : `${userInfo.value?.firstName} ${userInfo.value?.lastName}`
 
     let result
@@ -405,6 +425,10 @@ function handleListUserImplement(value: DataType[]) {
   listUserChoose.value = _.cloneDeep(listUser ?? [])
 }
 
+function handleUserTeamleadResponsible(value: any) {
+  listUserChoose.value = _.cloneDeep([value.value])
+}
+
 function handleSelectGroup(value: any) {
   listUserItems.value = filterUserByGroup(value.value)
 }
@@ -424,6 +448,19 @@ function filterUserByGroup(sector: string) {
   return (
     listUserFilter?.map((item) => ({
       title: `${item.firstName} ${item.lastName}`,
+      value: item.id,
+    })) ?? []
+  )
+}
+
+function filterTeamleadGroup() {
+  const listUserFilter = listUserInOrganization.value?.filter(
+    (user) => user.role === ROLE.TEAMLEAD
+  )
+
+  return (
+    listUserFilter?.map((item) => ({
+      title: `${item.firstName} ${item.lastName} (${item.sector})`,
       value: item.id,
     })) ?? []
   )

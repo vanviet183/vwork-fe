@@ -1,23 +1,26 @@
 <template>
   <div class="wrapper-saved">
-    <div
-      class="d-flex align-center font-semibold cursor-pointer"
-      @click="handleGoToTasks"
-    >
-      <v-icon icon="mdi-arrow-left" class="mr-2"></v-icon>
-      <p>Danh sách công việc</p>
-    </div>
-    <div class="d-flex align-center justify-between my-4">
-      <p class="font-semibold custom-title">
-        Danh sách tài liệu dự án {{ `(${listDocumentInProject?.length})` }}
-      </p>
-      <!-- <div
+    <div class="d-flex justify-between">
+      <div
+        class="d-flex align-center font-semibold cursor-pointer"
+        @click="handleGoToTasks"
+      >
+        <v-icon icon="mdi-arrow-left" class="mr-2"></v-icon>
+        <p>Danh sách công việc</p>
+      </div>
+      <div
         class="d-flex align-center custom-add"
         @click="handleToggleDocumentForm"
       >
         <v-icon icon="mdi-plus" class="mr-1"></v-icon>
         <p>Thêm</p>
-      </div> -->
+      </div>
+    </div>
+
+    <div class="d-flex align-center justify-between my-4">
+      <p class="font-semibold custom-title">
+        Danh sách tài liệu dự án {{ `(${listDocumentInProject?.length})` }}
+      </p>
     </div>
     <div v-if="listDocumentDesign?.length">
       <p class="font-semibold my-3">

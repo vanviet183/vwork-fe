@@ -7,6 +7,7 @@ export class CreateMeetingRequest {
   description: string
   location: string
   listUser: number[]
+  type?: string
 
   constructor(
     projectId: number,
@@ -16,7 +17,8 @@ export class CreateMeetingRequest {
     location: string,
     startTime: string,
     endTime: string,
-    listUser: number[]
+    listUser: number[],
+    type?: string
   ) {
     this.projectId = projectId
     this.userId = userId
@@ -26,5 +28,6 @@ export class CreateMeetingRequest {
     this.listUser = listUser
     this.description = description
     this.location = location
+    this.type = type
   }
 }

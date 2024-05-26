@@ -1,11 +1,17 @@
 <template>
   <div class="custom-meeting">
-    <div class="d-flex align-center justify-between">
+    <div v-if="props.title" class="d-flex align-center justify-between">
       <p>
         <span class="font-semibold"> Tiêu đề: </span>
         <span> {{ props.title }}</span>
       </p>
-      <div>
+      <div
+        v-if="
+          props.author === `${userInfo?.firstName} ${userInfo?.lastName}` ||
+          authenticationStore.role === ROLE.PROJECT_MANAGER
+        "
+        class="text-end"
+      >
         <v-icon
           icon="mdi-pencil"
           class="mr-2 cursor-pointer"
@@ -18,27 +24,46 @@
         ></v-icon>
       </div>
     </div>
-    <p class="font-semibold mt-3">Nội dung cuộc họp:</p>
-    <p>
-      {{ props.description }}
-    </p>
-    <p class="mt-3">
+    <div v-if="props.description" class="d-flex align-center justify-between">
+      <div>
+        <p class="font-semibold mt-3">Nội dung cuộc họp:</p>
+        <p>
+          {{ props.description }}
+        </p>
+      </div>
+      <div v-if="props.type === TYPE_MEETING.SELF" class="text-end">
+        <v-icon
+          icon="mdi-pencil"
+          class="mr-2 cursor-pointer"
+          @click="handleEditMeeting"
+        ></v-icon>
+        <v-icon
+          icon="mdi-delete"
+          class="mr-1 cursor-pointer"
+          @click="handleDeleteMeeting"
+        ></v-icon>
+      </div>
+    </div>
+    <p v-if="props.author && props.type === TYPE_MEETING.PROJECT" class="mt-3">
       <span class="font-semibold"> Chủ trì cuộc họp: </span>
       <span> {{ props.author }}</span>
     </p>
-    <p class="mt-3">
+    <p v-if="props.startTime" class="mt-3">
       <span class="font-semibold"> Thời gian bắt đầu: </span>
       <span> {{ dayjs(props.startTime).format('DD/MM/YYYY HH:mm') }} </span>
     </p>
-    <p class="mt-3">
+    <p v-if="props.endTime" class="mt-3">
       <span class="font-semibold"> Thời gian kết thúc: </span>
       <span> {{ dayjs(props.endTime).format('DD/MM/YYYY HH:mm') }} </span>
     </p>
-    <p class="mt-3">
+    <p v-if="props.location" class="mt-3">
       <span class="font-semibold"> Địa điểm: </span>
       <span> {{ props.location }}</span>
     </p>
-    <p class="mt-3">
+    <p
+      v-if="props.listUserJoin && props.type === TYPE_MEETING.PROJECT"
+      class="mt-3"
+    >
       <span class="font-semibold"> Thành viên tham gia: </span>
       <span> {{ getUserJoinMeeting() }} </span>
     </p>
@@ -61,10 +86,13 @@
 </template>
 <script setup lang="ts">
 import dayjs from 'dayjs'
-import { SCREEN_MODE } from '~/constants'
+import { storeToRefs } from 'pinia'
+import { ROLE, SCREEN_MODE, TYPE_MEETING } from '~/constants'
 import type { User } from '~/models/class/common/user'
+import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useMeetingStore } from '~/stores/meeting/meeting-store'
 import { useProjectStore } from '~/stores/project/project-store'
+import { useUserStore } from '~/stores/user/user-store'
 
 const props = defineProps({
   meetingId: {
@@ -99,6 +127,10 @@ const props = defineProps({
     type: Array as PropType<User[]>,
     required: true,
   },
+  type: {
+    type: String,
+    default: TYPE_MEETING.PROJECT,
+  },
 })
 
 const route = useRoute()
@@ -106,6 +138,9 @@ const projectId = computed(() => Number(route.query.projectId))
 
 const meetingStore = useMeetingStore()
 const projectStore = useProjectStore()
+const authenticationStore = useAuthorizationStore()
+const userStore = useUserStore()
+const { userInfo } = storeToRefs(userStore)
 
 const isOpenFormEdit = ref(false)
 const isOpenConfirmDelete = ref(false)

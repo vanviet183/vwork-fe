@@ -79,7 +79,7 @@
     </v-data-table>
     <CommonConfirmPopup
       :is-show-popup="isOpenConfirmDelete"
-      title="Bạn có chắc chắn muốn xóa dự án này không?"
+      title="Bạn có chắc chắn muốn xóa công việc này không?"
       positive-title="Đồng ý"
       negative-title="Huỷ"
       :positive-action="handleDelete"
@@ -131,23 +131,25 @@ const headers = ref([
     sortable: false,
   },
   {
-    title: 'Người thực hiện',
+    title: 'Người phụ trách',
     align: 'start',
     key: 'users',
-    width: '180px',
+    width: '150px',
     sortable: false,
   },
   {
     title: 'Ngày bắt đầu',
     align: 'start',
     key: 'startDate',
-    sortable: false,
+    width: '130px',
+    sortable: true,
   },
   {
     title: 'Ngày kết thúc',
     align: 'start',
     key: 'endDate',
-    sortable: false,
+    width: '130px',
+    sortable: true,
   },
   {
     title: 'Ưu tiên',
@@ -159,7 +161,7 @@ const headers = ref([
     title: 'Trạng thái',
     align: 'start',
     key: 'status',
-    sortable: false,
+    sortable: true,
   },
   {
     title: '',

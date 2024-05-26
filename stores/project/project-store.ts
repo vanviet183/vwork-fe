@@ -215,6 +215,10 @@ export const useProjectStore = defineStore('project', () => {
       const request = new GetAllMeetingInProjectRequest(projectId)
       const response = await getAllMeetingInProjectApi(request)
       listMeetingInProject.value = response.contents?.listMeeting ?? []
+
+      listMeetingInProject.value?.sort((item1, item2) =>
+        item1.startTime.localeCompare(item2.startTime)
+      )
     } catch (error) {
       isError.value = true
     } finally {

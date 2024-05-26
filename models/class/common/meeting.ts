@@ -8,6 +8,7 @@ export class Meeting {
   location: string
   startTime: string
   endTime: string
+  type: string
   users: User[]
 
   constructor(
@@ -18,6 +19,7 @@ export class Meeting {
     location: string,
     startTime: string,
     endTime: string,
+    type: string,
     users: User[]
   ) {
     this.id = id
@@ -28,5 +30,6 @@ export class Meeting {
     this.startTime = startTime
     this.endTime = endTime
     this.users = users
+    this.type = type
   }
 }

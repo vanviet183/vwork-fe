@@ -2,52 +2,51 @@
   <div class="wrapper m-auto">
     <div class="box1">
       <div class="cover-image__wrapper relative">
-        <img src="~/assets/img/banner-info.png" alt="cover-image" />
+        <img
+          src="~/assets/img/banner-info.png"
+          alt="cover-image"
+          class="custom-banner"
+        />
         <div class="profile__head__avatar rounded-circle">
-          <v-avatar
-            :image="Avatar"
-            size="156"
-            class="cursor-pointer"
-            @click="() => {}"
-          ></v-avatar>
+          <img
+            src="http://localhost:3005/uploads/avatars/no-avatar.jpeg"
+            width="156px"
+            alt=""
+            class="avatar"
+          />
         </div>
         <div class="text-center mt-10">
-          <p class="mb-2 text-2xl font-semibold">Vitcon123</p>
-          <p>heheh</p>
+          <p class="mb-2 text-2xl font-semibold">
+            {{ `${userInfo?.firstName} ${userInfo?.lastName}` }}
+          </p>
+          <p class="py-1">{{ userInfo?.sector }}</p>
         </div>
       </div>
     </div>
     <div class="box2">
-      <CommonBoxInfo icon="mdi-account" title="Thông tin cá nhân">
-        <SelfInfo :mode="SCREEN_MODE.PREVIEW"></SelfInfo>
-      </CommonBoxInfo>
-      <CommonBoxInfo icon="mdi-account" title="Thông tin liên hệ" class="mt-5">
-        <ContactInfo :mode="SCREEN_MODE.PREVIEW"></ContactInfo>
-      </CommonBoxInfo>
-      <CommonBoxInfo icon="mdi-account" title="Thông tin tổ chức" class="mt-5">
-        <CompanyInfo :mode="SCREEN_MODE.PREVIEW"></CompanyInfo>
-      </CommonBoxInfo>
+      <SelfInfo :mode="SCREEN_MODE.PREVIEW"></SelfInfo>
+      <ContactInfo :mode="SCREEN_MODE.PREVIEW" class="mt-5"></ContactInfo>
+      <CompanyInfo :mode="SCREEN_MODE.PREVIEW" class="mt-5"></CompanyInfo>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import Avatar from '~/assets/img/avatar-info.jpeg'
+import { storeToRefs } from 'pinia'
 import { SCREEN_MODE } from '~/constants'
+import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
+import { useUserStore } from '~/stores/user/user-store'
 
-const tabUser = ref([
-  {
-    title: 'Tất cả',
-    value: '1',
-  },
-  {
-    title: 'Công việc',
-    value: '2',
-  },
-  {
-    title: 'Lịch họp',
-    value: '3',
-  },
-])
+const userStore = useUserStore()
+const { userInfo } = storeToRefs(userStore)
+
+const authenticationStore = useAuthorizationStore()
+const { userId } = storeToRefs(authenticationStore)
+
+onMounted(async () => {
+  if (!userInfo.value) {
+    await userStore.getUserInfo(userId.value)
+  }
+})
 </script>
 <style scoped lang="scss">
 @use 'sass:map';
@@ -68,5 +67,12 @@ const tabUser = ref([
   transform: translateX(-50%);
   padding: 4px;
   border: 4px solid white;
+}
+.box2 {
+  padding-bottom: 40px;
+}
+.custom-banner {
+  height: 250px;
+  width: 100%;
 }
 </style>

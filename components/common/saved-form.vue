@@ -3,15 +3,16 @@
     :is-show-popup="true"
     :title="
       props.mode === SCREEN_MODE.EDIT
-        ? 'Sửa tài liệu lưu trữ'
-        : 'Thêm tài liệu lưu trũ'
+        ? 'Sửa tài liệu công việc'
+        : 'Thêm tài liệu công việc'
     "
-    :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Sửa' : 'Thêm'"
+    :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Sửa ' : 'Thêm'"
     negative-title="Huỷ"
     :positive-action="onSubmit"
     :negative-action="onCancel"
   >
     <form class="form-container">
+      <p class="mb-2">File tài liệu</p>
       <CommonUploadFile
         name="fileUpload"
         class="my-[15px]"
@@ -19,6 +20,15 @@
         accept="*"
         :default-value="undefined"
       />
+      <p class="mt-3 mb-2">Loại tài liệu</p>
+      <CommonDropdown
+        name="type"
+        item-label="title"
+        placeholder="Loại tài liệu"
+        :items="listTypeDocument ?? []"
+      ></CommonDropdown>
+
+      <CommonCheckbox name="isSaved" label="Lưu trữ" class="mt-1" />
     </form>
   </CommonConfirmPopup>
 </template>
@@ -26,7 +36,7 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
 import { array, object } from 'yup'
-import { SCREEN_MODE } from '~/constants'
+import { SCREEN_MODE, TYPE_DOCUMENT } from '~/constants'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useDocumentStore } from '~/stores/document/document-store'
 import { useTaskStore } from '~/stores/task/task-store'
@@ -47,6 +57,25 @@ const authenticationStore = useAuthorizationStore()
 
 const route = useRoute()
 const taskId = computed(() => Number(route.query.taskId))
+
+const listTypeDocument = [
+  {
+    title: 'Tài liệu thiết kế',
+    value: TYPE_DOCUMENT.DESIGN,
+  },
+  {
+    title: 'Tài liệu yêu cầu',
+    value: TYPE_DOCUMENT.REQUIRE,
+  },
+  {
+    title: 'Tài liệu hướng dẫn',
+    value: TYPE_DOCUMENT.MANUAL,
+  },
+  {
+    title: 'Tài liệu báo cáo',
+    value: TYPE_DOCUMENT.REPORT,
+  },
+]
 
 const schemaValidate = () => {
   const validate: { [key: string]: any } = {
@@ -87,7 +116,9 @@ const onSubmit = handleSubmit(
 
     const result = await documentStore.createDocument(
       taskId.value,
-      values.fileUpload[0]
+      values.fileUpload[0],
+      values.type.value,
+      values.isSaved
     )
     if (result) {
       await taskStore.getAllDocumentInTask(taskId.value)

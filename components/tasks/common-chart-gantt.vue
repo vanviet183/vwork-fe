@@ -20,14 +20,14 @@
             unit: 'Day',
           },
         }"
-        :toolbar="['PdfExport', 'PrevTimeSpan', 'NextTimeSpan']"
-        :toolbar-click="toolbarClick"
+        :toolbar="['ZoomToFit']"
         :selection-settings="{ mode: 'Both' }"
         :allow-pdf-export="true"
       ></ejs-gantt>
       <!-- :project-start-date="new Date(projectInfo?.startDate ?? '')" -->
       <!-- :project-end-date="new Date(projectInfo?.endDate ?? '')" -->
       <!-- :collapse-all-parent-tasks="true" -->
+      <!-- :toolbar-click="toolbarClick" -->
     </div>
   </div>
 </template>
@@ -65,26 +65,24 @@ const labelSettings = {
   taskLabel: '${Progress}%',
 }
 
-function toolbarClick(args: any) {
-  const ganttObj = gantt.value.ej2Instances
-  if (args.item.id === 'GanttContainer_pdfexport') {
-    ganttObj.pdfExport({
-      fileName: 'exportData.pdf',
-      enableFooter: false,
-      fitToWidthSettings: {
-        isFitToWidth: true,
-      },
-    })
-  }
-}
+// function toolbarClick(args: any) {
+//   const ganttObj = gantt.value.ej2Instances
+//   if (args.item.id === 'GanttContainer_pdfexport') {
+//     ganttObj.pdfExport({
+//       fileName: 'exportData.pdf',
+//       enableFooter: false,
+//       fitToWidthSettings: {
+//         isFitToWidth: true,
+//       },
+//     })
+//   }
+// }
 
 const projectStore = useProjectStore()
-const { listTaskInProject, projectInfo } = storeToRefs(projectStore)
+const { listTaskInProject } = storeToRefs(projectStore)
 
 onMounted(async () => {
-  if (!projectInfo.value) {
-    await projectStore.getProjectInfo(projectId.value)
-  }
+  await projectStore.getProjectInfo(projectId.value)
 })
 
 const taskFields = ref({

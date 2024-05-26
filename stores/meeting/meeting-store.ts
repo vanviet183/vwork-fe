@@ -52,7 +52,8 @@ export const useMeetingStore = defineStore('meeting', () => {
     location: string,
     startTime: string,
     endTime: string,
-    listUser: number[]
+    listUser: number[],
+    type?: string
   ) {
     if (isLoading.value) {
       return
@@ -68,7 +69,8 @@ export const useMeetingStore = defineStore('meeting', () => {
         location,
         startTime,
         endTime,
-        listUser
+        listUser,
+        type
       )
 
       const response = await createMeetingApi(request)

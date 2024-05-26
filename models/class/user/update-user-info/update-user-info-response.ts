@@ -1,6 +1,6 @@
 import type { Organization } from '../../common/organization'
 
-export class UpdateUserResponse {
+export class UpdateUserInfoResponse {
   id: number
   firstName: string
   lastName: string

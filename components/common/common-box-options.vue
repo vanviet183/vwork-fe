@@ -11,8 +11,10 @@
           <v-icon icon="mdi-menu-down" class="ml-1"></v-icon>
         </div>
         <div v-else class="title px-2 py-2">
-          <v-icon :icon="prop.icon" class="mr-2"></v-icon>
-          <span v-if="prop.title">{{ prop.title }}</span>
+          <span v-if="prop.title" class="custom-title mr-2">{{
+            prop.title
+          }}</span>
+          <v-icon v-if="prop.icon" :icon="prop.icon"></v-icon>
         </div>
       </div>
     </template>
@@ -64,5 +66,8 @@ const { userInfo } = storeToRefs(userStore)
   background-color: white;
   border-radius: 16px;
   box-shadow: 0px 8px 8px 0px rgba(0, 0, 0, 0.2);
+}
+.custom-title {
+  font-weight: 600;
 }
 </style>

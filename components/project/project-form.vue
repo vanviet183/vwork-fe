@@ -2,7 +2,7 @@
   <CommonConfirmPopup
     :is-show-popup="true"
     :title="props.mode === SCREEN_MODE.EDIT ? 'Sửa dự án' : 'Thêm dự án'"
-    :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Sửa' : 'Thêm'"
+    :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Cập nhật' : 'Tạo'"
     negative-title="Huỷ"
     :positive-action="onSubmit"
     :negative-action="onCancel"
@@ -10,49 +10,61 @@
     <div>
       <form class="form-container">
         <div v-if="props.mode === SCREEN_MODE.NEW">
-          <p class="mb-2">Tên dự án</p>
+          <p class="mb-2">
+            Tên dự án
+            <span class="required">*</span>
+          </p>
           <CommonTextField name="projectName" autofocus />
 
-          <p class="mt-4 mb-2">Mô tả dự án</p>
+          <p class="mt-4 mb-2">
+            Mô tả dự án
+            <span class="required">*</span>
+          </p>
           <CommonTextarea name="description" class="custom-textarea-padding" />
 
-          <p class="mt-4 mb-2">Ngày bắt đầu</p>
+          <p class="mt-4 mb-2">
+            Ngày bắt đầu
+            <span class="required">*</span>
+          </p>
 
           <CommonDatePicker
             class="target-day"
             name="startDate"
-            placeholder="YYYY/MM/DD"
+            placeholder="DD/MM/YYYY"
             :disabled-date="disableDate"
             :default-value="startDate"
             @change="handleChangeStartDate"
           ></CommonDatePicker>
 
-          <p class="mt-4 mb-2">Ngày kết thúc</p>
+          <p class="mt-4 mb-2">
+            Ngày kết thúc
+            <span class="required">*</span>
+          </p>
           <CommonDatePicker
             class="target-day"
             name="endDate"
-            placeholder="YYYY/MM/DD"
+            placeholder="DD/MM/YYYY"
             :disabled-date="disableDate"
             :default-value="endDate"
             @change="handleChangeEndDate"
           ></CommonDatePicker>
         </div>
         <div v-if="props.mode === SCREEN_MODE.EDIT">
-          <p class="mb-2">Tên dự án</p>
+          <p class="mb-2">Tên dự án <span class="required">*</span></p>
           <CommonTextField
             name="projectName"
             :default-value="projectInfo?.projectName"
             autofocus
           />
 
-          <p class="mt-4 mb-2">Mô tả dự án</p>
+          <p class="mt-4 mb-2">Mô tả dự án <span class="required">*</span></p>
           <CommonTextarea
             name="description"
             :default-value="projectInfo?.description"
             class="custom-textarea-padding"
           />
 
-          <p class="mt-4 mb-2">Ngày bắt đầu</p>
+          <p class="mt-4 mb-2">Ngày bắt đầu <span class="required">*</span></p>
 
           <CommonDatePicker
             class="target-day"
@@ -63,7 +75,7 @@
             @change="handleChangeStartDate"
           ></CommonDatePicker>
 
-          <p class="mt-4 mb-2">Ngày kết thúc</p>
+          <p class="mt-4 mb-2">Ngày kết thúc <span class="required">*</span></p>
           <CommonDatePicker
             class="target-day"
             name="endDate"

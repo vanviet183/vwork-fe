@@ -2,25 +2,29 @@
   <CommonConfirmPopup
     :is-show-popup="true"
     :title="props.mode === SCREEN_MODE.EDIT ? 'Sửa cuộc họp' : 'Thêm cuộc họp'"
-    :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Sửa' : 'Thêm'"
+    :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Cập nhật' : 'Tạo'"
     negative-title="Huỷ"
     :positive-action="onSubmit"
     :negative-action="onCancel"
   >
     <form class="form-container">
       <div v-if="props.mode === SCREEN_MODE.NEW">
-        <p class="mb-2">Tiêu đề cuộc họp</p>
-        <CommonTextField
-          name="title"
-          placeholder="Tiêu đề cuộc họp"
-          autofocus
-        />
+        <div v-if="props.type === TYPE_MEETING.PROJECT">
+          <p class="mb-2">Tiêu đề cuộc họp</p>
+          <CommonTextField
+            name="title"
+            placeholder="Tiêu đề cuộc họp"
+            autofocus
+          />
+        </div>
 
         <p class="mt-3 mb-2">Nội dung cuộc họp</p>
         <CommonTextarea name="description" class="custom-textarea-padding" />
 
-        <p class="mt-3 mb-2">Địa điểm</p>
-        <CommonTextField name="location" placeholder="Địa điểm" autofocus />
+        <div v-if="props.type === TYPE_MEETING.PROJECT">
+          <p class="mt-3 mb-2">Địa điểm</p>
+          <CommonTextField name="location" placeholder="Địa điểm" autofocus />
+        </div>
 
         <p class="mt-3 mb-2">Thời gian bắt đầu</p>
         <CommonDatetimePicker
@@ -42,23 +46,27 @@
           @change="handleChangeEndDate"
         ></CommonDatetimePicker>
 
-        <p class="mt-3 mb-2">Người tham gia</p>
-        <CommonDropdownMultiple
-          name="listUserJoin"
-          placeholder="Người tham gia"
-          :list-value="listUserItems ?? []"
-          item-label="title"
-          @change="handleListUserJoin"
-        />
+        <div v-if="props.type === TYPE_MEETING.PROJECT">
+          <p class="mt-3 mb-2">Người tham gia</p>
+          <CommonDropdownMultiple
+            name="listUserJoin"
+            placeholder="Người tham gia"
+            :list-value="listUserItems ?? []"
+            item-label="title"
+            @change="handleListUserJoin"
+          />
+        </div>
       </div>
       <div v-if="props.mode === SCREEN_MODE.EDIT">
-        <p class="mb-2">Tiêu đề cuộc họp</p>
-        <CommonTextField
-          name="title"
-          :default-value="meetingInfo?.title"
-          placeholder="Tiêu đề cuộc họp"
-          autofocus
-        />
+        <div v-if="props.type === TYPE_MEETING.PROJECT">
+          <p class="mb-2">Tiêu đề cuộc họp</p>
+          <CommonTextField
+            name="title"
+            :default-value="meetingInfo?.title"
+            placeholder="Tiêu đề cuộc họp"
+            autofocus
+          />
+        </div>
 
         <p class="mt-3 mb-2">Nội dung cuộc họp</p>
         <CommonTextarea
@@ -67,13 +75,15 @@
           class="custom-textarea-padding"
         />
 
-        <p class="mt-3 mb-2">Địa điểm</p>
-        <CommonTextField
-          name="location"
-          :default-value="meetingInfo?.location"
-          placeholder="Địa điểm"
-          autofocus
-        />
+        <div v-if="props.type === TYPE_MEETING.PROJECT">
+          <p class="mt-3 mb-2">Địa điểm</p>
+          <CommonTextField
+            name="location"
+            :default-value="meetingInfo?.location"
+            placeholder="Địa điểm"
+            autofocus
+          />
+        </div>
 
         <p class="mt-3 mb-2">Thời gian bắt đầu</p>
         <CommonDatetimePicker
@@ -95,15 +105,17 @@
           @change="handleChangeEndDate"
         ></CommonDatetimePicker>
 
-        <p class="mt-3 mb-2">Người tham gia</p>
-        <CommonDropdownMultiple
-          name="listUserJoin"
-          placeholder="Người tham gia"
-          :default-value="getUsersOfMeeting(meetingInfo?.users)"
-          :list-value="listUserItems ?? []"
-          item-label="title"
-          @change="handleListUserJoin"
-        />
+        <div v-if="props.type === TYPE_MEETING.PROJECT">
+          <p class="mt-3 mb-2">Người tham gia</p>
+          <CommonDropdownMultiple
+            name="listUserJoin"
+            placeholder="Người tham gia"
+            :default-value="getUsersOfMeeting(meetingInfo?.users)"
+            :list-value="listUserItems ?? []"
+            item-label="title"
+            @change="handleListUserJoin"
+          />
+        </div>
       </div>
     </form>
   </CommonConfirmPopup>
@@ -115,7 +127,7 @@ import _ from 'lodash'
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
 import { array, object, string } from 'yup'
-import { MAX_LENGTH_INPUT, ROLE, SCREEN_MODE } from '~/constants'
+import { MAX_LENGTH_INPUT, ROLE, SCREEN_MODE, TYPE_MEETING } from '~/constants'
 import type { User } from '~/models/class/common/user'
 import type { DataType } from '~/models/interface/common/data-type'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
@@ -135,6 +147,11 @@ const props = defineProps({
   meetingId: {
     type: Number,
     default: undefined,
+  },
+  type: {
+    type: String,
+    required: false,
+    default: TYPE_MEETING.PROJECT,
   },
 })
 
@@ -182,14 +199,17 @@ onMounted(async () => {
 
 const schemaValidate = () => {
   const validate: { [key: string]: any } = {
-    title: string().trim().required().max(MAX_LENGTH_INPUT),
     description: string().trim().required().max(MAX_LENGTH_INPUT),
-    location: string().trim().required().max(MAX_LENGTH_INPUT),
+
     startTime: string().trim().required(),
     endTime: string().trim().required(),
-    listUserJoin: array()
+  }
+  if (props.type === TYPE_MEETING.PROJECT) {
+    validate.title = string().trim().required().max(MAX_LENGTH_INPUT)
+    validate.listUserJoin = array()
       .required()
-      .of(object().shape({ title: string(), value: string() })),
+      .of(object().shape({ title: string(), value: string() }))
+    validate.location = string().trim().required().max(MAX_LENGTH_INPUT)
   }
   return object().shape(validate)
 }
@@ -217,7 +237,8 @@ const onSubmit = handleSubmit(
         values.location,
         dayjs(values.startTime).format('YYYY/MM/DD HH:mm'),
         dayjs(values.endTime).format('YYYY/MM/DD HH:mm'),
-        listUserJoin
+        listUserJoin,
+        props.type
       )
     } else if (props.mode === SCREEN_MODE.EDIT) {
       if (props.meetingId) {

@@ -2,7 +2,7 @@
   <CommonConfirmPopup
     :is-show-popup="true"
     :title="props.mode === SCREEN_MODE.EDIT ? 'Sửa tổ chức' : 'Thêm tổ chức'"
-    :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Sửa' : 'Thêm'"
+    :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Cập nhật' : 'Tạo'"
     negative-title="Huỷ"
     :positive-action="onSubmit"
     :negative-action="onCancel"

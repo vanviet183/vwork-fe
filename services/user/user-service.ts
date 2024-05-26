@@ -9,6 +9,8 @@ import type { GetAllProjectUserJoinRequest } from '~/models/class/user/get-all-p
 import type { GetAllProjectUserJoinResponse } from '~/models/class/user/get-all-project-user-join/get-all-project-user-join-response'
 import { GetUserInfoRequest } from '~/models/class/user/get-user-info/get-user-info-request'
 import type { GetUserInfoResponse } from '~/models/class/user/get-user-info/get-user-info-response'
+import type { UpdateUserInfoRequest } from '~/models/class/user/update-user-info/update-user-info-request'
+import type { UpdateUserInfoResponse } from '~/models/class/user/update-user-info/update-user-info-response'
 import type { UpdateUserRequest } from '~/models/class/user/update-user/update-user-request'
 import type { UpdateUserResponse } from '~/models/class/user/update-user/update-user-response'
 import { useAxiosClient } from '~/services/axios-client'
@@ -18,6 +20,7 @@ const ApiPath = {
   GET_ADMIN_INFO: '/users/admin',
   CREATE_USER: '/users/create',
   UPDATE_USER: '/users',
+  UPDATE_USER_INFO: '/users/info',
   DELETE_USER: '/users',
   CREATE_LIST_USER: '/users/create-list-user',
   GET_ALL_USER: '/users',
@@ -110,4 +113,16 @@ export const deleteUserApi = async (deleteUserRequest: DeleteUserRequest) => {
   )
 
   return new BaseResponse(response.data)
+}
+
+export const updateUserInfoApi = async (
+  updateUserInfoRequest: UpdateUserInfoRequest
+) => {
+  const { axiosClient } = useAxiosClient()
+  const response = await axiosClient.post<BaseResponse<UpdateUserInfoResponse>>(
+    ApiPath.UPDATE_USER_INFO,
+    updateUserInfoRequest
+  )
+  const { contents, message } = response.data
+  return new BaseResponse<UpdateUserInfoResponse>(contents, message)
 }

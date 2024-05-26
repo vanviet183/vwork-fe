@@ -78,7 +78,7 @@ const headers = ref([
     sortable: false,
   },
   {
-    title: 'Nhóm',
+    title: 'Vị trí công việc',
     align: 'start',
     key: 'sector',
   },

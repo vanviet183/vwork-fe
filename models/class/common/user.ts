@@ -5,6 +5,7 @@ export class User {
   firstName: string
   lastName: string
   email: string
+  birthday: string
   avatar: string
   phone: string
   sector: string
@@ -16,6 +17,7 @@ export class User {
     firstName: string,
     lastName: string,
     email: string,
+    birthday: string,
     avatar: string,
     phone: string,
     sector: string,
@@ -26,6 +28,7 @@ export class User {
     this.firstName = firstName
     this.lastName = lastName
     this.email = email
+    this.birthday = birthday
     this.avatar = avatar
     this.phone = phone
     this.sector = sector

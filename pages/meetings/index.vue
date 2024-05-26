@@ -63,7 +63,7 @@
     <div class="ml-[360px]">
       <div class="box-content flex-1 custom-content">
         <div class="d-flex align-center justify-end">
-          <CommonTextField
+          <!-- <CommonTextField
             name="search"
             :default-value="searchText"
             :has-unit="true"
@@ -73,12 +73,8 @@
             @keyup.enter="handleSearch"
           >
             <v-icon icon="mdi-magnify" @click="handleSearch" />
-          </CommonTextField>
+          </CommonTextField> -->
           <CommonFlatButton
-            v-if="
-              authenticationStore.role === ROLE.PROJECT_MANAGER ||
-              authenticationStore.role === ROLE.TEAMLEAD
-            "
             class="btn-add cursor-pointer ml-4"
             @click="handleToggleMeetingForm"
           >
@@ -86,7 +82,16 @@
           </CommonFlatButton>
 
           <MeetingForm
-            v-if="isOpenMeetingForm"
+            v-if="
+              isOpenMeetingForm && authenticationStore.role !== ROLE.EMPLOYEE
+            "
+            @close-form="handleToggleMeetingForm"
+          />
+          <MeetingForm
+            v-if="
+              isOpenMeetingForm && authenticationStore.role === ROLE.EMPLOYEE
+            "
+            :type="TYPE_MEETING.SELF"
             @close-form="handleToggleMeetingForm"
           />
         </div>
@@ -97,22 +102,15 @@
             @change="handleSelectTab"
           />
         </div>
-        <div v-if="!listMeetingItems?.length" class="h-[500px]">
+        <div v-if="!listMeetingTest?.length" class="h-[500px]">
           <CommonEmpty />
         </div>
         <div v-else>
-          <CommonMeeting
-            v-for="item in listMeetingItems"
-            :key="item.id"
-            :meeting-id="item.id"
-            :title="item.title"
-            :description="item.description"
-            :author="item.author"
-            :location="item.location"
-            :start-time="item.startTime"
-            :end-time="item.endTime"
-            :list-user-join="item.users"
-            class="mt-4"
+          <CommonListMeeting
+            v-for="(meetings, index) in meetingGroups"
+            :key="index"
+            :items="meetings"
+            :day="meetings?.at(0)?.startTime ?? ''"
           />
         </div>
       </div>
@@ -120,8 +118,10 @@
   </div>
 </template>
 <script setup lang="ts">
+import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
-import { MEETINGS, ROLE } from '~/constants'
+import { MEETINGS, ROLE, TYPE_MEETING } from '~/constants'
+import type { Meeting } from '~/models/class/common/meeting'
 import type { Project } from '~/models/class/common/project'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useOrganizationStore } from '~/stores/organization/organization-store'
@@ -148,9 +148,14 @@ const projectsCompleted = computed(() => getProjectsByStatus(true))
 
 const listMeetingItems = computed(() => getListMeeting() ?? [])
 
+const listMeetingTest = ref<Meeting[]>()
+
+const meetingGroups = computed(() => getListMeetingMap() ?? [])
+
 const isOpenCurrent = ref(true)
 const isOpenComplete = ref(false)
 const isOpenMeetingForm = ref(false)
+const isOpenMeetingSelfForm = ref(false)
 
 const listProjectCurrent = ref<Project[]>()
 const listProjectCompleted = ref<Project[]>()
@@ -167,6 +172,10 @@ const listTab = ref([
   {
     title: 'Hôm nay',
     value: 2,
+  },
+  {
+    title: 'Trong tuần',
+    value: 3,
   },
 ])
 
@@ -197,12 +206,42 @@ watch(listProjectInOrganization, () => {
   )
 })
 
+watch(listMeetingInProject, () => {
+  getListMeeting()
+})
+
 watch(projectId, async () => {
   await projectStore.getAllMeetingInProject(projectId.value)
 })
 
 watch(tabActive, () => {
-  // todo
+  if (tabActive.value === 1) {
+    listMeetingTest.value = listMeetingItems.value
+  } else if (tabActive.value === 2) {
+    listMeetingTest.value = listMeetingItems.value.filter(
+      (meeting) =>
+        dayjs(meeting.startTime).format('YYYY/MM/DD') ===
+        dayjs().format('YYYY/MM/DD')
+    )
+  } else if (tabActive.value === 3) {
+    listMeetingTest.value = listMeetingItems.value.filter(
+      (meeting) =>
+        dayjs(meeting.startTime).format('YYYY/MM/DD') <=
+          dayjs().endOf('week').format('YYYY/MM/DD') &&
+        dayjs(meeting.startTime).format('YYYY/MM/DD') >=
+          dayjs().startOf('week').format('YYYY/MM/DD')
+    )
+  } else {
+    listMeetingTest.value = listMeetingItems.value.filter(
+      (meeting) => meeting.type === TYPE_MEETING.SELF
+    )
+  }
+})
+
+watch(listMeetingItems, () => {
+  if (!listMeetingTest.value) {
+    listMeetingTest.value = listMeetingItems.value
+  }
 })
 
 watch(searchText, async () => {
@@ -235,16 +274,6 @@ function handleChooseProject(projectId: number) {
 
 const handleToggleMeetingForm = () => {
   isOpenMeetingForm.value = !isOpenMeetingForm.value
-}
-
-function handleSearchText(value: string) {
-  searchText.value = value
-}
-
-function handleSearch() {
-  listMeetingInProject.value = listMeetingInProject.value?.filter((item) =>
-    item.title.toLocaleLowerCase().includes(searchText.value)
-  )
 }
 
 function filterProjectTasksForUser() {
@@ -285,6 +314,23 @@ function getListMeeting() {
       return users?.find((item) => item.id === userInfo.value?.id)
     })
   }
+}
+
+interface MeetingMap {
+  [day: string]: Meeting[]
+}
+
+function getListMeetingMap() {
+  const meetingMap: MeetingMap = {}
+  listMeetingTest.value?.forEach((item) => {
+    const day = dayjs(item.startTime).format('DD/MM/YYYY')
+    if (!meetingMap[day]) {
+      meetingMap[day] = []
+    }
+    meetingMap[day].push(item)
+  })
+
+  return Object.values(meetingMap)
 }
 </script>
 <style scoped lang="scss">

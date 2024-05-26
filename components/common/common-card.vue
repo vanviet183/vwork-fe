@@ -11,7 +11,10 @@
           <p class="project-title my-2 h-[56px]">
             {{ props.title }}
           </p>
-          <div class="mr-[-16px]">
+          <div
+            v-if="authenticationStore.role === ROLE.PROJECT_MANAGER"
+            class="mr-[-16px]"
+          >
             <CommonBoxOptions>
               <div class="box-options">
                 <div class="option-item" @click="handleEditProject">
@@ -84,7 +87,7 @@
 </template>
 <script setup lang="ts">
 import dayjs from 'dayjs'
-import { SCREEN_MODE } from '~/constants'
+import { ROLE, SCREEN_MODE } from '~/constants'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useOrganizationStore } from '~/stores/organization/organization-store'
 import { useProjectStore } from '~/stores/project/project-store'

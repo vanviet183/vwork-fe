@@ -98,7 +98,7 @@
                     <div class="option-item" @click="() => {}">
                       <p>
                         <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                        <span>Giao cho toi</span>
+                        <span>Giao cho tôi</span>
                       </p>
                     </div>
                     <div class="option-item" @click="() => {}">
@@ -170,7 +170,7 @@
                 </CommonBoxOptions>
               </div>
               <div class="d-flex align-center">
-                <CommonTextField
+                <!-- <CommonTextField
                   name="search"
                   :default-value="searchText"
                   :has-unit="true"
@@ -180,7 +180,7 @@
                   @keyup.enter="handleSearch"
                 >
                   <v-icon icon="mdi-magnify" @click="handleSearch" />
-                </CommonTextField>
+                </CommonTextField> -->
                 <CommonFlatButton
                   v-if="
                     authenticationStore.role === ROLE.PROJECT_MANAGER ||
@@ -292,12 +292,12 @@ onMounted(async () => {
   }
   if (authenticationStore.role === ROLE.PROJECT_MANAGER) {
     listTab.value.push({
-      title: 'Tiến độ dự án',
+      title: 'Báo cáo',
       value: 2,
     })
   } else if (authenticationStore.role === ROLE.TEAMLEAD) {
     listTab.value.push({
-      title: 'Tiến độ công việc nhóm',
+      title: 'Xem thống kê',
       value: 2,
     })
   }
@@ -407,8 +407,14 @@ function handleSearchText(value: string) {
 }
 
 function handleSearch() {
-  listTaskInProject.value = listTaskInProject.value?.filter((item) =>
-    item.taskName.toLocaleLowerCase().includes(searchText.value)
+  listTaskInProject.value = listTaskInProject.value?.filter(
+    (item) =>
+      item.taskName.toLocaleLowerCase().includes(searchText.value) ||
+      item.users?.find(
+        (user) =>
+          user.firstName.toLocaleLowerCase().includes(searchText.value) ||
+          user.lastName.toLocaleLowerCase().includes(searchText.value)
+      )
   )
 }
 </script>
@@ -466,7 +472,7 @@ function handleSearch() {
 }
 .custom-search {
   :deep(.v-input__control) {
-    width: 200px;
+    width: 280px;
     height: 40px;
   }
   :deep(.v-field) {

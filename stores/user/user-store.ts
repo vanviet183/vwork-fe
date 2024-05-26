@@ -8,6 +8,7 @@ import { GetAllProjectUserJoinRequest } from '~/models/class/user/get-all-projec
 
 import { GetUserInfoRequest } from '~/models/class/user/get-user-info/get-user-info-request'
 import type { GetUserInfoResponse } from '~/models/class/user/get-user-info/get-user-info-response'
+import { UpdateUserInfoRequest } from '~/models/class/user/update-user-info/update-user-info-request'
 import { UpdateUserRequest } from '~/models/class/user/update-user/update-user-request'
 import {
   createListUserApi,
@@ -17,6 +18,7 @@ import {
   getAllUserApi,
   getUserInfoApi,
   updateUserApi,
+  updateUserInfoApi,
 } from '~/services/user/user-service'
 import { useAlertStore } from '~/stores/alert/alert-store'
 
@@ -167,6 +169,42 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  async function updateUserInfo(
+    userId: number,
+    firstName?: string,
+    lastName?: string,
+    birthday?: string,
+    phone?: string
+  ) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new UpdateUserInfoRequest(
+        userId,
+        firstName,
+        lastName,
+        birthday,
+        phone
+      )
+      const response = await updateUserInfoApi(request)
+      if (response.message) {
+        alertStore.setAlertMessage({
+          message: response.message,
+          type: AlertType.success,
+        })
+      }
+      return true
+    } catch (error) {
+      isError.value = true
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   async function deleteUser(userId: number) {
     if (isLoading.value) {
       return
@@ -229,5 +267,6 @@ export const useUserStore = defineStore('user', () => {
     createListUser,
     getAllUser,
     updateUserApi,
+    updateUserInfo,
   }
 })

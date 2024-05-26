@@ -6,7 +6,7 @@
         ? 'Sửa thông tin thành viên'
         : 'Thêm thành viên'
     "
-    :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Sửa' : 'Thêm'"
+    :positive-title="props.mode === SCREEN_MODE.EDIT ? 'Cập nhật' : 'Tạo'"
     negative-title="Huỷ"
     :positive-action="onSubmit"
     :negative-action="onCancel"

@@ -37,7 +37,7 @@
     </v-data-table>
     <CommonConfirmPopup
       :is-show-popup="isOpenConfirmDelete"
-      title="Bạn có chắc chắn muốn xóa người dùng này không?"
+      title="Bạn có chắc chắn muốn xóa tổ chức này không?"
       positive-title="Đồng ý"
       negative-title="Huỷ"
       :positive-action="handleDelete"
