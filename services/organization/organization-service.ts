@@ -13,10 +13,13 @@ import type { GetOrganizationInfoRequest } from '~/models/class/oranizations/get
 import type { GetOrganizationInfoResponse } from '~/models/class/oranizations/get-organization-info/get-organization-info-response'
 import type { JoinOrganizationRequest } from '~/models/class/oranizations/join/join-organization-request'
 import type { JoinOrganizationResponse } from '~/models/class/oranizations/join/join-organization-response'
+import type { UpdateOrganizationRequest } from '~/models/class/oranizations/update-organization/update-organization-request'
+import type { UpdateOrganizationResponse } from '~/models/class/oranizations/update-organization/update-organization-response'
 import { useAxiosClient } from '~/services/axios-client'
 
 const ApiPath = {
   INIT_ORGANIZATION: '/organizations/create',
+  UPDATE_ORGANIZATION: '/organizations',
   JOIN_ORGANIZATION: '/organizations/join',
   GET_ALL_GROUP_IN_ORGANIZATION: '/organizations',
   GET_ALL_PROJECT_IN_ORGANIZATION: '/organizations',
@@ -36,6 +39,21 @@ export const initOrganizationApi = async (
 
   const { contents, message } = response.data
   return new BaseResponse<InitOrganizationResponse>(contents, message)
+}
+
+export const updateOrganizationApi = async (
+  updateOrganizationRequest: UpdateOrganizationRequest
+) => {
+  const { axiosClient } = useAxiosClient()
+  const response = await axiosClient.patch<
+    BaseResponse<UpdateOrganizationResponse>
+  >(
+    `${ApiPath.UPDATE_ORGANIZATION}/${updateOrganizationRequest.organizationId}`,
+    updateOrganizationRequest
+  )
+
+  const { contents, message } = response.data
+  return new BaseResponse<UpdateOrganizationResponse>(contents, message)
 }
 
 export const deleteOrganizationApi = async (

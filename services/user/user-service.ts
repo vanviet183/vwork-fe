@@ -9,6 +9,8 @@ import type { GetAllProjectUserJoinRequest } from '~/models/class/user/get-all-p
 import type { GetAllProjectUserJoinResponse } from '~/models/class/user/get-all-project-user-join/get-all-project-user-join-response'
 import { GetUserInfoRequest } from '~/models/class/user/get-user-info/get-user-info-request'
 import type { GetUserInfoResponse } from '~/models/class/user/get-user-info/get-user-info-response'
+import type { UpdatePasswordUserRequest } from '~/models/class/user/update-password-user/update-password-user-request'
+import type { UpdatePasswordUserResponse } from '~/models/class/user/update-password-user/update-password-user-response'
 import type { UpdateUserInfoRequest } from '~/models/class/user/update-user-info/update-user-info-request'
 import type { UpdateUserInfoResponse } from '~/models/class/user/update-user-info/update-user-info-response'
 import type { UpdateUserRequest } from '~/models/class/user/update-user/update-user-request'
@@ -19,6 +21,7 @@ const ApiPath = {
   GET_USER_INFO: '/users',
   GET_ADMIN_INFO: '/users/admin',
   CREATE_USER: '/users/create',
+  UPDATE_PASSWORD_USER: '/users/password',
   UPDATE_USER: '/users',
   UPDATE_USER_INFO: '/users/info',
   DELETE_USER: '/users',
@@ -104,6 +107,17 @@ export const createListUserApi = async (
   )
   const { contents, message } = response.data
   return new BaseResponse(contents, message)
+}
+
+export const updatePasswordUserApi = async (
+  updatePasswordUserRequest: UpdatePasswordUserRequest
+) => {
+  const { axiosClient } = useAxiosClient()
+  const response = await axiosClient.post<
+    BaseResponse<UpdatePasswordUserResponse>
+  >(ApiPath.UPDATE_PASSWORD_USER, updatePasswordUserRequest)
+  const { contents, message } = response.data
+  return new BaseResponse<UpdatePasswordUserResponse>(contents, message)
 }
 
 export const deleteUserApi = async (deleteUserRequest: DeleteUserRequest) => {

@@ -98,6 +98,12 @@ export enum TYPE_MEETING {
   SELF = 'SELF',
 }
 
+export enum SORT_TASK {
+  TIME_ASC = 'TIME_ASC',
+  TIME_DES = 'TIME_DES',
+  PRIORITIZE = 'PRIORITIZE',
+}
+
 export const yupValidationMeesage = {
   mixed: {
     required: 'Vui lòng nhập trường này',

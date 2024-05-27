@@ -7,7 +7,7 @@ import { DeleteOrganizationRequest } from '~/models/class/oranizations/delete-or
 import { GetAllProjectByOrganizationRequest } from '~/models/class/oranizations/get-all-project-by-organization/get-all-project-by-organization-request'
 import { GetAllUserInOrganizationRequest } from '~/models/class/oranizations/get-all-user-in-organization/get-all-user-in-organization-request'
 import { GetOrganizationInfoRequest } from '~/models/class/oranizations/get-organization-info/get-organization-info-request'
-import { JoinOrganizationRequest } from '~/models/class/oranizations/join/join-organization-request'
+import { UpdateOrganizationRequest } from '~/models/class/oranizations/update-organization/update-organization-request'
 import {
   deleteOrganizationApi,
   getAllOrganizationApi,
@@ -15,7 +15,7 @@ import {
   getAllUserInOrganizationApi,
   getOrganizationInfoApi,
   initOrganizationApi,
-  joinOrganizationApi,
+  updateOrganizationApi,
 } from '~/services/organization/organization-service'
 import { useAlertStore } from '../alert/alert-store'
 
@@ -107,6 +107,43 @@ export const useOrganizationStore = defineStore('organization', () => {
     }
   }
 
+  async function updateOrganization(
+    organizationId: number,
+    organizationName: string,
+    description: string,
+    email: string,
+    phone: string,
+    userId: number
+  ) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new UpdateOrganizationRequest(
+        organizationId,
+        organizationName,
+        description,
+        email,
+        phone,
+        userId
+      )
+      const response = await updateOrganizationApi(request)
+      if (response.message) {
+        alertStore.setAlertMessage({
+          message: response.message,
+          type: AlertType.success,
+        })
+      }
+      return true
+    } catch (error) {
+      isError.value = true
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   async function deleteOrganization(projectId: number) {
     if (isLoading.value) {
       return
@@ -129,29 +166,29 @@ export const useOrganizationStore = defineStore('organization', () => {
     }
   }
 
-  async function joinOrganization(userId: number, organizationId: number) {
-    if (isLoading.value) {
-      return
-    }
-    isLoading.value = true
-    isError.value = false
-    try {
-      const joinOrganiztionRequest = new JoinOrganizationRequest(
-        userId,
-        organizationId
-      )
-      const response = await joinOrganizationApi(joinOrganiztionRequest)
-      if (response.contents) {
-        organizationInfo.value = response.contents
-        return true
-      }
-    } catch (error) {
-      isError.value = true
-      return false
-    } finally {
-      isLoading.value = false
-    }
-  }
+  // async function joinOrganization(userId: number, organizationId: number) {
+  //   if (isLoading.value) {
+  //     return
+  //   }
+  //   isLoading.value = true
+  //   isError.value = false
+  //   try {
+  //     const joinOrganiztionRequest = new JoinOrganizationRequest(
+  //       userId,
+  //       organizationId
+  //     )
+  //     const response = await joinOrganizationApi(joinOrganiztionRequest)
+  //     if (response.contents) {
+  //       organizationInfo.value = response.contents
+  //       return true
+  //     }
+  //   } catch (error) {
+  //     isError.value = true
+  //     return false
+  //   } finally {
+  //     isLoading.value = false
+  //   }
+  // }
 
   async function getOrganizationInfo(organizationId: number) {
     if (isLoading.value) {
@@ -195,11 +232,12 @@ export const useOrganizationStore = defineStore('organization', () => {
     listProjectInOrganization,
     listAllOrganization,
     initOrganization,
-    joinOrganization,
+
     getAllProjectsInOrganization,
     getOrganizationInfo,
     getAllUserInOrganization,
     getAllOrganization,
     deleteOrganization,
+    updateOrganization,
   }
 })

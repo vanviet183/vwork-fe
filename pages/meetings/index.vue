@@ -63,18 +63,8 @@
     <div class="ml-[360px]">
       <div class="box-content flex-1 custom-content">
         <div class="d-flex align-center justify-end">
-          <!-- <CommonTextField
-            name="search"
-            :default-value="searchText"
-            :has-unit="true"
-            class="custom-search"
-            placeholder="Tìm kiếm"
-            @change="handleSearchText"
-            @keyup.enter="handleSearch"
-          >
-            <v-icon icon="mdi-magnify" @click="handleSearch" />
-          </CommonTextField> -->
           <CommonFlatButton
+            v-if="authenticationStore.role !== ROLE.EMPLOYEE"
             class="btn-add cursor-pointer ml-4"
             @click="handleToggleMeetingForm"
           >
@@ -87,13 +77,6 @@
             "
             @close-form="handleToggleMeetingForm"
           />
-          <MeetingForm
-            v-if="
-              isOpenMeetingForm && authenticationStore.role === ROLE.EMPLOYEE
-            "
-            :type="TYPE_MEETING.SELF"
-            @close-form="handleToggleMeetingForm"
-          />
         </div>
         <div class="mt-4 w-max">
           <CommonGroupTab
@@ -102,7 +85,7 @@
             @change="handleSelectTab"
           />
         </div>
-        <div v-if="!listMeetingTest?.length" class="h-[500px]">
+        <div v-if="!meetingGroups?.length" class="h-[500px]">
           <CommonEmpty />
         </div>
         <div v-else>
@@ -120,7 +103,7 @@
 <script setup lang="ts">
 import dayjs from 'dayjs'
 import { storeToRefs } from 'pinia'
-import { MEETINGS, ROLE, TYPE_MEETING } from '~/constants'
+import { MEETINGS, ROLE } from '~/constants'
 import type { Meeting } from '~/models/class/common/meeting'
 import type { Project } from '~/models/class/common/project'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
@@ -148,19 +131,14 @@ const projectsCompleted = computed(() => getProjectsByStatus(true))
 
 const listMeetingItems = computed(() => getListMeeting() ?? [])
 
-const listMeetingTest = ref<Meeting[]>()
-
 const meetingGroups = computed(() => getListMeetingMap() ?? [])
 
 const isOpenCurrent = ref(true)
 const isOpenComplete = ref(false)
 const isOpenMeetingForm = ref(false)
-const isOpenMeetingSelfForm = ref(false)
 
 const listProjectCurrent = ref<Project[]>()
 const listProjectCompleted = ref<Project[]>()
-
-const searchText = ref('')
 
 const tabActive = ref(1)
 
@@ -182,7 +160,7 @@ const listTab = ref([
 onMounted(async () => {
   await organizationStore.getAllProjectsInOrganization(organizationId.value)
   if (authenticationStore.role !== ROLE.PROJECT_MANAGER) {
-    filterProjectTasksForUser()
+    filterProjectOfUser()
   }
 
   if (!projectId.value) {
@@ -206,48 +184,8 @@ watch(listProjectInOrganization, () => {
   )
 })
 
-watch(listMeetingInProject, () => {
-  getListMeeting()
-})
-
 watch(projectId, async () => {
   await projectStore.getAllMeetingInProject(projectId.value)
-})
-
-watch(tabActive, () => {
-  if (tabActive.value === 1) {
-    listMeetingTest.value = listMeetingItems.value
-  } else if (tabActive.value === 2) {
-    listMeetingTest.value = listMeetingItems.value.filter(
-      (meeting) =>
-        dayjs(meeting.startTime).format('YYYY/MM/DD') ===
-        dayjs().format('YYYY/MM/DD')
-    )
-  } else if (tabActive.value === 3) {
-    listMeetingTest.value = listMeetingItems.value.filter(
-      (meeting) =>
-        dayjs(meeting.startTime).format('YYYY/MM/DD') <=
-          dayjs().endOf('week').format('YYYY/MM/DD') &&
-        dayjs(meeting.startTime).format('YYYY/MM/DD') >=
-          dayjs().startOf('week').format('YYYY/MM/DD')
-    )
-  } else {
-    listMeetingTest.value = listMeetingItems.value.filter(
-      (meeting) => meeting.type === TYPE_MEETING.SELF
-    )
-  }
-})
-
-watch(listMeetingItems, () => {
-  if (!listMeetingTest.value) {
-    listMeetingTest.value = listMeetingItems.value
-  }
-})
-
-watch(searchText, async () => {
-  if (!searchText.value || searchText.value === '') {
-    await projectStore.getAllTaskInProject(projectId.value)
-  }
 })
 
 const getProjectsByStatus = (isCompleted = false) => {
@@ -276,7 +214,7 @@ const handleToggleMeetingForm = () => {
   isOpenMeetingForm.value = !isOpenMeetingForm.value
 }
 
-function filterProjectTasksForUser() {
+function filterProjectOfUser() {
   const listProjectOfUser = []
   if (listProjectInOrganization.value) {
     for (const project of listProjectInOrganization.value) {
@@ -322,14 +260,32 @@ interface MeetingMap {
 
 function getListMeetingMap() {
   const meetingMap: MeetingMap = {}
-  listMeetingTest.value?.forEach((item) => {
+
+  let listMeetingFilter
+  if (tabActive.value === 1) {
+    listMeetingFilter = listMeetingItems.value
+  } else if (tabActive.value === 2) {
+    listMeetingFilter = listMeetingItems.value.filter(
+      (meeting) =>
+        dayjs(meeting.startTime).format('YYYY/MM/DD') ===
+        dayjs().format('YYYY/MM/DD')
+    )
+  } else {
+    listMeetingFilter = listMeetingItems.value.filter(
+      (meeting) =>
+        dayjs(meeting.startTime).format('YYYY/MM/DD') <=
+          dayjs().endOf('week').format('YYYY/MM/DD') &&
+        dayjs(meeting.startTime).format('YYYY/MM/DD') >=
+          dayjs().startOf('week').format('YYYY/MM/DD')
+    )
+  }
+  listMeetingFilter?.forEach((item) => {
     const day = dayjs(item.startTime).format('DD/MM/YYYY')
     if (!meetingMap[day]) {
       meetingMap[day] = []
     }
     meetingMap[day].push(item)
   })
-
   return Object.values(meetingMap)
 }
 </script>

@@ -8,6 +8,7 @@ import { GetAllProjectUserJoinRequest } from '~/models/class/user/get-all-projec
 
 import { GetUserInfoRequest } from '~/models/class/user/get-user-info/get-user-info-request'
 import type { GetUserInfoResponse } from '~/models/class/user/get-user-info/get-user-info-response'
+import { UpdatePasswordUserRequest } from '~/models/class/user/update-password-user/update-password-user-request'
 import { UpdateUserInfoRequest } from '~/models/class/user/update-user-info/update-user-info-request'
 import { UpdateUserRequest } from '~/models/class/user/update-user/update-user-request'
 import {
@@ -17,6 +18,7 @@ import {
   getAllProjectsUserJoinApi,
   getAllUserApi,
   getUserInfoApi,
+  updatePasswordUserApi,
   updateUserApi,
   updateUserInfoApi,
 } from '~/services/user/user-service'
@@ -169,6 +171,38 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  async function updatePasswordUser(
+    userId: number,
+    newPassword: string,
+    oldPassword?: string
+  ) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new UpdatePasswordUserRequest(
+        userId,
+        newPassword,
+        oldPassword
+      )
+      const response = await updatePasswordUserApi(request)
+      if (response.message) {
+        alertStore.setAlertMessage({
+          message: response.message,
+          type: AlertType.success,
+        })
+      }
+      return true
+    } catch (error) {
+      isError.value = true
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   async function updateUserInfo(
     userId: number,
     firstName?: string,
@@ -268,5 +302,6 @@ export const useUserStore = defineStore('user', () => {
     getAllUser,
     updateUserApi,
     updateUserInfo,
+    updatePasswordUser,
   }
 })

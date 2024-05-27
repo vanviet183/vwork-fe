@@ -1,10 +1,9 @@
-import type { Project } from './project'
+import type { Project } from '../../common/project'
 
-export class Organization {
+export class UpdateOrganizationResponse {
   id: number
   author: string
   organizationName: string
-  description: string
   email: string
   phone: string
   projects?: Project[]
@@ -13,7 +12,6 @@ export class Organization {
     id: number,
     author: string,
     organizationName: string,
-    description: string,
     email: string,
     phone: string,
     projects?: Project[]
@@ -23,7 +21,6 @@ export class Organization {
     this.email = email
     this.phone = phone
     this.organizationName = organizationName
-    this.description = description
     this.projects = projects
   }
 }

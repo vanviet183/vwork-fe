@@ -21,7 +21,7 @@
         <CommonBoxOptions>
           <div
             class="px-4 py-2 cursor-pointer"
-            @click="handleEditOrganization(item.columns)"
+            @click="handleEditOrganization(item.raw.id)"
           >
             Sửa thông tin tổ chức
           </div>
@@ -44,11 +44,17 @@
       :negative-action="handleCancelDelete"
     >
     </CommonConfirmPopup>
+    <InitOrganizationForm
+      v-if="isOpenFormEdit"
+      :mode="SCREEN_MODE.EDIT"
+      :organization-id="organizationId"
+      @close-form="handleEditOrganization"
+    />
   </div>
 </template>
 <script setup lang="ts">
 import dayjs from 'dayjs'
-import { ADMIN_ORGANIZATIONS } from '~/constants'
+import { ADMIN_ORGANIZATIONS, SCREEN_MODE } from '~/constants'
 import { useOrganizationStore } from '~/stores/organization/organization-store'
 
 const props = defineProps({
@@ -60,6 +66,7 @@ const props = defineProps({
 
 const organizationStore = useOrganizationStore()
 
+const isOpenFormEdit = ref(false)
 const isOpenConfirmDelete = ref(false)
 const organizationId = ref()
 
@@ -117,8 +124,9 @@ function handleCancelDelete() {
   isOpenConfirmDelete.value = false
 }
 
-const handleEditOrganization = (el: any) => {
-  console.log('el', el)
+const handleEditOrganization = (id: number) => {
+  isOpenFormEdit.value = !isOpenFormEdit.value
+  organizationId.value = id
 }
 
 const handleDeleteOrganization = (id: number) => {

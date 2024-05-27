@@ -11,6 +11,12 @@
         <CommonBoxOptions>
           <div
             class="px-4 py-2 cursor-pointer"
+            @click="handleResetPasswordUser(item.raw.id)"
+          >
+            Reset mật khẩu
+          </div>
+          <div
+            class="px-4 py-2 cursor-pointer"
             @click="handleEditUser(item.raw.id)"
           >
             Sửa thông tin người dùng
@@ -122,6 +128,10 @@ const handleEditUser = (id: number) => {
 const handleDeleteUser = (id: number) => {
   isOpenConfirmDelete.value = !isOpenConfirmDelete.value
   userId.value = id
+}
+
+async function handleResetPasswordUser(id: number) {
+  await userStore.updatePasswordUser(id, '123456')
 }
 </script>
 <style scoped lang="scss">

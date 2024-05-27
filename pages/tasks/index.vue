@@ -95,56 +95,45 @@
               <div class="d-flex alignt-center gap-3">
                 <CommonBoxOptions title="Bộ lọc" icon="mdi-filter-outline">
                   <div class="box-options">
-                    <div class="option-item" @click="() => {}">
+                    <div class="option-item" @click="handleFilterTaskByUser">
                       <p>
-                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                        <span>Giao cho tôi</span>
-                      </p>
-                    </div>
-                    <div class="option-item" @click="() => {}">
-                      <p>
-                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                        <span>Tao boi toi</span>
-                      </p>
-                    </div>
-                    <div class="option-item" @click="() => {}">
-                      <p>
-                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                        <span>Dang theo doi</span>
-                      </p>
-                    </div>
-                    <div class="option-item" @click="() => {}">
-                      <p>
-                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                        <span>Uu tien</span>
+                        <v-icon icon="mdi-account-outline"></v-icon>
+                        <span class="ml-2">Người thực hiện</span>
                       </p>
                     </div>
                   </div>
                 </CommonBoxOptions>
-                <CommonBoxOptions title="Sap xep" icon="mdi-swap-vertical">
+                <CommonBoxOptions title="Sắp xếp" icon="mdi-swap-vertical">
                   <div class="box-options">
-                    <div class="option-item" @click="() => {}">
+                    <div
+                      class="option-item"
+                      @click="handleSortTasks(SORT_TASK.TIME_ASC)"
+                    >
                       <p>
-                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                        <span>Theo thoi han giam dan</span>
+                        <v-icon
+                          icon="mdi-sort-clock-ascending-outline"
+                        ></v-icon>
+                        <span class="ml-2">Theo thời hạn giảm dần</span>
                       </p>
                     </div>
-                    <div class="option-item" @click="() => {}">
-                      <p>
-                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                        <span>Theo thoi han tang dan</span>
+                    <div
+                      class="option-item"
+                      @click="handleSortTasks(SORT_TASK.TIME_DES)"
+                    >
+                      <p class="my-2">
+                        <v-icon
+                          icon="mdi-sort-clock-descending-outline"
+                        ></v-icon>
+                        <span class="ml-2">Theo thời hạn tăng dần</span>
                       </p>
                     </div>
-                    <div class="option-item" @click="() => {}">
+                    <div
+                      class="option-item"
+                      @click="handleSortTasks(SORT_TASK.PRIORITIZE)"
+                    >
                       <p>
-                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                        <span>Theo do uu tien</span>
-                      </p>
-                    </div>
-                    <div class="option-item" @click="() => {}">
-                      <p>
-                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                        <span>Theo thoi gian tao</span>
+                        <v-icon icon="mdi-flag-variant-outline"></v-icon>
+                        <span class="ml-2">Theo độ ưu tiên</span>
                       </p>
                     </div>
                   </div>
@@ -154,33 +143,67 @@
                   icon="mdi-view-list-outline"
                 >
                   <div class="box-options">
-                    <div class="option-item" @click="() => {}">
+                    <div
+                      class="option-item"
+                      @click="handleFilterTaskByStatus('ALL')"
+                    >
                       <p>
-                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                        <span>Da hoan thanh</span>
+                        <v-icon icon="mdi-calendar-check-outline"></v-icon>
+                        <span class="ml-2">Tất cả</span>
                       </p>
                     </div>
-                    <div class="option-item" @click="() => {}">
+                    <div
+                      class="option-item"
+                      @click="handleFilterTaskByStatus(TASK_STATUS.COMPLETED)"
+                    >
+                      <p class="mt-2">
+                        <v-icon icon="mdi-check-circle-outline"></v-icon>
+                        <span class="ml-2">Đã hoàn thành</span>
+                      </p>
+                    </div>
+                    <div
+                      class="option-item"
+                      @click="handleFilterTaskByStatus(TASK_STATUS.WAIT_ACCEPT)"
+                    >
+                      <p class="my-2">
+                        <v-icon icon="mdi-timer-check"></v-icon>
+                        <span class="ml-2">Chờ đánh giá</span>
+                      </p>
+                    </div>
+                    <div
+                      class="option-item"
+                      @click="handleFilterTaskByStatus(TASK_STATUS.DOING)"
+                    >
                       <p>
-                        <v-icon icon="mdi-arrow-right-thick"></v-icon>
-                        <span>Chua hoan thanh</span>
+                        <v-icon icon="mdi-application-edit-outline"></v-icon>
+                        <span class="ml-2">Đang thực hiện</span>
+                      </p>
+                    </div>
+                    <div
+                      class="option-item"
+                      @click="handleFilterTaskByStatus(TASK_STATUS.NONE)"
+                    >
+                      <p class="mt-2">
+                        <v-icon icon="mdi-calendar-alert"></v-icon>
+                        <span class="ml-2">Chưa thực hiện</span>
                       </p>
                     </div>
                   </div>
                 </CommonBoxOptions>
               </div>
               <div class="d-flex align-center">
-                <!-- <CommonTextField
+                <CommonTextField
+                  v-if="isFilterUserImplement"
                   name="search"
                   :default-value="searchText"
                   :has-unit="true"
                   class="custom-search"
-                  placeholder="Tìm kiếm"
+                  placeholder="Người phụ trách"
                   @change="handleSearchText"
                   @keyup.enter="handleSearch"
                 >
                   <v-icon icon="mdi-magnify" @click="handleSearch" />
-                </CommonTextField> -->
+                </CommonTextField>
                 <CommonFlatButton
                   v-if="
                     authenticationStore.role === ROLE.PROJECT_MANAGER ||
@@ -225,13 +248,14 @@
 </template>
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { ROLE, TASKS } from '~/constants'
+import { ROLE, SORT_TASK, TASKS, TASK_STATUS } from '~/constants'
 import type { Project } from '~/models/class/common/project'
 import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
 import { useOrganizationStore } from '~/stores/organization/organization-store'
 import { useProjectStore } from '~/stores/project/project-store'
-import { useTaskStore } from '~/stores/task/task-store'
 import { useUserStore } from '~/stores/user/user-store'
+
+const isFilterUserImplement = ref(false)
 
 const projectStore = useProjectStore()
 const { listTaskInProject } = storeToRefs(projectStore)
@@ -244,8 +268,6 @@ const { organizationId, userId } = storeToRefs(authenticationStore)
 
 const userStore = useUserStore()
 const { userInfo } = storeToRefs(userStore)
-
-const taskStore = useTaskStore()
 
 const route = useRoute()
 const projectId = computed(() => Number(route.query.projectId))
@@ -262,6 +284,7 @@ const isStatistical = ref(false)
 const isOpenSaved = ref(false)
 
 const searchText = ref('')
+const statusFilter = ref('ALL')
 
 const tabActive = ref(1)
 
@@ -329,6 +352,27 @@ watch(tabActive, () => {
 watch(searchText, async () => {
   if (!searchText.value || searchText.value === '') {
     await projectStore.getAllTaskInProject(projectId.value)
+  }
+})
+
+watch(statusFilter, async () => {
+  await projectStore.getAllTaskInProject(projectId.value)
+  if (statusFilter.value === TASK_STATUS.COMPLETED) {
+    listTaskInProject.value = listTaskInProject.value?.filter(
+      (item) => item.status === TASK_STATUS.COMPLETED
+    )
+  } else if (statusFilter.value === TASK_STATUS.DOING) {
+    listTaskInProject.value = listTaskInProject.value?.filter(
+      (item) => item.status === TASK_STATUS.DOING
+    )
+  } else if (statusFilter.value === TASK_STATUS.WAIT_ACCEPT) {
+    listTaskInProject.value = listTaskInProject.value?.filter(
+      (item) => item.status === TASK_STATUS.WAIT_ACCEPT
+    )
+  } else if (statusFilter.value === TASK_STATUS.NONE) {
+    listTaskInProject.value = listTaskInProject.value?.filter(
+      (item) => item.status === TASK_STATUS.NONE
+    )
   }
 })
 
@@ -405,17 +449,38 @@ function filterProjectTasksForUser() {
 function handleSearchText(value: string) {
   searchText.value = value
 }
-
 function handleSearch() {
-  listTaskInProject.value = listTaskInProject.value?.filter(
-    (item) =>
-      item.taskName.toLocaleLowerCase().includes(searchText.value) ||
-      item.users?.find(
-        (user) =>
-          user.firstName.toLocaleLowerCase().includes(searchText.value) ||
-          user.lastName.toLocaleLowerCase().includes(searchText.value)
-      )
+  listTaskInProject.value = listTaskInProject.value?.filter((item) =>
+    item.users?.find(
+      (user) =>
+        user.firstName.toLocaleLowerCase().includes(searchText.value) ||
+        user.lastName.toLocaleLowerCase().includes(searchText.value)
+    )
   )
+}
+
+function handleFilterTaskByUser() {
+  isFilterUserImplement.value = !isFilterUserImplement.value
+}
+
+function handleSortTasks(type: string) {
+  if (type === SORT_TASK.TIME_ASC) {
+    listTaskInProject.value = listTaskInProject.value?.sort((item1, item2) =>
+      item1.startDate.localeCompare(item2.startDate)
+    )
+  } else if (type === SORT_TASK.TIME_DES) {
+    listTaskInProject.value = listTaskInProject.value?.sort((item1, item2) =>
+      item2.startDate.localeCompare(item1.startDate)
+    )
+  } else {
+    listTaskInProject.value = listTaskInProject.value?.sort((item1, item2) =>
+      item1.prioritize.localeCompare(item2.prioritize)
+    )
+  }
+}
+
+function handleFilterTaskByStatus(type: string) {
+  statusFilter.value = type
 }
 </script>
 <style scoped lang="scss">
@@ -492,5 +557,8 @@ function handleSearch() {
   :deep(.v-input__details) {
     display: none;
   }
+}
+.option-item {
+  cursor: pointer;
 }
 </style>

@@ -9,33 +9,70 @@
   >
     <div>
       <form class="form-container">
-        <CommonTextField
-          name="organizationName"
-          placeholder="Tên tổ chức"
-          autofocus
-        ></CommonTextField>
-        <CommonTextarea
-          name="description"
-          placeholder="Mô tả tổ chức"
-          class="custom-textarea-padding mt-4"
-        />
-        <CommonTextField
-          name="email"
-          placeholder="Email tổ chức"
-          class="mt-4"
-        ></CommonTextField>
-        <CommonTextField
-          name="phone"
-          placeholder="Số điện thoại"
-          class="mt-4"
-        ></CommonTextField>
-        <CommonDropdown
-          name="author"
-          item-label="title"
-          placeholder="Người đứng đầu tổ chức"
-          :items="userItems"
-          class="mt-4"
-        ></CommonDropdown>
+        <div v-if="props.mode === SCREEN_MODE.NEW">
+          <CommonTextField
+            name="organizationName"
+            placeholder="Tên tổ chức"
+            autofocus
+          ></CommonTextField>
+          <CommonTextarea
+            name="description"
+            placeholder="Mô tả tổ chức"
+            class="custom-textarea-padding mt-4"
+          />
+          <CommonTextField
+            name="email"
+            placeholder="Email tổ chức"
+            class="mt-4"
+          ></CommonTextField>
+          <CommonTextField
+            name="phone"
+            placeholder="Số điện thoại"
+            class="mt-4"
+          ></CommonTextField>
+          <CommonDropdown
+            name="author"
+            item-label="title"
+            placeholder="Người đứng đầu tổ chức"
+            :items="userItems"
+            class="mt-4"
+          ></CommonDropdown>
+        </div>
+
+        <div v-if="props.mode === SCREEN_MODE.EDIT">
+          <CommonTextField
+            name="organizationName"
+            placeholder="Tên tổ chức"
+            :default-value="organizationInfo?.organizationName"
+            autofocus
+          ></CommonTextField>
+          <CommonTextarea
+            name="description"
+            placeholder="Mô tả tổ chức"
+            :default-value="organizationInfo?.description"
+            class="custom-textarea-padding mt-4"
+          />
+          <CommonTextField
+            name="email"
+            placeholder="Email tổ chức"
+            :default-value="organizationInfo?.email"
+            class="mt-4"
+          ></CommonTextField>
+          <CommonTextField
+            name="phone"
+            placeholder="Số điện thoại"
+            :default-value="organizationInfo?.phone"
+            class="mt-4"
+          ></CommonTextField>
+          <CommonDropdown
+            name="author"
+            item-label="title"
+            placeholder="Người đứng đầu tổ chức"
+            :default-value="getAuthorOrganization(organizationInfo?.author)"
+            :items="userItems"
+            class="mt-4"
+          ></CommonDropdown>
+        </div>
       </form>
     </div>
   </CommonConfirmPopup>
@@ -49,6 +86,8 @@ import { useOrganizationStore } from '~/stores/organization/organization-store'
 import { useUserStore } from '~/stores/user/user-store'
 
 const organizationStore = useOrganizationStore()
+const { organizationInfo } = storeToRefs(organizationStore)
+
 const userStore = useUserStore()
 const { listAllUser } = storeToRefs(userStore)
 
@@ -59,14 +98,19 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  tipId: {
-    type: String,
+  organizationId: {
+    type: Number,
     default: undefined,
   },
 })
 
 onMounted(async () => {
   await userStore.getAllUser()
+  if (props.mode === SCREEN_MODE.EDIT) {
+    if (props.organizationId) {
+      await organizationStore.getOrganizationInfo(props.organizationId)
+    }
+  }
 })
 
 const userItems = computed(() => getUsers() ?? [])
@@ -95,13 +139,27 @@ function onCancel() {
 }
 
 const onSubmit = handleSubmit(async (values) => {
-  const result = await organizationStore.initOrganization(
-    values.organizationName,
-    values.description,
-    values.email,
-    values.phone,
-    values.author.value
-  )
+  let result
+  if (props.mode === SCREEN_MODE.NEW) {
+    result = await organizationStore.initOrganization(
+      values.organizationName,
+      values.description,
+      values.email,
+      values.phone,
+      values.author.value
+    )
+  } else if (props.mode === SCREEN_MODE.EDIT) {
+    if (props.organizationId) {
+      result = await organizationStore.updateOrganization(
+        props.organizationId,
+        values.organizationName,
+        values.description,
+        values.email,
+        values.phone,
+        values.author.value
+      )
+    }
+  }
   if (result) {
     await organizationStore.getAllOrganization()
   }
@@ -117,6 +175,10 @@ function getUsers() {
     title: `${item.firstName} ${item.lastName}`,
     value: item.id,
   }))
+}
+
+function getAuthorOrganization(author?: string) {
+  return userItems.value.find((item) => item.title === author)
 }
 </script>
 <style scoped lang="scss">
