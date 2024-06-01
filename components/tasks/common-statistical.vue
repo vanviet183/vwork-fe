@@ -171,7 +171,7 @@ function getDatasetsTaskStatus() {
     if (item.status === TASK_STATUS.COMPLETED) {
       if (
         item.finishDay &&
-        dayjs(item.finishDay).format('YYYY/MM/DD') >=
+        dayjs(item.finishDay).format('YYYY/MM/DD') <=
           dayjs(item.endDate).format('YYYY/MM/DD')
       ) {
         completedOnTime++

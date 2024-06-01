@@ -232,6 +232,9 @@ const schemaValidate = () => {
       role: object().required(),
       organization: object(),
     }
+    if (props.mode === SCREEN_MODE.NEW) {
+      validate.password = string().trim().required().max(MAX_LENGTH_INPUT)
+    }
   } else {
     validate = {
       fileUpload: array()
@@ -261,10 +264,6 @@ const schemaValidate = () => {
         })
         .required(),
     }
-  }
-
-  if (props.mode === SCREEN_MODE.NEW) {
-    validate.password = string().trim().required().max(MAX_LENGTH_INPUT)
   }
 
   return object().shape(validate)

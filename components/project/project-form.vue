@@ -234,7 +234,7 @@ function handleChangeEndDate(value: Date) {
   }
 }
 
-function disableDate(time: Date): boolean {
+function disableDate(time: Date) {
   const fromDate = dayjs().format('YYYY/MM/DD')
   const targetDate = dayjs(time).format('YYYY/MM/DD')
   return targetDate < fromDate

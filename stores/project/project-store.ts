@@ -12,6 +12,7 @@ import { GetAllTaskInProjectRequest } from '~/models/class/projects/get-all-task
 import { GetAllUserInProjectRequest } from '~/models/class/projects/get-all-user-in-project/get-all-user-in-project-request'
 import { GetProjectInfoRequest } from '~/models/class/projects/get-project-info/get-project-info-request'
 import type { GetProjectInfoResponse } from '~/models/class/projects/get-project-info/get-project-info-response'
+import { UpdateStatusProjectRequest } from '~/models/class/projects/update-status-project/update-status-project-request'
 import {
   createProjectApi,
   deleteProjectApi,
@@ -21,6 +22,7 @@ import {
   getAllTaskInProjectApi,
   getAllUserInProjectApi,
   getProjectInfoApi,
+  updateStatusProjectApi,
 } from '~/services/project/project-service'
 import { useAlertStore } from '../alert/alert-store'
 
@@ -150,6 +152,30 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
+  async function updateStatusProject(projectId: number, status: string) {
+    if (isLoading.value) {
+      return
+    }
+    isLoading.value = true
+    isError.value = false
+    try {
+      const request = new UpdateStatusProjectRequest(projectId, status)
+      const response = await updateStatusProjectApi(request)
+      if (response.message) {
+        alertStore.setAlertMessage({
+          message: response.message,
+          type: AlertType.success,
+        })
+      }
+      return true
+    } catch (error) {
+      isError.value = true
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   async function getAllTaskInProject(projectId: number) {
     if (isLoading.value) {
       return
@@ -243,5 +269,6 @@ export const useProjectStore = defineStore('project', () => {
     getAllUserInProject,
     getAllMeetingInProject,
     editProject,
+    updateStatusProject,
   }
 })

@@ -17,6 +17,15 @@
           >
             <CommonBoxOptions>
               <div class="box-options">
+                <div
+                  class="option-item"
+                  @click="handleStatusProject('Completed')"
+                >
+                  <p>Đánh dấu hoàn thành</p>
+                </div>
+                <div class="option-item" @click="handleStatusProject('Doing')">
+                  <p>Đánh dấu đang thực hiện</p>
+                </div>
                 <div class="option-item" @click="handleEditProject">
                   <p>Sửa dự án</p>
                 </div>
@@ -63,11 +72,11 @@
           </div>
           <div class="mt-2 ml-3">
             <p class="duration-start text-sm">
-              <span class="font-semibold">Ngay bat dau: </span>
+              <span class="font-semibold">Ngày bắt đầu: </span>
               <span>{{ dayjs(props.startDate).format('DD/MM/YYYY') }}</span>
             </p>
             <p class="duration-end text-sm mt-2">
-              <span class="font-semibold">Ngay ket thuc: </span>
+              <span class="font-semibold">Ngày kết thúc: </span>
               <span>{{ dayjs(props.endDate).format('DD/MM/YYYY') }}</span>
             </p>
           </div>
@@ -171,6 +180,13 @@ async function handleDelete() {
 
 function handleCancelDelete() {
   isOpenConfirmDelete.value = false
+}
+
+async function handleStatusProject(status: string) {
+  await projectStore.updateStatusProject(props.projectId, status)
+  await organizationStore.getAllProjectsInOrganization(
+    authenticationStore.organizationId
+  )
 }
 </script>
 <style scoped lang="scss">

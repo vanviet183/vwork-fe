@@ -32,14 +32,14 @@
           <p class="mt-3 mb-2">
             Người phụ trách <span class="required">*</span>
           </p>
-          <CommonDropdown
+          <CommonDropdownMultiple
             name="userResponsible"
             item-label="title"
-            :default-value="getUserReponsibleGroup(taskInfo?.userResponsible)"
             placeholder="Người phụ trách"
-            :items="listGroupSector ?? []"
-            @change="handleSelectGroup"
-          ></CommonDropdown>
+            :list-value="listUserItems ?? []"
+            :default-value="getUsersOfTask(taskInfo?.users)"
+            @change="handleUserTeamleadResponsible"
+          ></CommonDropdownMultiple>
         </div>
 
         <div v-if="authenticationStore.role === ROLE.TEAMLEAD">
@@ -106,13 +106,13 @@
           <p class="mt-3 mb-2">
             Người phụ trách <span class="required">*</span>
           </p>
-          <CommonDropdown
+          <CommonDropdownMultiple
             name="userResponsible"
             item-label="title"
             placeholder="Người phụ trách"
-            :items="listUserItems ?? []"
+            :list-value="listUserItems ?? []"
             @change="handleUserTeamleadResponsible"
-          ></CommonDropdown>
+          ></CommonDropdownMultiple>
         </div>
 
         <div v-if="authenticationStore.role === ROLE.TEAMLEAD">
@@ -165,7 +165,7 @@ import dayjs from 'dayjs'
 import _ from 'lodash'
 import { storeToRefs } from 'pinia'
 import { useForm } from 'vee-validate'
-import { array, object, string } from 'yup'
+import { array, number, object, string } from 'yup'
 import {
   MAX_LENGTH_INPUT,
   ROLE,
@@ -316,14 +316,16 @@ const schemaValidate = () => {
     taskName: string().trim().required().max(MAX_LENGTH_INPUT),
     phase: object().required(),
     listUserImplement: array().of(
-      object().shape({ title: string(), value: string() })
+      object().shape({ title: string(), value: number() })
     ),
     prioritize: object().required(),
     startDate: string().trim().required(),
     endDate: string().trim().required(),
   }
   if (authenticationStore.role === ROLE.PROJECT_MANAGER) {
-    validate.userResponsible = object().required()
+    validate.userResponsible = array().of(
+      object().shape({ title: string(), value: number() })
+    )
   }
   return object().shape(validate)
 }
@@ -343,7 +345,7 @@ const onSubmit = handleSubmit(
     const listUserImplement = listUserChoose.value
     const userResponsible =
       authenticationStore.role === ROLE.PROJECT_MANAGER
-        ? values.userResponsible.title
+        ? values.userResponsible?.map((item: any) => item.title).join(', ')
         : `${userInfo.value?.firstName} ${userInfo.value?.lastName}`
 
     let result
@@ -386,10 +388,9 @@ const onSubmit = handleSubmit(
   }
 )
 
-function disableDate(time: Date): boolean {
+function disableDate(time: Date) {
   const fromDate = dayjs(projectInfo.value?.startDate).format('YYYY/MM/DD')
   const endDate = dayjs(projectInfo.value?.endDate).format('YYYY/MM/DD')
-
   const targetDate = dayjs(time).format('YYYY/MM/DD')
   return targetDate < fromDate || targetDate > endDate
 }
@@ -425,12 +426,12 @@ function handleListUserImplement(value: DataType[]) {
   listUserChoose.value = _.cloneDeep(listUser ?? [])
 }
 
-function handleUserTeamleadResponsible(value: any) {
-  listUserChoose.value = _.cloneDeep([value.value])
-}
+function handleUserTeamleadResponsible(value: DataType[]) {
+  const listUser = value.map((item) => {
+    return Number(item.value)
+  })
 
-function handleSelectGroup(value: any) {
-  listUserItems.value = filterUserByGroup(value.value)
+  listUserChoose.value = _.cloneDeep(listUser ?? [])
 }
 
 function filterUserByGroup(sector: string) {
@@ -471,13 +472,6 @@ function getPhaseOfTask(phase?: string) {
     return null
   }
   return listTaskPhase.find((item) => item.value === phase)
-}
-
-function getUserReponsibleGroup(group?: string) {
-  if (!group) {
-    return null
-  }
-  return listGroupSector.find((item) => item.value === group)
 }
 
 function getUsersOfTask(listUser?: User[]) {

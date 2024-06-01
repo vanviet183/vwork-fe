@@ -48,7 +48,6 @@
             Đánh dấu chờ đánh giá
           </div>
           <div
-            v-if="authenticationStore.role === ROLE.EMPLOYEE"
             class="px-4 py-[6px] cursor-pointer"
             @click="handleChangeStatusDoingTask(item.raw.id)"
           >

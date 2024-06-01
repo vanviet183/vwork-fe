@@ -20,7 +20,7 @@
             unit: 'Day',
           },
         }"
-        :toolbar="['ZoomToFit']"
+        :toolbar="['ZoomIn', 'ZoomOut', 'ZoomToFit']"
         :selection-settings="{ mode: 'Both' }"
         :allow-pdf-export="true"
       ></ejs-gantt>
@@ -131,6 +131,7 @@ function mapTasks() {
       TaskID: task.id,
       TaskName: task.taskName,
       StartDate: new Date(task.startDate),
+      EndDate: new Date(task.endDate),
       Duration: getDuration(task.endDate, task.startDate),
       Progress: task.progress,
       isParent: false,
@@ -138,14 +139,14 @@ function mapTasks() {
 
     if (
       !groupedTasks[phase].StartDate ||
-      task.startDate < groupedTasks[phase].StartDate
+      task.startDate <= groupedTasks[phase].StartDate
     ) {
       groupedTasks[phase].StartDate = task.startDate
     }
 
     if (
       !groupedTasks[phase].EndDate ||
-      task.endDate > groupedTasks[phase].EndDate
+      task.endDate >= groupedTasks[phase].EndDate
     ) {
       groupedTasks[phase].EndDate = task.endDate
     }
@@ -157,7 +158,8 @@ function mapTasks() {
 }
 
 function getDuration(end: string, start: string) {
-  const duration = dayjs(end).get('D') - dayjs(start).get('D')
+  const duration = dayjs(end).diff(dayjs(start), 'day')
+
   return duration || 1
 }
 // Example usage

@@ -29,15 +29,22 @@
       <div
         v-for="(item, index) in listDocumentDesign"
         :key="index"
-        class="d-flex align-center justify-between custom-document-saved"
-        @click="handleDownloadFile(item.filePath)"
+        class="d-flex align-center justify-between custom-task-document"
       >
-        <p>
+        <p @click="handleDownloadFile(item.filePath)">
           {{ item.fileName }}
         </p>
         <div>
-          <v-icon icon="mdi-pencil-outline" class="mr-2"></v-icon>
-          <v-icon icon="mdi-delete-outline" class="mr-1"></v-icon>
+          <v-icon
+            icon="mdi-pencil-outline"
+            class="mr-2"
+            @click="handleToggleEditDocument(item.id)"
+          ></v-icon>
+          <v-icon
+            icon="mdi-delete-outline"
+            class="mr-1 custom-icon-delete"
+            @click="handleDeleteDocument(item.id)"
+          ></v-icon>
         </div>
       </div>
     </div>
@@ -48,15 +55,22 @@
       <div
         v-for="(item, index) in listDocumentRequire"
         :key="index"
-        class="d-flex align-center justify-between custom-document-saved"
-        @click="handleDownloadFile(item.filePath)"
+        class="d-flex align-center justify-between custom-task-document"
       >
-        <p>
+        <p @click="handleDownloadFile(item.filePath)">
           {{ item.fileName }}
         </p>
         <div>
-          <v-icon icon="mdi-pencil-outline" class="mr-2"></v-icon>
-          <v-icon icon="mdi-delete-outline" class="mr-1"></v-icon>
+          <v-icon
+            icon="mdi-pencil-outline"
+            class="mr-2"
+            @click="handleToggleEditDocument(item.id)"
+          ></v-icon>
+          <v-icon
+            icon="mdi-delete-outline"
+            class="mr-1 custom-icon-delete"
+            @click="handleDeleteDocument(item.id)"
+          ></v-icon>
         </div>
       </div>
     </div>
@@ -67,15 +81,22 @@
       <div
         v-for="(item, index) in listDocumentReport"
         :key="index"
-        class="d-flex align-center justify-between custom-document-saved"
-        @click="handleDownloadFile(item.filePath)"
+        class="d-flex align-center justify-between custom-task-document"
       >
-        <p>
+        <p @click="handleDownloadFile(item.filePath)">
           {{ item.fileName }}
         </p>
         <div>
-          <v-icon icon="mdi-pencil-outline" class="mr-2"></v-icon>
-          <v-icon icon="mdi-delete-outline" class="mr-1"></v-icon>
+          <v-icon
+            icon="mdi-pencil-outline"
+            class="mr-2"
+            @click="handleToggleEditDocument(item.id)"
+          ></v-icon>
+          <v-icon
+            icon="mdi-delete-outline"
+            class="mr-1 custom-icon-delete"
+            @click="handleDeleteDocument(item.id)"
+          ></v-icon>
         </div>
       </div>
     </div>
@@ -86,28 +107,50 @@
       <div
         v-for="(item, index) in listDocumentManual"
         :key="index"
-        class="d-flex align-center justify-between custom-document-saved"
-        @click="handleDownloadFile(item.filePath)"
+        class="d-flex align-center justify-between custom-task-document"
       >
-        <p>
+        <p @click="handleDownloadFile(item.filePath)">
           {{ item.fileName }}
         </p>
         <div>
-          <v-icon icon="mdi-pencil-outline" class="mr-2"></v-icon>
-          <v-icon icon="mdi-delete-outline" class="mr-1"></v-icon>
+          <v-icon
+            icon="mdi-pencil-outline"
+            class="mr-2"
+            @click="handleToggleEditDocument(item.id)"
+          ></v-icon>
+          <v-icon
+            icon="mdi-delete-outline"
+            class="mr-1 custom-icon-delete"
+            @click="handleDeleteDocument(item.id)"
+          ></v-icon>
         </div>
       </div>
     </div>
-    <SavedForm
+    <DocumentForm
       v-if="isOpenDocumentForm"
       @close-form="handleToggleDocumentForm"
     />
+    <DocumentForm
+      v-if="isOpenDocumentEditForm"
+      :mode="SCREEN_MODE.EDIT"
+      :document-id="idDocument"
+      @close-form="handleToggleEditDocument"
+    />
+    <CommonConfirmPopup
+      :is-show-popup="isOpenConfirmDeleteDocument"
+      title="Bạn có chắc chắn muốn xóa tài liệu này không?"
+      positive-title="Đồng ý"
+      negative-title="Huỷ"
+      :positive-action="handleDelete"
+      :negative-action="handleCancelDelete"
+    >
+    </CommonConfirmPopup>
   </div>
 </template>
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { ROLE, TYPE_DOCUMENT } from '~/constants'
-import { useAuthorizationStore } from '~/stores/authorization/authorization-store'
+import { SCREEN_MODE, TYPE_DOCUMENT } from '~/constants'
+import { useDocumentStore } from '~/stores/document/document-store'
 import { useProjectStore } from '~/stores/project/project-store'
 
 const emit = defineEmits(['close'])
@@ -118,9 +161,10 @@ const projectId = computed(() => Number(route.query.projectId))
 const projectStore = useProjectStore()
 const { listDocumentInProject } = storeToRefs(projectStore)
 
-const authorizationStore = useAuthorizationStore()
+const documentStore = useDocumentStore()
 
 const isOpenDocumentForm = ref(false)
+const isOpenDocumentEditForm = ref(false)
 
 const listDocumentDesign = ref()
 const listDocumentReport = ref()
@@ -129,12 +173,6 @@ const listDocumentManual = ref()
 
 onMounted(async () => {
   await projectStore.getAllDocumentInProject(projectId.value)
-
-  if (authorizationStore.role !== ROLE.PROJECT_MANAGER) {
-    listDocumentInProject.value = listDocumentInProject.value?.filter(
-      (item) => item.isSaved
-    )
-  }
 })
 
 watch(listDocumentInProject, () => {
@@ -167,6 +205,30 @@ function handleDownloadFile(filePath: string) {
 function handleGoToTasks() {
   emit('close')
 }
+
+const idDocument = ref()
+const isOpenConfirmDeleteDocument = ref(false)
+
+function handleDeleteDocument(id: number) {
+  isOpenConfirmDeleteDocument.value = true
+  idDocument.value = id
+}
+
+async function handleDelete() {
+  await documentStore.deleteDocument(idDocument.value)
+  await projectStore.getAllDocumentInProject(projectId.value)
+
+  isOpenConfirmDeleteDocument.value = false
+}
+
+function handleCancelDelete() {
+  isOpenConfirmDeleteDocument.value = false
+}
+
+function handleToggleEditDocument(id: number) {
+  idDocument.value = id
+  isOpenDocumentEditForm.value = !isOpenDocumentEditForm.value
+}
 </script>
 <style scoped lang="scss">
 @use 'sass:map';
@@ -180,7 +242,7 @@ function handleGoToTasks() {
   border-radius: 10px;
   cursor: pointer;
 }
-.custom-document-saved {
+.custom-task-document {
   background-color: #f2f2f5;
   padding: 8px;
   border-radius: 8px;

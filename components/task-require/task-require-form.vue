@@ -211,10 +211,9 @@ const onSubmit = handleSubmit(
   }
 )
 
-function disableDate(time: Date): boolean {
+function disableDate(time: Date) {
   const fromDate = dayjs(taskInfo.value?.startDate).format('YYYY/MM/DD')
   const endDate = dayjs(taskInfo.value?.endDate).format('YYYY/MM/DD')
-
   const targetDate = dayjs(time).format('YYYY/MM/DD')
   return targetDate < fromDate || targetDate > endDate
 }

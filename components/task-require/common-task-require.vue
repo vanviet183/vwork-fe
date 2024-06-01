@@ -1,7 +1,7 @@
 <template>
   <div :class="'custom-task-require ' + customTaskRequire">
     <div>
-      <div class="d-flex align-center justify-between">
+      <div class="d-flex align-center justify-between mb-1">
         <div class="d-flex align-center">
           <v-icon
             v-show="props.important"
@@ -9,11 +9,11 @@
             class="icon-important mr-2"
           ></v-icon>
 
-          <p class="text-important font-semibold">
+          <p class="text-important font-semibold mr-2">
             {{ props.requireContent }}
           </p>
         </div>
-        <div class="d-flex align-center">
+        <div class="d-flex align-center justify-end w-[500px]">
           <p class="custom-progress-task-require mr-3">
             <CommonBoxOptions
               :title="getStatusTask(props.status)"

@@ -10,10 +10,8 @@
           />
           <v-icon icon="mdi-menu-down" class="ml-1"></v-icon>
         </div>
-        <div v-else class="title px-2 py-2">
-          <span v-if="prop.title" class="custom-title mr-2">{{
-            prop.title
-          }}</span>
+        <div v-else class="title px-1 py-1">
+          <span v-if="prop.title" class="custom-title">{{ prop.title }}</span>
           <v-icon v-if="prop.icon" :icon="prop.icon"></v-icon>
         </div>
       </div>

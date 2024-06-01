@@ -14,11 +14,14 @@ import type { GetAllUserInProjectRequest } from '~/models/class/projects/get-all
 import type { GetAllUserInProjectResponse } from '~/models/class/projects/get-all-user-in-project/get-all-user-in-project-response'
 import type { GetProjectInfoRequest } from '~/models/class/projects/get-project-info/get-project-info-request'
 import type { GetProjectInfoResponse } from '~/models/class/projects/get-project-info/get-project-info-response'
+import type { UpdateStatusProjectRequest } from '~/models/class/projects/update-status-project/update-status-project-request'
+import type { UpdateStatusProjectResponse } from '~/models/class/projects/update-status-project/update-status-project-response'
 import { useAxiosClient } from '~/services/axios-client'
 
 const ApiPath = {
   CREATE_PROJECT: '/projects/create',
   EDIT_PROJECT: '/projects',
+  UPDATE_STATUS_PROJECT: '/projects/status',
   GET_PROJECT_INFO: '/projects',
   GET_ALL_TASK_IN_PROJECT: '/projects',
   GET_ALL_USER_IN_PROJECT: '/projects',
@@ -73,6 +76,18 @@ export const editProjectApi = async (
 
   const { contents, message } = response.data
   return new BaseResponse<EditProjectResponse>(contents, message)
+}
+
+export const updateStatusProjectApi = async (
+  updateStatusProjectRequest: UpdateStatusProjectRequest
+) => {
+  const { axiosClient } = useAxiosClient()
+  const response = await axiosClient.post<
+    BaseResponse<UpdateStatusProjectResponse>
+  >(`${ApiPath.UPDATE_STATUS_PROJECT}`, updateStatusProjectRequest)
+
+  const { contents, message } = response.data
+  return new BaseResponse<UpdateStatusProjectResponse>(contents, message)
 }
 
 export const getAllTaskInProjectApi = async (

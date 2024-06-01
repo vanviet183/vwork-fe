@@ -1,10 +1,18 @@
 export class CreateDocumentRequest {
-  taskId: number
   file: File
   type: string
   isSaved: boolean
+  projectId?: number
+  taskId?: number
 
-  constructor(taskId: number, file: File, type: string, isSaved: boolean) {
+  constructor(
+    file: File,
+    type: string,
+    isSaved: boolean,
+    projectId?: number,
+    taskId?: number
+  ) {
+    this.projectId = projectId
     this.taskId = taskId
     this.file = file
     this.type = type

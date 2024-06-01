@@ -21,10 +21,8 @@
         <p class="mt-3 mb-2">Nội dung cuộc họp</p>
         <CommonTextarea name="description" class="custom-textarea-padding" />
 
-        <div v-if="props.type === TYPE_MEETING.PROJECT">
-          <p class="mt-3 mb-2">Địa điểm</p>
-          <CommonTextField name="location" placeholder="Địa điểm" autofocus />
-        </div>
+        <p class="mt-3 mb-2">Địa điểm</p>
+        <CommonTextField name="location" placeholder="Địa điểm" autofocus />
 
         <p class="mt-3 mb-2">Thời gian bắt đầu</p>
         <CommonDatetimePicker
@@ -46,27 +44,23 @@
           @change="handleChangeEndDate"
         ></CommonDatetimePicker>
 
-        <div v-if="props.type === TYPE_MEETING.PROJECT">
-          <p class="mt-3 mb-2">Người tham gia</p>
-          <CommonDropdownMultiple
-            name="listUserJoin"
-            placeholder="Người tham gia"
-            :list-value="listUserItems ?? []"
-            item-label="title"
-            @change="handleListUserJoin"
-          />
-        </div>
+        <p class="mt-3 mb-2">Người tham gia</p>
+        <CommonDropdownMultiple
+          name="listUserJoin"
+          placeholder="Người tham gia"
+          :list-value="listUserItems ?? []"
+          item-label="title"
+          @change="handleListUserJoin"
+        />
       </div>
       <div v-if="props.mode === SCREEN_MODE.EDIT">
-        <div v-if="props.type === TYPE_MEETING.PROJECT">
-          <p class="mb-2">Tiêu đề cuộc họp</p>
-          <CommonTextField
-            name="title"
-            :default-value="meetingInfo?.title"
-            placeholder="Tiêu đề cuộc họp"
-            autofocus
-          />
-        </div>
+        <p class="mb-2">Tiêu đề cuộc họp</p>
+        <CommonTextField
+          name="title"
+          :default-value="meetingInfo?.title"
+          placeholder="Tiêu đề cuộc họp"
+          autofocus
+        />
 
         <p class="mt-3 mb-2">Nội dung cuộc họp</p>
         <CommonTextarea
@@ -75,15 +69,13 @@
           class="custom-textarea-padding"
         />
 
-        <div v-if="props.type === TYPE_MEETING.PROJECT">
-          <p class="mt-3 mb-2">Địa điểm</p>
-          <CommonTextField
-            name="location"
-            :default-value="meetingInfo?.location"
-            placeholder="Địa điểm"
-            autofocus
-          />
-        </div>
+        <p class="mt-3 mb-2">Địa điểm</p>
+        <CommonTextField
+          name="location"
+          :default-value="meetingInfo?.location"
+          placeholder="Địa điểm"
+          autofocus
+        />
 
         <p class="mt-3 mb-2">Thời gian bắt đầu</p>
         <CommonDatetimePicker
@@ -105,17 +97,15 @@
           @change="handleChangeEndDate"
         ></CommonDatetimePicker>
 
-        <div v-if="props.type === TYPE_MEETING.PROJECT">
-          <p class="mt-3 mb-2">Người tham gia</p>
-          <CommonDropdownMultiple
-            name="listUserJoin"
-            placeholder="Người tham gia"
-            :default-value="getUsersOfMeeting(meetingInfo?.users)"
-            :list-value="listUserItems ?? []"
-            item-label="title"
-            @change="handleListUserJoin"
-          />
-        </div>
+        <p class="mt-3 mb-2">Người tham gia</p>
+        <CommonDropdownMultiple
+          name="listUserJoin"
+          placeholder="Người tham gia"
+          :default-value="getUsersOfMeeting(meetingInfo?.users)"
+          :list-value="listUserItems ?? []"
+          item-label="title"
+          @change="handleListUserJoin"
+        />
       </div>
     </form>
   </CommonConfirmPopup>
@@ -191,7 +181,7 @@ onMounted(async () => {
   }
   await organizationStore.getAllUserInOrganization(organizationId.value)
   if (authenticationStore.role === ROLE.PROJECT_MANAGER) {
-    listUserItems.value = filterUserByGroup('')
+    listUserItems.value = filterUserByGroup()
   } else if (authenticationStore.role === ROLE.TEAMLEAD) {
     listUserItems.value = filterUserByGroup(userInfo.value?.sector ?? '')
   }
@@ -264,7 +254,7 @@ const onSubmit = handleSubmit(
   }
 )
 
-function disableDate(time: Date): boolean {
+function disableDate(time: Date) {
   const fromDate = dayjs().format('YYYY/MM/DD')
   const targetDate = dayjs(time).format('YYYY/MM/DD')
   return targetDate < fromDate
@@ -301,7 +291,7 @@ function handleListUserJoin(value: DataType[]) {
   listUserChoose.value = _.cloneDeep(listUser ?? [])
 }
 
-function filterUserByGroup(sector: string) {
+function filterUserByGroup(sector?: string) {
   const listUserFilter =
     listUserInOrganization.value?.filter((item) => item.sector === sector) ?? []
 
@@ -310,7 +300,7 @@ function filterUserByGroup(sector: string) {
     listUserInOrganization.value?.forEach((item) => {
       if (item.id !== userInfo.value?.id) {
         listUserValid.push({
-          title: `${item.firstName} ${item.lastName}`,
+          title: `${item.firstName} ${item.lastName} (${item.sector})`,
           value: item.id,
         })
       }
